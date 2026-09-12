@@ -21,6 +21,7 @@ import type {
 } from '@deepseek-ai/dsh-client-ui-slots'
 import { computeColumns, RIGHTBAR_DEFAULT_RATIO, SIDEBAR_AUTO_COLLAPSE, SIDEBAR_DEFAULT } from './columns.ts'
 import { DocumentTitle } from './DocumentTitle.tsx'
+import { LoginGate } from './LoginGate.tsx'
 import type { createLayoutStore } from './stores.ts'
 import css from './AppFrame.module.css'
 
@@ -118,7 +119,7 @@ function DragHandle(props: { side: 'sidebar' | 'rightbar'; left: number; onStart
 }
 
 /** The three-column frame (see module doc). */
-export function AppFrame({
+function AuthenticatedFrame({
   useStore,
   useSessions,
   usePanelInfo,
@@ -236,5 +237,18 @@ export function AppFrame({
         <DragHandle side="rightbar" left={viewport - normal.rightbar} onStart={onRightbarStart} onDrag={onRightbarDrag} onEnd={onDragEnd} />
       )}
     </div>
+  )
+}
+
+/**
+ * Application root with the mock browser-session login in front of the shell.
+ * @param props - assembled root Slot shares.
+ * @returns login or authenticated application frame.
+ */
+export function AppFrame(props: AppFrameProps) {
+  return (
+    <LoginGate t={props.t}>
+      <AuthenticatedFrame {...props} />
+    </LoginGate>
   )
 }

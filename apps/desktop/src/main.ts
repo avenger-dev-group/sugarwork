@@ -454,6 +454,10 @@ async function main(): Promise<void> {
       { type: 'separator' },
       { role: 'quit' },
     ],
+  }, {
+    // Electron maps these native roles to the focused editable control. On
+    // macOS the roles also own the standard shortcuts, including Cmd+V.
+    role: 'editMenu',
   }]))
 
   const createMainWindow = (): BrowserWindow => {

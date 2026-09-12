@@ -1,5 +1,5 @@
 ---
-description: "面向侧栏的官方 SugarWork 品牌填充，仅在官方构建中生效；供选择或替换品牌呈现的用户与维护者阅读。"
+description: "面向侧栏与欢迎页的 SugarWork 品牌填充；供选择或替换品牌呈现的用户与维护者阅读。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-本包让以 `official` profile 构建的客户端在侧栏显示 SugarWork 标志与名称，并在会话欢迎页显示相同标志。其他构建 profile 保留外壳的蓝色 `SW` 标志与本地构建标签。品牌为 SugarWork 的部署应选择本包；使用其他品牌的部署应提供替代品牌包。本包不保留运行时状态，也不影响模型请求。
+本包让每个挂载它的客户端组合在侧栏显示 SugarWork 标志与名称，并在会话欢迎页显示相同标志。品牌为 SugarWork 的部署应选择本包；使用其他品牌的部署应提供替代品牌包。本包不保留运行时状态，也不影响模型请求。
 
 ## 目录
 
@@ -25,11 +25,11 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在 SugarWork 部署中，将本插件挂载到浏览器插件名单，然后以 `official` profile 构建客户端，让填充得以注册。
+在 SugarWork 部署中，将本插件挂载到浏览器插件名单。填充会在开发构建与发布构建中注册，让两个界面保持一致的产品身份。
 
-### 选择 profile
+### 构建 profile
 
-`DSH_CLIENT_BUILD_PROFILE` 决定渲染哪个品牌。`official` 构建在侧栏显示 SugarWork 标志与名称，并在会话首屏显示 SugarWork 标志；任何其他取值都保留蓝色 `SW` 标志与本地构建标签回退。两种情况下插件都会照常加载并通过校验；只有注册受 profile 门控。
+`DSH_CLIENT_BUILD_PROFILE` 仍可选择其他客户端构建元数据，但不会改变本包的填充。挂载本包时，侧栏显示 SugarWork 标志与名称，会话首屏显示同一标志。外壳的蓝色 `SW` 标志与本地构建标签继续作为未组合本包时的回退。
 
 ### 替换品牌
 

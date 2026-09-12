@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package provides the Web GUI's three-column AppFrame, edge-column widths, and `ctx.layout` presentation control. The right column concedes space before the center; its occupant renders fullscreen while the frame retains the wide-screen track underneath. The theme presenter owns color scheme, alias tokens, content font size, and document metadata. Layout state resets on reload.
+This package provides the Web GUI's browser-session mock login, three-column AppFrame, edge-column widths, and `ctx.layout` presentation control. The application frame is not mounted until the username `simon` is accepted; the password is intentionally unrestricted until a production identity service replaces the mock. The right column concedes space before the center; its occupant renders fullscreen while the frame retains the wide-screen track underneath. The theme presenter owns color scheme, alias tokens, content font size, and document metadata. Login state lasts for one browser tab, while layout state resets on reload.
 
 ## Table of Contents
 
@@ -26,6 +26,8 @@ This package provides the Web GUI's three-column AppFrame, edge-column widths, a
 ## Use this package
 
 The root slot composes the sidebar, main content, and right column. The sidebar spans 264–420px, defaults to 280px, and retains a 56px rail when collapsed; below 1024px it collapses automatically, and opening the right panel collapses a manually expanded sidebar. The right panel first opens at 45% of the viewport, then retains the user's pixel preference, capped at 70%. To protect 400px for the center, the frame first reduces the right panel to 300px, then reports insufficient room so its occupant closes it, and only then compresses the center further. Dragging has no transition delay; the right handle is absent while closed or fullscreen.
+
+The root first presents a localized mock login. Only the exact username `simon` is accepted after trimming surrounding whitespace, every password including an empty value is accepted, and a successful login is retained in `sessionStorage` for the current tab. This is a navigation placeholder, not authentication or authorization: it has no server-side identity and must be replaced before it protects data.
 
 Global panels occupy the root-scoped `main` keyed slot; `conversation` is the reserved key for the Conversation. `ctx.layout.selectPanel(id)` selects a registered panel, and `null` selects the Conversation without changing the current Session. No global panel is registered by the shipped composition.
 
@@ -82,6 +84,7 @@ These limits define the current layout behavior. They are current package constr
 - **Extremely narrow windows** — after the right panel closes, the center may still fall below 400px; the left 56px rail remains.
 - **Track and panel travel on one shared curve** — the frame's track transition and the occupant's slide read the same duration and easing variables; an occupant that used its own would detach the panel's edge from the conversation's while squeezing.
 - **No scroll anchoring during squeeze reflow** — layout changes may move the reader's viewport.
+- **Mock login is not a security control** — it only delays mounting the browser application and accepts every password; production deployment requires a server-verified identity session.
 
 <a id="dev-note"></a>
 ### Dev Note

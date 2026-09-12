@@ -26,6 +26,10 @@
       - button "编辑 minimax-cn": 编辑
       - button "删除 minimax-cn": 删除
     - listitem:
+      - text: Metis 自定义
+      - img "API 密钥缺失"
+      - button "编辑 Metis (metis)": 编辑
+    - listitem:
       - text: Acme Gateway 自定义
       - button "编辑 Acme Gateway (acme-gateway)": 编辑
       - button "删除 Acme Gateway (acme-gateway)": 删除

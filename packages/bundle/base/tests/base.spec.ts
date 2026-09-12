@@ -45,6 +45,35 @@ describe('dsh-base bundle', () => {
     expect(rows.find(row => row.id === 'web')?.config).toMatchObject({ fetchProvider: 'http' })
     expect(rows.find(row => row.id === 'web-fetch-http')).toBeDefined()
     expect(rows.find(row => row.id === 'tool-web')?.config).toMatchObject({ fetch: true })
+    expect(rows.find(row => row.id === 'agent-default-model')?.config).toEqual({
+      provider: 'metis',
+      model: 'metis-coder-max',
+    })
+    expect(rows.find(row => row.id === 'llm-deepseek')?.disabled).toBe(true)
+    expect(rows.find(row => row.id === 'llm-pi-ai')?.config).toMatchObject({
+      providers: {
+        metis: {
+          displayName: 'Metis',
+          apiKeyEnv: 'METIS_API_KEY',
+          api: 'openai-completions',
+          baseURL: 'http://zsgw.sjdistributor.com:40000',
+          defaultContextWindow: 1_000_000,
+          defaultInput: ['text'],
+          compat: {
+            supportsDeveloperRole: false,
+            supportsReasoningEffort: false,
+            supportsUsageInStreaming: false,
+            maxTokensField: 'max_tokens',
+          },
+          models: [{
+            id: 'metis-coder-max',
+            contextWindow: 1_000_000,
+            input: ['text'],
+            reasoningEfforts: false,
+          }],
+        },
+      },
+    })
     expect(manifest.dependencies).not.toHaveProperty('@deepseek-ai/dsh-subagent-codex')
     expect(manifest.dependencies).not.toHaveProperty('@deepseek-ai/dsh-subagent-claude-code')
     expect(manifest.dependencies).toHaveProperty('@deepseek-ai/dsh-web-fetch-http')

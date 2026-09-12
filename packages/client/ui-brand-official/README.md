@@ -1,5 +1,5 @@
 ---
-description: "Official SugarWork brand occupants for the sidebar, active only in official builds; for users and maintainers choosing or replacing brand presentation."
+description: "SugarWork brand occupants for the sidebar and welcome page; for users and maintainers choosing or replacing brand presentation."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package gives an `official` client build the SugarWork mark and name in the sidebar and the same mark on the conversation welcome page. Other build profiles keep the shell's blue `SW` mark and local-build label. Choose it for deployments branded as SugarWork; deployments with another identity should provide a replacement brand package. It has no runtime state and does not affect model requests.
+This package gives every client composition that mounts it the SugarWork mark and name in the sidebar and the same mark on the conversation welcome page. Choose it for deployments branded as SugarWork; deployments with another identity should provide a replacement brand package. It has no runtime state and does not affect model requests.
 
 ## Table of Contents
 
@@ -25,11 +25,11 @@ This package gives an `official` client build the SugarWork mark and name in the
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this plugin in the browser roster of a SugarWork deployment, then build the client with the `official` profile so the occupants register.
+Mount this plugin in the browser roster of a SugarWork deployment. The occupants register in development and release builds so both surfaces keep the same product identity.
 
-### Choosing the profile
+### Build profiles
 
-`DSH_CLIENT_BUILD_PROFILE` selects which brand renders. An `official` build shows the SugarWork mark and name in the sidebar and the SugarWork mark in the conversation hero; any other value leaves the blue `SW` mark and local-build label fallbacks in place. The plugin still loads and validates in both cases; only the registration is profile-gated.
+`DSH_CLIENT_BUILD_PROFILE` may still select other client build metadata, but it does not change this package's occupants. When this package is mounted, the sidebar shows the SugarWork mark and name and the conversation hero shows the same mark. The shell's blue `SW` mark and local-build label remain fallbacks for compositions that omit this package.
 
 ### Replacing the brand
 

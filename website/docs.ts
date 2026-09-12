@@ -36,7 +36,7 @@ export interface DocsPage {
   sourceAliases?: string[]
 }
 
-/** The product site currently publishes only its two localized home pages. */
+/** Public documentation pages in locale and navigation order. */
 export const docsPages: DocsPage[] = [
   {
     locale: 'root',
@@ -60,12 +60,34 @@ export const docsPages: DocsPage[] = [
     section: 'Home',
     order: 0,
   },
+  {
+    locale: 'root',
+    contentLocale: 'zh-CN',
+    source: 'docs/user/metis-model.zh.md',
+    sourceAliases: ['docs/user/metis-model.md'],
+    route: 'guide/metis-model.md',
+    label: 'Metis 模型',
+    sidebar: 'zh-guide',
+    section: '指南',
+    order: 0,
+  },
+  {
+    locale: 'en',
+    contentLocale: 'en-US',
+    source: 'docs/user/metis-model.md',
+    sourceAliases: ['docs/user/metis-model.zh.md'],
+    route: 'en/guide/metis-model.md',
+    label: 'Metis model',
+    sidebar: 'en-guide',
+    section: 'Guides',
+    order: 0,
+  },
 ]
 
-/** No legacy documentation collections are published by the SugarWork site. */
+/** Sidebar collections published in each locale. */
 export const localeCollections = {
-  root: [],
-  en: [],
+  root: ['zh-guide'],
+  en: ['en-guide'],
 } as const satisfies Record<DocsLocale, readonly DocsSidebar[]>
 
 /** A sidebar group, matched to pages by `label`. */
@@ -77,8 +99,8 @@ export interface DocsSection {
 }
 
 const sections: Record<DocsLocale, readonly DocsSection[]> = {
-  root: [{ label: '首页' }],
-  en: [{ label: 'Home' }],
+  root: [{ label: '首页' }, { label: '指南' }],
+  en: [{ label: 'Home' }, { label: 'Guides' }],
 }
 
 /**

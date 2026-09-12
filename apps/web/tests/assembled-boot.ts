@@ -236,6 +236,7 @@ export function installAssembledBootEnv(): void {
     document.body.innerHTML = ''
     document.head.querySelectorAll('style[data-plugin]').forEach((style) => { style.remove() })
     document.title = ''
+    sessionStorage.clear()
     history.replaceState(null, '', '/')
     // Deleting the own properties uncovers jsdom's own accessors again
     // (Navigator declares both readonly, hence the erased receiver).
@@ -255,6 +256,7 @@ export function installAssembledBootEnv(): void {
 export function mountAssembledApp(search = '?fixture', options: AssembledBootOptions = {}): void {
   const excluded = new Set(options.exclude)
   const plugins = PLUGINS.filter(plugin => !excluded.has(plugin.id))
+  sessionStorage.setItem('sugarwork.mock-login.username', 'simon')
   history.replaceState(null, '', `/${search}`)
   const root = document.createElement('div')
   root.id = 'root'

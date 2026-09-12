@@ -75,8 +75,8 @@
     - id: agent-default-model
       name: '@deepseek-ai/dsh-agent-default-model'
       config:
-        provider: deepseek-official
-        model: deepseek-flash
+        provider: metis
+        model: metis-coder-max
 
     - id: jobs
       name: '@deepseek-ai/dsh-jobs-local'
@@ -97,15 +97,35 @@
     - id: credentials
       name: '@deepseek-ai/dsh-credentials-local'
 
-    # The pi-ai multi-provider twin, mounted dormant: zero routes (and no extra
-    # models in the picker) until a `llm-pi-ai:` settings section supplies provider
-    # profiles — then those routes register live, keys resolving per request
-    # through their apiKeyEnv references, and drop again when the section empties.
-    # Supplying those profiles is exactly what the web Models page does. Which
-    # adapters exist is composition; which providers run is the user's settings
-    # document.
+    # The company OpenAI Chat Completions route. The endpoint lives in bundle
+    # configuration rather than adapter source and remains replaceable by profile or user settings;
+    # the key is only a credential reference and resolves per request. User settings
+    # merge additional providers and models into this base profile.
     - id: llm-pi-ai
       name: '@deepseek-ai/dsh-llm-pi-ai'
+      config:
+        providers:
+          metis:
+            displayName: Metis
+            apiKeyEnv: METIS_API_KEY
+            api: openai-completions
+            baseURL: http://zsgw.sjdistributor.com:40000
+            defaultContextWindow: 1000000
+            defaultInput: [text]
+            compat:
+              supportsStore: false
+              supportsDeveloperRole: false
+              supportsReasoningEffort: false
+              supportsUsageInStreaming: false
+              maxTokensField: max_tokens
+              supportsStrictMode: false
+              supportsLongCacheRetention: false
+            models:
+              - id: metis-coder-max
+                name: Metis Coder Max
+                contextWindow: 1000000
+                input: [text]
+                reasoningEfforts: false
 
     - id: session-persistence-jsonl
       name: '@deepseek-ai/dsh-session-persistence-jsonl'
@@ -485,3 +505,4 @@
     # choice.
     - id: llm-deepseek
       name: '@deepseek-ai/dsh-llm-deepseek'
+      disabled: true

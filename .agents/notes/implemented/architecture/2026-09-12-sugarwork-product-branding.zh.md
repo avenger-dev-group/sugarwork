@@ -10,13 +10,13 @@ Status: implemented
 
 ## 决策
 
-SugarWork 是发布的 Web 与 Electron 应用唯一呈现的产品身份。文档标题、侧栏、会话欢迎页、启动与恢复页、菜单、对话框、安装包与产物名称、PWA 元数据、应用图标以及模型可见的产品自述都使用 `SugarWork`。品牌标记使用公司提供的蓝色图稿；本地构建使用蓝色 `SW` 回退，不显示其他公司的 Logo。
+SugarWork 是发布的 Web 与 Electron 应用唯一呈现的产品身份。文档标题、侧栏、会话欢迎页、启动与恢复页、菜单、对话框、安装包与产物名称、PWA 元数据、应用图标以及模型可见的产品自述都使用 `SugarWork`。开发构建与发布构建的品牌标记都使用公司提供的蓝色图稿；外壳的蓝色 `SW` 回退只供未组合 SugarWork 品牌包的组合使用。
 
 Electron 在 macOS 与 Windows 上的发布标识为 `com.aixvo.sugarwork`。打包会拒绝取值不同的 `DSH_DESKTOP_APP_ID`。测试与生产更新 origin 分别通过 `DOWNLOAD_TEST_ORIGIN` 和 `DOWNLOAD_PROD_ORIGIN` 保持为部署输入；对象前缀为 `_/sugarwork/desktop/stable/<target>/`。
 
-产品规范命令为 `sw`；发布的 CLI 暂时保留 `dsh` 作为迁移别名。新安装从 `$SW_HOME` 解析产品数据并默认使用 `~/.sw`，同时 `$DSH_HOME` 继续作为可显式设置的读取兼容覆盖值。包 scope、manifest 字段、其余环境变量族、TypeScript 与 Python API 名称，以及 Session 与 ACP 协议标识需要协调一致的兼容迁移；它们不会在发布 UI 中充当产品身份。面向提供方的 DeepSeek 名称继续标识可选择的模型服务，不充当 SugarWork 产品品牌。
+产品规范命令为 `sw`；发布的 CLI 暂时保留 `dsh` 作为迁移别名。新安装从 `$SW_HOME` 解析产品数据并默认使用 `~/.sw`，同时 `$DSH_HOME` 继续作为可显式设置的读取兼容覆盖值。仓库私有根包使用 `@sugarwork-ai/sw-root`，Chat 中的第一方上下文生产者标签使用 `@sugarwork-ai/sw-*` 产品命名空间。运行时包导入、构建身份、持久化 Session 生产者 ID、其余环境变量族、TypeScript 与 Python API 名称以及 ACP 协议标识保留兼容名称，直到完成协调一致的包迁移。面向提供方的 DeepSeek 名称继续标识可选择的模型服务，不充当 SugarWork 产品品牌。
 
-现有 `ui-brand-official` 包名与 `official` 构建 profile 值保持为兼容标识。它的实现同时向侧栏与会话 slot 提供 SugarWork 标志和名称，因此发布组合中不存在仍然生效的 DeepSeek 产品品牌 occupant。
+现有 `ui-brand-official` 包名与 `official` 构建 profile 值保持为兼容标识。只要挂载本包，它的实现就同时向侧栏与会话 slot 提供 SugarWork 标志和名称，因此开发构建与发布构建使用相同的可见身份，发布组合中也不存在仍然生效的 DeepSeek 产品品牌 occupant。
 
 可选的仓库徽章 skill 现在注册为 `sugarwork-badge`，安装 SugarWork 图稿并链接公司仓库；其历史 npm 包名继续作为内部兼容标识保留。通用 HTTP 请求与模型归属信息使用 `sugarwork` 产品 token 和公司仓库 URL；DeepSeek 专用 wire header 名称作为对应提供方的协议标识保留。
 

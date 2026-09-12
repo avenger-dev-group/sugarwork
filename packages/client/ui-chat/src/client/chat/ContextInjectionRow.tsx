@@ -17,6 +17,17 @@ export interface ContextInjectionRowProps {
   t: ChatViewSlotProps['t']
 }
 
+const FIRST_PARTY_SOURCE_PREFIX = '@deepseek-ai/dsh-'
+
+/** Present first-party producer identities without changing their durable Session ids. */
+function contextSourceLabel(
+  label: string | null,
+  t: ChatViewSlotProps['t'],
+): string | null {
+  if (label === null || !label.startsWith(FIRST_PARTY_SOURCE_PREFIX)) return label
+  return t('message.context.sugarworkSource', { name: label.slice(FIRST_PARTY_SOURCE_PREFIX.length) })
+}
+
 /**
  * Render logged context with the Tool calls disclosure chrome from Figma.
  *
@@ -30,6 +41,7 @@ export interface ContextInjectionRowProps {
  */
 export function ContextInjectionRow({ content, source, provenance, form, t }: ContextInjectionRowProps) {
   const [open, setOpen] = useState(false)
+  const sourceLabel = contextSourceLabel(provenance.label, t)
   // Resolved rather than declared: a form whose fields are unreadable renders
   // the opaque body, and the marker must say what the row actually shows.
   const { rendered, summary, body } = contextBody(form, { content, source, t })
@@ -42,13 +54,13 @@ export function ContextInjectionRow({ content, source, provenance, form, t }: Co
         : <IconContextInjectionOutline16 size={14} />}
       chevronClassName={css.chevron}
       title={t(provenance.role === 'recall' ? 'message.contextRecall' : 'message.contextInjection')}
-      collapsedContent={provenance.label === null ? undefined : (
+      collapsedContent={sourceLabel === null ? undefined : (
         /* ToolRow's separator shape: an aria-hidden dot, so the accessible name
            stays the two readable parts and the two disclosure rows expose one
            name shape. A source that names no producer drops the dot with it. */
         <>
           <span className={css.sep} aria-hidden />
-          <span className={css.source} data-context-source>{provenance.label}</span>
+          <span className={css.source} data-context-source>{sourceLabel}</span>
           {summary !== null && (
             <>
               <span className={css.sep} aria-hidden />
