@@ -1,13 +1,13 @@
 {
   "name": "@deepseek-ai/dsh-bash-local",
-  "description": "Local-subprocess implementation of the DeepSeek Harness bash executor seam",
+  "description": "Local-subprocess implementation of the SugarWork bash executor seam",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/avenger-dev-group/sugarwork.git",
     "directory": "packages/shell/bash-local"
   },
   "type": "module",

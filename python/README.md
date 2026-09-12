@@ -1,8 +1,8 @@
-# DeepSeek Harness Python SDK
+# SugarWork Python SDK
 
 English | [中文](README.zh.md)
 
-Python packages for driving DeepSeek Harness as a subprocess. The client SDK communicates with the bundled runtime over newline-delimited JSON-RPC on stdio.
+Python packages for driving SugarWork as a subprocess. The client SDK communicates with the bundled runtime over newline-delimited JSON-RPC on stdio.
 
 ## Packages
 
@@ -13,7 +13,7 @@ Python packages for driving DeepSeek Harness as a subprocess. The client SDK com
 
 ## Behavior
 
-The SDK starts the matching bundled `dsh --profile sdk` runtime unless the caller selects another `dsh` executable or profile. The runnable minimal example selects the shipped standalone `sdk-minimal` profile; the same runtime also packages `dsh web` and its frontend assets for separate CLI use. Every launch requires an explicitly selected Harness home; Python never silently reads `~/.dsh`. The [SDK reference](sdk/README.md) and [runtime carrier reference](sdk-runtime/README.md) own runtime selection, profiles, patches, and external plugin management.
+The SDK starts the matching bundled `dsh --profile sdk` runtime unless the caller selects another `dsh` executable or profile. The runnable minimal example selects the shipped standalone `sdk-minimal` profile; the same runtime also packages `dsh web` and its frontend assets for separate CLI use. Every launch requires an explicitly selected Harness home; Python never silently reads `~/.sw`. The [SDK reference](sdk/README.md) and [runtime carrier reference](sdk-runtime/README.md) own runtime selection, profiles, patches, and external plugin management.
 
 ## Contributor workflows
 

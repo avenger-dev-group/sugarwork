@@ -14,11 +14,15 @@ SugarWork is the only product identity rendered by the shipped Web and Electron 
 
 The Electron release identity is `com.aixvo.sugarwork` on macOS and Windows. Packaging rejects a different `DSH_DESKTOP_APP_ID` value. Both test and production updater origins remain deployment inputs through `DOWNLOAD_TEST_ORIGIN` and `DOWNLOAD_PROD_ORIGIN`; the object prefix is `_/sugarwork/desktop/stable/<target>/`.
 
-Compatibility identifiers remain unchanged when they identify implementation rather than product presentation. These include the `@deepseek-ai/dsh-*` package scope, `dsh` commands and environment variables, profile and storage paths, TypeScript and Python API names, session and ACP protocol identifiers, repository URLs, and DeepSeek model-provider names. Provider-facing DeepSeek names continue to identify the selectable model service and never act as SugarWork product branding.
+The canonical product command is `sw`; the published CLI also retains `dsh` as a transition alias. New installations resolve product data from `$SW_HOME` and default to `~/.sw`, while `$DSH_HOME` remains a read-compatible explicit override. The package scope, manifest field, remaining environment families, TypeScript and Python API names, and session and ACP protocol identifiers require a coordinated compatibility migration; they do not appear as product identity in the shipped UI. Provider-facing DeepSeek names continue to identify the selectable model service and never act as SugarWork product branding.
 
 The existing `ui-brand-official` package name and `official` build-profile value remain compatibility identifiers. Its implementation supplies SugarWork marks and name to both sidebar and conversation slots, so the shipped composition contains no active DeepSeek product-brand occupant.
 
+The optional repository badge skill now registers `sugarwork-badge`, installs SugarWork artwork and links to the company repository. Its historical npm package name remains an internal compatibility identifier. Outbound generic HTTP and model attribution use the `sugarwork` product token and the company repository URL; DeepSeek-specific wire header names remain protocol identifiers for that provider.
+
 MIT licensing, third-party notices, and legally required copyright or attribution text remain intact and are not product-brand surfaces.
+
+The SugarWork documentation site publishes only its localized product home pages while company documentation is rebuilt. The old user guide and development tutorial trees are deleted; repository-owned architecture, testing, package contracts, Agent Notes, licenses, and notices remain available to maintain the code. The default-branch CI uses GitHub-hosted runners, while real-provider E2E is an explicit repository opt-in so a missing external credential cannot present as a product build failure.
 
 ## Verification
 
@@ -26,7 +30,7 @@ Unit and Web acceptance tests pin the SugarWork title, welcome copy, PWA metadat
 
 ## Alternatives considered
 
-**Rename every DSH and DeepSeek identifier.** This would remove old strings from source but break package consumers, profiles, environment configuration, persisted sessions, protocol peers, provider routing, and SDKs without improving the visible product identity.
+**Rename every compatibility identifier in one mechanical pass.** This would break package consumers, profiles, environment configuration, persisted sessions, protocol peers, provider routing, and SDKs. The migration instead starts with canonical product-owned entry points and requires an owned npm scope before package identities change.
 
 **Keep the upstream brand plugin and override only the application title.** The sidebar, welcome page, favicon, startup screen, installer, and application icon would still communicate another identity.
 
@@ -34,4 +38,4 @@ Unit and Web acceptance tests pin the SugarWork title, welcome copy, PWA metadat
 
 ## Consequences
 
-Users see one SugarWork identity across Web and Desktop, and release artifacts carry the company application identifier and naming. Existing code and stored data keep their compatible DSH identifiers. Maintainers must classify future occurrences by audience: product-facing copy and artwork use SugarWork, DeepSeek provider names remain provider labels, and implementation identifiers change only through an explicit compatibility migration.
+Users see one SugarWork identity across Web, Desktop, CLI help, documentation, and release artifacts. New local data uses the SugarWork path, while explicit legacy home configuration continues to resolve. Maintainers must classify future occurrences by audience: product-facing copy and artwork use SugarWork, DeepSeek provider names remain provider labels, and implementation identifiers change only through an explicit compatibility migration.

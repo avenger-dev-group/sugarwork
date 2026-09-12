@@ -36,7 +36,7 @@ The group holds one package; the package README and the links below own the deta
 Try the worked example configurations to see the plugin in action, then read the Agent Note for the behavior decisions behind it.
 
 - [MCP client plugin Agent Note](../../.agents/notes/implemented/feature/2026-07-07-mcp-client-plugin.md) — the bridge's design: server-qualified naming, discovery, execution, and environment scrubbing.
-- [Third-party memory MCP guide](../../docs/user/guide/mcp-memory.md) — runnable overlay rows and setup instructions.
+- [Memory MCP examples](../../apps/cli/config/examples/mcp-memory/) — runnable overlay configurations.
 - [Tools subsystem reference](../../docs/subsystems/tools.md) — the `ToolRuntime` that receives the registered tools.
 
 <a id="dev-note"></a>

@@ -730,7 +730,7 @@ describe('CodexAppServerWire', () => {
     const initialize = await child.peer.nextMethod('initialize')
     expect(initialize.params).toEqual({
       clientInfo: {
-        name: 'deepseek-harness',
+        name: 'sugarwork',
         title: 'SugarWork',
         version: '0.0.1',
       },

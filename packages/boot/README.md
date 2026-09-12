@@ -29,7 +29,7 @@ The boot group provides what every dsh app bin needs to start: `app-boot` turns 
 ## Related documentation
 
 - [dsh app](../../apps/cli/README.md) — the `dsh` bin that consumes these helpers for its boot sequence.
-- [Profile bundles](../bundle/README.md) — installable patch layers that `dsh --profile` compositions mount.
+- [Profile bundles](../bundle/README.md) — installable patch layers that `sw --profile` compositions mount.
 - [dsh-home-paths](../util/home-paths/README.md) — the harness-home resolver both packages build on.
 - [dsh-cmdline](cmdline/README.md) — how an app owns its flag family instead of the launcher.
 

@@ -1,4 +1,4 @@
-# Agent Note: Real-API e2e in CI against the external DeepSeek API
+# Agent Note: Opt-in real-API e2e in CI
 
 Status: implemented
 
@@ -12,7 +12,7 @@ The default gate ([.github/workflows/ci.yml](../../../../.github/workflows/ci.ym
 
 ## Decision
 
-A dedicated workflow, [.github/workflows/e2e.yml](../../../../.github/workflows/e2e.yml), separate from ci.yml, runs only `pnpm run test:e2e` against the external API using a repo secret, on trusted events, with a preflight that converts a missing secret into a loud failure instead of a false green. The keyless workflow remains separate so forkable quality gates and secret-consuming real-API gates keep different trigger and credential policies.
+A dedicated workflow, [.github/workflows/e2e.yml](../../../../.github/workflows/e2e.yml), separate from ci.yml, runs only `pnpm run test:e2e` against the external API on trusted events. A distribution enables it with the `SUGARWORK_REAL_API_E2E` repository variable and supplies `SUGARWORK_E2E_API_KEY`; when enabled, a preflight converts a missing secret into a loud failure instead of a false green. Repositories without those credentials skip the job cleanly. The keyless workflow remains separate so forkable quality gates and secret-consuming real-API gates keep different trigger and credential policies.
 
 ### A separate workflow, not a job in ci.yml
 
@@ -20,11 +20,11 @@ ci.yml's value is that it is keyless, forkable, and always-green: any contributo
 
 ### Cost is not the constraint; reliability is
 
-Internal inference cost is not the limiting constraint, so the workflow optimizes for coverage and signal. It runs every matching `*.e2e.ts` file on multiple triggers and every trusted PR, implementing the [docs/testing.md](../../../../docs/testing.md) with-key policy.
+When enabled, the workflow optimizes for coverage and signal. It runs every matching `*.e2e.ts` file on multiple triggers and every trusted PR, implementing the [docs/testing.md](../../../../docs/testing.md) with-key policy.
 
 ### Triggers: trusted events only
 
-`workflow_dispatch` + `push` to `main`/`master` + nightly `schedule` (`17 0 * * *`, 08:17 Asia/Shanghai) + `pull_request`. Push gives a post-merge signal; schedule catches external-API drift; dispatch is the manual escape hatch; and trusted pull requests get a pre-merge gate. That pre-merge signal deliberately accepts the larger key-exposure surface described under § Security.
+`workflow_dispatch` + `push` to `main`/`master` + nightly `schedule` (`17 0 * * *`, 08:17 Asia/Shanghai) + `pull_request`. The job runs only while `SUGARWORK_REAL_API_E2E` equals `true`. Push gives a post-merge signal; schedule catches external-API drift; dispatch is the manual escape hatch; and trusted pull requests get a pre-merge gate. That pre-merge signal deliberately accepts the larger key-exposure surface described under § Security.
 
 ### The untrusted-PR gate
 
@@ -37,15 +37,15 @@ github.event_name != 'pull_request'
 
 The Dependabot clause keys on the PR **author** (`pull_request.user.login`), not `github.actor` (the run trigger): a maintainer who reopens or re-runs a Dependabot PR would make `github.actor` a human while the PR is still keyless, and an author-based test stays correct across that. A job skipped by a **job-level** `if:` reports as a *successful* check (unlike a workflow/trigger-level skip, which stays pending), so this workflow is safe to mark as a required status check if desired — a fork/Dependabot PR's skipped-but-green check does not block the merge.
 
-The gate is a *clean-skip nicety*, not the secret's security boundary (see § Security — the boundary is GitHub's own fork-secret withholding under `pull_request`). Without the gate, forks still could not read the key; they would just hit a confusing preflight hard-fail and waste compute.
+The gate is a *clean-skip nicety*, not the secret's security boundary (see § Security — the boundary is GitHub's own fork-secret withholding under `pull_request`). The repository-variable clause also lets a distribution that has no real-API credential disable this optional signal without failing unrelated CI. Without the untrusted-PR clause, forks still could not read the key; they would just hit a confusing preflight hard-fail and waste compute.
 
-### Preflight: fail loud, never false-green
+### Preflight: fail loud after opt-in
 
-Because the job only runs on trusted events where the secret is expected, the preflight is an unconditional presence check: empty key → `exit 1` with a `::error::` annotation naming the secret to configure. This is the crux that makes a self-skipping suite safe to gate on. Without it, a deleted/renamed/misconfigured secret would make `test:e2e` skip every real suite and report all-green — a silent regression of the entire safety net. The guard turns "secret missing" from an invisible false pass into a visible failure. (Its correctness was verified live: the run before the secret existed failed at exactly this step.)
+The repository variable is the explicit opt-in. Once it is enabled, the preflight requires the secret: empty key → `exit 1` with a `::error::` annotation naming the secret to configure. Without it, a deleted or misconfigured secret would make `test:e2e` skip every real suite and report all-green. Repositories that have not opted in skip the job instead of treating an unavailable external credential as a product build failure.
 
 ### Secret mapping and hygiene
 
-The repo secret is named `DEEPSEEK_API_KEY_EXTERNAL`; it is mapped to the `DEEPSEEK_API_KEY` env var the adapters and tests read (`process.env.DEEPSEEK_API_KEY`). The distinct secret name documents intent (this is the *external* public-API key, not an internal-endpoint key) and lets an internal-endpoint key coexist later without collision. Hygiene choices, each defensive:
+The product-owned repo secret is named `SUGARWORK_E2E_API_KEY`; it is mapped to the provider-specific `DEEPSEEK_API_KEY` env var the current adapter and tests read (`process.env.DEEPSEEK_API_KEY`). The repository-level name identifies the CI consumer without presenting a model provider as the product identity. Hygiene choices, each defensive:
 
 - **Step-scoped secret.** `DEEPSEEK_API_KEY` is set in the `env:` of only the preflight and e2e steps, never job-level — so checkout/setup-node/install never see it. A compromised install-time lifecycle script in a dependency cannot read a secret that isn't in its environment.
 - **`permissions: contents: read`.** The job only reads the repo to run tests; it needs no write scopes (no PR comments, no status writes), so the `GITHUB_TOKEN` is dropped to least privilege.
@@ -64,7 +64,7 @@ The repository's first CI secret requires a recorded threat model because access
 
 ### Who can reach the secret in a private repository
 
-- **No write access (fork PRs): cannot.** Two independent facts block it. First, the workflow uses `pull_request`, **not** `pull_request_target` — GitHub does not pass repo secrets to fork-PR runs of `pull_request`, so `secrets.DEEPSEEK_API_KEY_EXTERNAL` resolves to empty on a fork runner. Second, the `if:` gate skips fork PRs entirely. The withholding is the real boundary; the gate is defense-in-depth and UX.
+- **No write access (fork PRs): cannot.** Two independent facts block it. First, the workflow uses `pull_request`, **not** `pull_request_target` — GitHub does not pass repo secrets to fork-PR runs of `pull_request`, so `secrets.SUGARWORK_E2E_API_KEY` resolves to empty on a fork runner. Second, the `if:` gate skips fork PRs entirely. The withholding is the real boundary; the gate is defense-in-depth and UX.
 - **Write (push) access: can.** A same-repo branch PR receives secrets, so a write-access author could modify test code (or an install lifecycle script, or the workflow YAML on their branch) to exfiltrate the key. This is **inherent to GitHub Actions, not introduced here**: anyone with push access to any repo can already exfiltrate any of its Actions secrets by authoring a workflow. Write access ⇒ secret access, always. The mitigation lives in who is granted write and in branch protection, not in this file.
 
 So "everyone who could open a PR can steal it" is false: only the write-access set can, and that set could already steal any secret the repo holds.
@@ -81,7 +81,7 @@ What gets worse is the *surrounding* model, and these are the things to address 
 
 - **Logs become world-readable.** A careless secret echo that leaks to organization members would leak to the entire internet and be scraped within minutes. Secret-handling discipline (no value/length echoes — already done) matters far more.
 - **The `pull_request_target` footgun becomes catastrophic.** If anyone ever "fixes" PR runs by switching the trigger to `pull_request_target`, the workflow would run untrusted fork code in the base-repo context **with** secrets — a full key-leak vector. This is benign-ish on a private repo and disastrous on a public one. A `SECURITY —` comment on the trigger in e2e.yml forbids the change and points here.
-- **Rotate on flip.** The key lived in a private repo's CI; treat going-public as "assume exposed" and rotate `DEEPSEEK_API_KEY_EXTERNAL` at that moment.
+- **Rotate on flip.** If the key lived in a private repo's CI, treat going-public as "assume exposed" and rotate `SUGARWORK_E2E_API_KEY` at that moment.
 - **Settle the secret behind controls.** Confirm Settings → Actions → *"Send secrets to workflows from fork pull requests"* stays **off** (the one setting that would actually break the fork boundary), and consider moving the key into a GitHub **Environment** with required reviewers so even merged code uses it only under controlled conditions and rotation has a single home.
 
 None of these require changing the workflow to go public; they are operational steps plus the already-added `pull_request_target` guard comment.
@@ -93,7 +93,7 @@ None of these require changing the workflow to go public; they are operational s
 
 ## Consequences
 
-A second CI workflow and the first repo secret to maintain. The real-API suite now gates merges (pre-merge on trusted PRs, post-merge on the main branch) and runs nightly, so a real break in the agent's interaction with the external API surfaces in CI rather than only in a developer's local run — at the cost of real (but internally free) API calls on every trusted PR and merge. The preflight makes secret misconfiguration self-announcing instead of silently disabling the net.
+A second CI workflow and an optional repo secret to maintain. Distributions without an external credential keep the job disabled; enabled repositories gain pre-merge, post-merge, nightly, and manual real-API coverage. The preflight makes secret misconfiguration self-announcing after opt-in instead of silently disabling the signal.
 
 The design carries a documented constraint surface: the `pull_request` trigger's key-exposure tradeoff (drop it to harden), the `if:` gate's dependence on the author-based Dependabot test, and the hard prohibition on `pull_request_target`. The going-public checklist above is the operational companion — this Agent Note is the place a future maintainer should re-read before changing the trigger set or flipping repo visibility, rather than re-deriving the fork/secret model from scratch.
 

@@ -1,4 +1,4 @@
-# DeepSeek Harness 架构
+# SugarWork 架构
 
 [English](architecture.md) | 中文
 
@@ -31,7 +31,7 @@
 要查看你的机器启动的配置树：
 
 ```sh
-dsh --profile web --dump-config
+sw --profile web --dump-config
 ```
 
 它打印出的任何条目，都可以由你自己的 patch 替换。
@@ -40,17 +40,17 @@ dsh --profile web --dump-config
 
 ## 应用启动
 
-所有受支持的 Node 应用都从 `dsh` CLI 与具名 profile 启动。随附应用是 `dsh web`（刻意为 `--profile web` 保留的别名）、`dsh --profile headless`、`dsh --profile sdk`、`dsh --profile sdk-minimal` 与 `dsh --profile acp`。TypeScript SDK 会解析其同版本 `dsh` 依赖并选择 `sdk`；自定义插件组合继续由 profile 与有序 patch 文件表达，而不是另一个可执行文件或内联应用树。`sdk-minimal` 是位于同一 launcher 后的仓库自有独立组合包，而不是由调用方提供的 Cordis 配置树。
+所有受支持的 Node 应用都从 `dsh` CLI 与具名 profile 启动。随附应用是 `sw web`（刻意为 `--profile web` 保留的别名）、`sw --profile headless`、`sw --profile sdk`、`sw --profile sdk-minimal` 与 `sw --profile acp`。TypeScript SDK 会解析其同版本 `dsh` 依赖并选择 `sdk`；自定义插件组合继续由 profile 与有序 patch 文件表达，而不是另一个可执行文件或内联应用树。`sdk-minimal` 是位于同一 launcher 后的仓库自有独立组合包，而不是由调用方提供的 Cordis 配置树。
 
 Vendored CLI、仅用于构建和测试的可执行文件、进程内直接挂载插件以及私有浏览器 WebWorker 预览都不属于 Harness 应用启动器。[`verify-application-entrypoints`](../scripts/verify-application-entrypoints.ts)将每个包 bin、可执行源码与根 demo 归入显式类别，并拒绝任何绕过 `dsh` 的 Node 应用路径。
 
-Python SDK 遵循相同的应用架构。其运行时 wheel 把普通 `dsh` CLI 打包为 `deepseek-harness-sdk-runtime-<platform>-<arch>`，客户端默认以显式 Harness home 启动 `dsh --profile sdk`。极简示例选择随附的 `sdk-minimal` profile。Python 暴露 profile 选择与有序 patch 文件，而不是完整 Cordis 树；持久外部插件通过 `dsh plugin` 安装。已删除的私有直读配置载体没有兼容 bin 或回退 parser。
+Python SDK 遵循相同的应用架构。其运行时 wheel 把普通 `dsh` CLI 打包为 `deepseek-harness-sdk-runtime-<platform>-<arch>`，客户端默认以显式 Harness home 启动 `sw --profile sdk`。极简示例选择随附的 `sdk-minimal` profile。Python 暴露 profile 选择与有序 patch 文件，而不是完整 Cordis 树；持久外部插件通过 `sw plugin` 安装。已删除的私有直读配置载体没有兼容 bin 或回退 parser。
 
 ## 桌面应用
 
-[Electron 桌面应用](../apps/desktop/README.zh.md)在签名应用资源中携带精确版本的 dsh 生产运行时。保留的 `$DSH_HOME/profiles/desktop` 保存外部插件和指向宿主拥有包的链接；兼容升级保留插件文件并刷新这些链接，无需安装核心依赖。CLI profile 共享 `$DSH_HOME` 下受支持的产品数据，而可执行包、插件激活、锁文件和包管理器状态保持独立。
+[Electron 桌面应用](../apps/desktop/README.zh.md)在签名应用资源中携带精确版本的 dsh 生产运行时。保留的 `$SW_HOME/profiles/desktop` 保存外部插件和指向宿主拥有包的链接；兼容升级保留插件文件并刷新这些链接，无需安装核心依赖。CLI profile 共享 `$SW_HOME` 下受支持的产品数据，而可执行包、插件激活、锁文件和包管理器状态保持独立。
 
-Electron 通过内置的上游 Node.js 进程启动私有 Desktop Host 包；该包加载内置 dsh 后端、匹配的客户端图和已启用的 profile 插件。一元 RPC、Remote stream 与版本匹配的客户端资源经带版本的分帧字节管道传输，Node IPC 只保留生命周期控制，再通过安全的 `dsh-app://` 协议到达渲染进程；因此桌面组合不会开放 Web server 或 loopback 端口。只有壳自有 UI 能通过内置 pnpm 及其私有 `$DSH_HOME/desktop/pnpm/store` 执行插件事务。
+Electron 通过内置的上游 Node.js 进程启动私有 Desktop Host 包；该包加载内置 dsh 后端、匹配的客户端图和已启用的 profile 插件。一元 RPC、Remote stream 与版本匹配的客户端资源经带版本的分帧字节管道传输，Node IPC 只保留生命周期控制，再通过安全的 `dsh-app://` 协议到达渲染进程；因此桌面组合不会开放 Web server 或 loopback 端口。只有壳自有 UI 能通过内置 pnpm 及其私有 `$SW_HOME/desktop/pnpm/store` 执行插件事务。
 
 ## 核心包
 

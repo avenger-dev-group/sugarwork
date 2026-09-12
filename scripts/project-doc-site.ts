@@ -23,7 +23,7 @@ import {
   splitMarkdownUrlTarget,
 } from './markdown.ts'
 
-const REPOSITORY_URL = 'https://github.com/deepseek-ai/deepseek-harness'
+const REPOSITORY_URL = 'https://github.com/avenger-dev-group/sugarwork'
 const root = resolve(import.meta.dirname, '..')
 const generatedRoot = resolve(root, 'website/.generated')
 
@@ -31,10 +31,10 @@ const generatedRoot = resolve(root, 'website/.generated')
  * Resolve the public repository ref used by projected source links.
  *
  * @param environment Build environment containing an optional explicit public ref.
- * @returns The configured public ref, or `master`.
+ * @returns The configured public ref, or `main`.
  */
 export function resolveRepositoryRef(environment: NodeJS.ProcessEnv): string {
-  return environment.DOCS_REPOSITORY_REF ?? 'master'
+  return environment.DOCS_REPOSITORY_REF ?? 'main'
 }
 
 interface Replacement {
@@ -140,7 +140,7 @@ function githubTarget(
   image: boolean,
 ): string {
   const path = repoPath(absPath, repoRoot)
-  if (image) return `https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/${repositoryRef}/${path}${suffix}`
+  if (image) return `https://raw.githubusercontent.com/avenger-dev-group/sugarwork/${repositoryRef}/${path}${suffix}`
   const kind = lstatSync(absPath).isDirectory() ? 'tree' : 'blob'
   const lineSuffix = line === undefined ? suffix : `#L${line}`
   return `${REPOSITORY_URL}/${kind}/${repositoryRef}/${path}${lineSuffix}`
@@ -205,7 +205,7 @@ export function rewriteMarkdown(source: string, options: RewriteMarkdownOptions)
  * Record the canonical edit target in VitePress frontmatter.
  *
  * @param markdown Projected Markdown content.
- * @param page Publication manifest entry for the content.
+ * @param _page Publication manifest entry reserved for page-specific rendering.
  * @returns Markdown with projection-owned frontmatter fields.
  */
 export function addProjectionFrontmatter(markdown: string, page: Pick<DocsPage, 'source' | 'outline'>): string {
@@ -253,19 +253,10 @@ function withoutRepositoryChrome(markdown: string): string {
  *
  * @param markdown Rewritten canonical Markdown content.
  * @param page Publication manifest entry for the content.
- * @returns Full Markdown for ordinary pages or frontmatter-only Markdown for a locale home page.
+ * @returns Markdown without repository-only language and badge chrome.
  */
-export function projectedPageContent(markdown: string, page: DocsPage): string {
-  if (page.sidebar !== null) return withoutRepositoryChrome(markdown)
-  if (!markdown.startsWith('---\n')) {
-    throw new Error(`project-doc-site: locale home source ${JSON.stringify(page.source)} must start with YAML frontmatter.`)
-  }
-  const closingDelimiter = '\n---\n'
-  const closing = markdown.indexOf(closingDelimiter, 4)
-  if (closing === -1) {
-    throw new Error(`project-doc-site: locale home source ${JSON.stringify(page.source)} has unclosed YAML frontmatter.`)
-  }
-  return markdown.slice(0, closing + closingDelimiter.length)
+export function projectedPageContent(markdown: string, _page: DocsPage): string {
+  return withoutRepositoryChrome(markdown)
 }
 
 /**
@@ -299,7 +290,7 @@ function referencedImages(): string[] {
       route: page.route,
       pages: docsPages,
       repoRoot: root,
-      repositoryRef: 'master',
+      repositoryRef: 'main',
       placeImage: (absPath) => {
         const real = publishableImage(absPath, root)
         if (real !== undefined) found.add(real)
@@ -443,9 +434,8 @@ function withoutFrontmatter(markdown: string, source: string): string {
 /**
  * The raw-Markdown twin of one published page.
  *
- * Frontmatter is VitePress rendering configuration and is dropped. A locale
- * home page therefore keeps its body here, while the rendered site truncates
- * it to the frontmatter redirect.
+ * Frontmatter is VitePress rendering configuration and is dropped. Locale
+ * home pages and their raw twins both retain the product body.
  *
  * @param markdown Rewritten canonical Markdown content.
  * @param source Repository-relative page source, named by frontmatter failures.

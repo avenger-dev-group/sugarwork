@@ -4,7 +4,7 @@
 
 ## 摘要
 
-本文记录 2026-09-12 在提交 `6f222c0c3974a3a623175ce5e5b02eee7964dae7` 上完成的品牌和业务改造前基线验证。冻结依赖安装、仓库类型检查、完整构建、Web 启动和 Desktop 开发版启动均成功，未修改源代码或锁文件。构建后 Web 浏览器测试有 358 项通过、16 项跳过，但一个测试套件因当前 macOS 主机无法解析 `remote.localhost` 而失败；聚焦复跑稳定复现了同一主机解析错误。所有产品状态均写入一次性 Harness home 和 Desktop 开发目录，正式 `~/.dsh` 目录树的元数据指纹前后保持不变。
+本文记录 2026-09-12 在提交 `6f222c0c3974a3a623175ce5e5b02eee7964dae7` 上完成的品牌和业务改造前基线验证。冻结依赖安装、仓库类型检查、完整构建、Web 启动和 Desktop 开发版启动均成功，未修改源代码或锁文件。构建后 Web 浏览器测试有 358 项通过、16 项跳过，但一个测试套件因当前 macOS 主机无法解析 `remote.localhost` 而失败；聚焦复跑稳定复现了同一主机解析错误。所有产品状态均写入一次性 Harness home 和 Desktop 开发目录，正式 `~/.sw` 目录树的元数据指纹前后保持不变。
 
 ## 目录
 
@@ -67,7 +67,7 @@
 | 完整构建后 Web 测试 | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run --config vitest.web.config.ts --reporter=dot` | 516.55 秒 | 一个主机特定失败 | 100 个测试文件通过、1 个失败、1 个跳过；358 项测试通过、16 项跳过。唯一失败为 `apps/web/tests/remote-welcome.e2e.ts`。 |
 | 队列操作聚焦复跑 | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run apps/web/tests/queue-actions.e2e.ts --config vitest.web.config.ts` | 7.54 秒 | 通过 | 3 项测试全部通过，早先的队列操作症状未复现。 |
 | 远程欢迎页聚焦复跑 | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run apps/web/tests/remote-welcome.e2e.ts --config vitest.web.config.ts` | 2.66 秒 | 失败 | 启动阶段报错 `getaddrinfo ENOTFOUND remote.localhost`，与当前主机的 `node:dns.lookup` 和 `dscacheutil` 检查一致。 |
-| Web 启动 | `DSH_HOME=/tmp/dsh-baseline-web-home.pwXKMg corepack pnpm dsh web --no-open --host 127.0.0.1 --port 0` | 在 10 秒观察窗口内就绪 | 通过 | token 交换成功，重定向页面返回 HTTP 200 和 `text/html`；随后使用 SIGINT 停止进程。 |
+| Web 启动 | `DSH_HOME=/tmp/dsh-baseline-web-home.pwXKMg corepack pnpm sw web --no-open --host 127.0.0.1 --port 0` | 在 10 秒观察窗口内就绪 | 通过 | token 交换成功，重定向页面返回 HTTP 200 和 `text/html`；随后使用 SIGINT 停止进程。 |
 | Electron 资产准备 | Electron 44.0.0 darwin-arm64 下载和包安装器 | 116.35 秒 | 通过 | 129,743,965 字节的官方归档匹配 SHA-256 `076d79742986e1b100b69ebecc691cb07368045e54c9087cef631b8622b76a80`，并通过 `unzip -tq`。 |
 | Desktop 开发版启动 | `DSH_HOME=/tmp/dsh-baseline-desktop-home.SafW5G DSH_DESKTOP_OPEN_DEVTOOLS=0 corepack pnpm run start:desktop` | 在 10 秒观察窗口内就绪 | 通过 | Electron 44.0.0、其 Renderer 和 Node 22.22.3 Desktop Host 均成功启动；随后使用 SIGINT 停止进程。 |
 
@@ -87,7 +87,7 @@
 | Web Harness home | 产品状态写入 `/tmp/dsh-baseline-web-home.pwXKMg`；初始化后的工作区存储不含工作区 ID 或工作区记录。 |
 | Desktop Harness home | 产品状态写入 `/tmp/dsh-baseline-desktop-home.SafW5G`；初始化后的工作区存储不含工作区 ID 或工作区记录。 |
 | Desktop 构建状态 | 一次性 npm 项目和 Electron 浏览器数据均保留在 Desktop README 描述的、已忽略的 `apps/desktop/.desktop-build/development/` 路径下。 |
-| 正式 Harness home | Web 和 Desktop 运行前后，`~/.dsh` 的路径、修改时间和大小指纹均为 `76c23d2f90a27b03790dbad8ad17f7c08d6f20555d8b5da34c8c5e9e44d12ee8`。 |
+| 正式 Harness home | Web 和 Desktop 运行前后，`~/.sw` 的路径、修改时间和大小指纹均为 `76c23d2f90a27b03790dbad8ad17f7c08d6f20555d8b5da34c8c5e9e44d12ee8`。 |
 | 工作目录 | 两个运行时均未登记工作区，正式 Harness home 中没有新增会话或设置文件。仓库只作为进程工作目录使用，没有作为产品工作区持久化。 |
 
 Playwright 资产始终位于 `/tmp` 下。Electron 包的首次启动安装器写入了标准 `~/Library/Caches/electron` 下载缓存；这是可执行依赖缓存，不是 Harness 会话、设置、凭据或工作区数据。

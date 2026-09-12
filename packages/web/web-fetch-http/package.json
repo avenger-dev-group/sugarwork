@@ -1,13 +1,13 @@
 {
   "name": "@deepseek-ai/dsh-web-fetch-http",
-  "description": "Anonymous public HTTP(S) fetch provider for the DeepSeek Harness web capability seam (ctx.web)",
+  "description": "Anonymous public HTTP(S) fetch provider for the SugarWork web capability seam (ctx.web)",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/avenger-dev-group/sugarwork.git",
     "directory": "packages/web/web-fetch-http"
   },
   "type": "module",

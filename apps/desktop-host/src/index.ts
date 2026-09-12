@@ -130,7 +130,7 @@ const MIME: Readonly<Record<string, string>> = {
 
 function readManifest(path: string): PackageManifest {
   const value: unknown = JSON.parse(readFileSync(path, 'utf8'))
-  if (!isRecord(value)) throw new Error(`dsh desktop: ${path} must contain a package manifest`)
+  if (!isRecord(value)) throw new Error(`SugarWork Desktop: ${path} must contain a package manifest`)
   return {
     ...(typeof value.name === 'string' ? { name: value.name } : {}),
     ...(typeof value.version === 'string' ? { version: value.version } : {}),
@@ -139,7 +139,7 @@ function readManifest(path: string): PackageManifest {
 
 function packageManifestPath(projectDir: string, packageName: string): string {
   const path = join(projectDir, 'node_modules', ...packageName.split('/'), 'package.json')
-  if (!existsSync(path)) throw new Error(`dsh desktop: installed package ${JSON.stringify(packageName)} has no manifest`)
+  if (!existsSync(path)) throw new Error(`SugarWork Desktop: installed package ${JSON.stringify(packageName)} has no manifest`)
   return path
 }
 
@@ -154,7 +154,7 @@ function desktopPatches(runtimeDir: string, projectDir: string, allowLinkedPacka
   const profile = loadProfileDirectory('dsh desktop', projectDir, join(dshRoot, 'package.json'))
   for (const layer of profile.layers) {
     if (!allowLinkedPackages && !isProjectPath(projectDir, layer.packageDir) && !isProjectPath(runtimeDir, layer.packageDir)) {
-      throw new Error(`dsh desktop: profile bundle ${JSON.stringify(layer.packageName)} resolved outside the Desktop runtime and profile`)
+      throw new Error(`SugarWork Desktop: profile bundle ${JSON.stringify(layer.packageName)} resolved outside the Desktop runtime and profile`)
     }
   }
   const layers = [
@@ -178,7 +178,7 @@ function desktopPatches(runtimeDir: string, projectDir: string, allowLinkedPacka
 
 function dshVersion(runtimeDir: string): string {
   const manifest = readManifest(packageManifestPath(runtimeDir, '@deepseek-ai/dsh'))
-  if (typeof manifest.version !== 'string') throw new Error('dsh desktop: installed dsh manifest has no version')
+  if (typeof manifest.version !== 'string') throw new Error('SugarWork Desktop: installed dsh manifest has no version')
   return manifest.version
 }
 
@@ -303,7 +303,7 @@ export async function runDesktopHost(
   const gateway = ctx.get('typertGateway')
   if (connection === undefined || clientModules === undefined || gateway === undefined) {
     await ctx.fiber.dispose()
-    throw new Error('dsh desktop: composition did not provide connection, typertGateway, and clientModules')
+    throw new Error('SugarWork Desktop: composition did not provide connection, typertGateway, and clientModules')
   }
   const api = connection.createSharedFetchHandler('/api')
   const assets = assetHandler(ctx, resolve(runtimeDir))
@@ -327,7 +327,7 @@ export async function runDesktopHost(
       requests.get(streamId)?.abort()
     },
     async fetch(command, body) {
-      if (disposing !== undefined) throw new Error('dsh desktop: host is disposing')
+      if (disposing !== undefined) throw new Error('SugarWork Desktop: host is disposing')
       const controller = new AbortController()
       requests.set(command.streamId, controller)
       try {
@@ -380,18 +380,18 @@ async function main(): Promise<void> {
   const runtimeDir = process.argv[2]
   const projectDir = process.argv[3]
   if (runtimeDir === undefined || projectDir === undefined || process.send === undefined) {
-    throw new Error('dsh desktop: expected runtime and profile directories, byte pipes, and a Node IPC channel')
+    throw new Error('SugarWork Desktop: expected runtime and profile directories, byte pipes, and a Node IPC channel')
   }
   const option = process.argv[4]
   if (option !== undefined && option !== '--allow-linked-profile') {
-    throw new Error(`dsh desktop: unsupported internal option ${JSON.stringify(option)}`)
+    throw new Error(`SugarWork Desktop: unsupported internal option ${JSON.stringify(option)}`)
   }
   const requestPipe = createReadStream('', { fd: DESKTOP_REQUEST_PIPE_FD, autoClose: false })
   const responsePipe = createWriteStream('', { fd: DESKTOP_RESPONSE_PIPE_FD, autoClose: false })
   let responseWriteTail: Promise<void> = Promise.resolve()
   const writeResponse = (frame: Buffer): Promise<void> => {
     const write = responseWriteTail.then(async () => {
-      if (responsePipe.destroyed) throw new Error('dsh desktop: Electron response pipe is unavailable')
+      if (responsePipe.destroyed) throw new Error('SugarWork Desktop: Electron response pipe is unavailable')
       if (!responsePipe.write(frame)) await once(responsePipe, 'drain')
     })
     responseWriteTail = write.catch(() => undefined)
@@ -431,7 +431,7 @@ async function main(): Promise<void> {
     stopping ??= (async () => {
       requestPipe.pause()
       requestPipe.removeAllListeners('data')
-      const stopped = new Error('dsh desktop: Host is stopping')
+      const stopped = new Error('SugarWork Desktop: Host is stopping')
       for (const body of requestBodies.values()) body.error(stopped)
       requestBodies.clear()
       blockedRequests.clear()
@@ -460,7 +460,7 @@ async function main(): Promise<void> {
 
   const beginRequest = (frame: Extract<DesktopHostRequestFrame, { type: 'start' }>): void => {
     if (frame.streamId <= lastStreamId) {
-      throw new Error(`dsh desktop: Electron reused or reordered request stream ${String(frame.streamId)}`)
+      throw new Error(`SugarWork Desktop: Electron reused or reordered request stream ${String(frame.streamId)}`)
     }
     lastStreamId = frame.streamId
     let body: ReadableStream<Uint8Array> | null = null
@@ -494,7 +494,7 @@ async function main(): Promise<void> {
       runs.delete(run)
       const openBody = requestBodies.get(frame.streamId)
       if (openBody === undefined) return
-      openBody.error(new Error('dsh desktop: response completed before the request body ended'))
+      openBody.error(new Error('SugarWork Desktop: response completed before the request body ended'))
       requestBodies.delete(frame.streamId)
       blockedRequests.delete(frame.streamId)
       discardedRequestBodies.add(frame.streamId)
@@ -511,7 +511,7 @@ async function main(): Promise<void> {
         const body = requestBodies.get(frame.streamId)
         if (body === undefined) {
           if (discardedRequestBodies.has(frame.streamId)) return
-          throw new Error(`dsh desktop: Electron sent body data for inactive stream ${String(frame.streamId)}`)
+          throw new Error(`SugarWork Desktop: Electron sent body data for inactive stream ${String(frame.streamId)}`)
         }
         body.enqueue(frame.data)
         if ((body.desiredSize ?? 0) <= 0) {
@@ -524,7 +524,7 @@ async function main(): Promise<void> {
         const body = requestBodies.get(frame.streamId)
         if (body === undefined) {
           if (discardedRequestBodies.delete(frame.streamId)) return
-          throw new Error(`dsh desktop: Electron ended inactive body stream ${String(frame.streamId)}`)
+          throw new Error(`SugarWork Desktop: Electron ended inactive body stream ${String(frame.streamId)}`)
         }
         body.close()
         requestBodies.delete(frame.streamId)
@@ -534,10 +534,10 @@ async function main(): Promise<void> {
       }
       case 'cancel': {
         if (frame.streamId > lastStreamId) {
-          throw new Error(`dsh desktop: Electron canceled unknown stream ${String(frame.streamId)}`)
+          throw new Error(`SugarWork Desktop: Electron canceled unknown stream ${String(frame.streamId)}`)
         }
         const body = requestBodies.get(frame.streamId)
-        body?.error(new Error('dsh desktop: Electron canceled the request'))
+        body?.error(new Error('SugarWork Desktop: Electron canceled the request'))
         requestBodies.delete(frame.streamId)
         blockedRequests.delete(frame.streamId)
         discardedRequestBodies.delete(frame.streamId)
@@ -561,7 +561,7 @@ async function main(): Promise<void> {
     if (stopping !== undefined) return
     try {
       decoder.finish()
-      failTransport(new Error('dsh desktop: Electron request pipe ended'))
+      failTransport(new Error('SugarWork Desktop: Electron request pipe ended'))
     } catch (error) {
       failTransport(error)
     }
@@ -570,7 +570,7 @@ async function main(): Promise<void> {
   responsePipe.once('error', failTransport)
   process.on('message', (message: unknown) => {
     if (!isDesktopHostCommand(message)) {
-      send({ type: 'fatal', message: 'dsh desktop: invalid Electron IPC command' })
+      send({ type: 'fatal', message: 'SugarWork Desktop: invalid Electron IPC command' })
       void stop(1)
       return
     }
@@ -585,7 +585,7 @@ if (import.meta.main) {
   main().catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error)
     if (process.send !== undefined) process.send({ type: 'fatal', message } satisfies DesktopHostEvent)
-    else process.stderr.write(`dsh desktop: ${message}\n`)
+    else process.stderr.write(`SugarWork Desktop: ${message}\n`)
     process.exitCode = 1
   })
 }

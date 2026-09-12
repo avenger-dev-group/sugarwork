@@ -1,4 +1,4 @@
-# DeepSeek Harness Architecture
+# SugarWork Architecture
 
 English | [中文](architecture.zh.md)
 
@@ -31,7 +31,7 @@ Custom profiles default to live patch reload. The shipped `web` profile is live;
 To see the tree your machine boots:
 
 ```sh
-dsh --profile web --dump-config
+sw --profile web --dump-config
 ```
 
 Any row it prints can be replaced by a patch of your own.
@@ -40,17 +40,17 @@ Composition mechanics are in [app-boot](../packages/boot/app-boot/README.md#prof
 
 ## Application launch
 
-Every supported Node application starts at the `dsh` CLI with a named profile. The shipped applications are `dsh web` (the deliberate alias for `--profile web`), `dsh --profile headless`, `dsh --profile sdk`, `dsh --profile sdk-minimal`, and `dsh --profile acp`. The TypeScript SDK resolves its same-version `dsh` dependency and selects `sdk`; custom plugin composition remains a profile plus ordered patch files, not another executable or inline application tree. `sdk-minimal` is a repository-owned standalone bundle behind the same launcher, not a caller-supplied Cordis tree.
+Every supported Node application starts at the `dsh` CLI with a named profile. The shipped applications are `sw web` (the deliberate alias for `--profile web`), `sw --profile headless`, `sw --profile sdk`, `sw --profile sdk-minimal`, and `sw --profile acp`. The TypeScript SDK resolves its same-version `dsh` dependency and selects `sdk`; custom plugin composition remains a profile plus ordered patch files, not another executable or inline application tree. `sdk-minimal` is a repository-owned standalone bundle behind the same launcher, not a caller-supplied Cordis tree.
 
 Vendored CLIs, build-only and test-only executables, direct in-process plugin mounting, and the private browser WebWorker preview are not Harness application launchers. [`verify-application-entrypoints`](../scripts/verify-application-entrypoints.ts) keeps every package bin, executable source, and root demo in an explicit class and rejects a Node application path that bypasses `dsh`.
 
-The Python SDK follows the same application architecture. Its runtime wheel packages the normal `dsh` CLI as `deepseek-harness-sdk-runtime-<platform>-<arch>`, and the client launches `dsh --profile sdk` with an explicit Harness home by default. The minimal example selects the shipped `sdk-minimal` profile. Python exposes profile selection and ordered patch files rather than a complete Cordis tree; persistent external plugins are installed through `dsh plugin`. The removed private direct-config carrier has no compatibility bin or fallback parser.
+The Python SDK follows the same application architecture. Its runtime wheel packages the normal `dsh` CLI as `deepseek-harness-sdk-runtime-<platform>-<arch>`, and the client launches `sw --profile sdk` with an explicit Harness home by default. The minimal example selects the shipped `sdk-minimal` profile. Python exposes profile selection and ordered patch files rather than a complete Cordis tree; persistent external plugins are installed through `sw plugin`. The removed private direct-config carrier has no compatibility bin or fallback parser.
 
 ## Desktop application
 
-The [Electron desktop application](../apps/desktop/README.md) carries its exact dsh production runtime in signed application resources. The reserved `$DSH_HOME/profiles/desktop` contains external plugins and links to host-owned packages; compatible upgrades retain plugin files and refresh these links without installing core dependencies. CLI profiles share supported product data under `$DSH_HOME`, while executable packages, plugin activation, lockfiles, and package-manager state remain separate.
+The [Electron desktop application](../apps/desktop/README.md) carries its exact dsh production runtime in signed application resources. The reserved `$SW_HOME/profiles/desktop` contains external plugins and links to host-owned packages; compatible upgrades retain plugin files and refresh these links without installing core dependencies. CLI profiles share supported product data under `$SW_HOME`, while executable packages, plugin activation, lockfiles, and package-manager state remain separate.
 
-Electron starts the private Desktop Host package under its bundled upstream Node.js process; that package loads the bundled dsh backend and matching client graph together with enabled profile plugins. Unary RPC, Remote streams, and version-matched client assets cross versioned framed byte pipes with Node IPC reserved for lifecycle control, then reach the renderer through the secure `dsh-app://` protocol; the desktop composition opens no Web server or loopback port. Only shell-owned UI can run plugin transactions through the bundled pnpm and its private `$DSH_HOME/desktop/pnpm/store`.
+Electron starts the private Desktop Host package under its bundled upstream Node.js process; that package loads the bundled dsh backend and matching client graph together with enabled profile plugins. Unary RPC, Remote streams, and version-matched client assets cross versioned framed byte pipes with Node IPC reserved for lifecycle control, then reach the renderer through the secure `dsh-app://` protocol; the desktop composition opens no Web server or loopback port. Only shell-owned UI can run plugin transactions through the bundled pnpm and its private `$SW_HOME/desktop/pnpm/store`.
 
 ## Core packages
 

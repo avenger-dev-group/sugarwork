@@ -2,76 +2,40 @@
 
 English | [中文](README.zh.md)
 
-SugarWork (`dsh`) is a company-branded distribution based on the open-source DeepSeek Harness agent harness developed by [DeepSeek AI](https://deepseek.com).
-
-It is built on an **everything-is-a-plugin** architecture and powered by [Cordis](https://github.com/cordiverse/cordis), whose design is described in [_A Programming Paradigm for Spatiotemporal Composability_](https://arxiv.org/abs/2608.25512).
-
-Documentation: [https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
+SugarWork is a plugin-based agent workspace for Web and Desktop. Its short command name is `sw`.
 
 ## Developer preview
 
-SugarWork is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBILITY-BREAKING CHANGES.**
+SugarWork is in developer preview and may introduce compatibility-breaking changes.
 
 Review the [safety notice](SAFETY.md) before running the project.
 
-## Run
+## Run from source
 
-### Run from `npm`
-
-Install `Node.js`, then run:
+Install Node.js 24 and pnpm, then run:
 
 ```sh
-npx @deepseek-ai/dsh web
-```
-
-The command starts the Web UI at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch. An SSH launch only prints the host URL because the SSH client or editor owns the local forwarded address. Pass `--no-open` to run the server without opening a browser. See [Web UI guide](docs/user/guide/index.md).
-
-### Run from source
-
-To run from a repository checkout:
-
-```sh
-git clone https://github.com/deepseek-ai/deepseek-harness.git
-cd deepseek-harness
+git clone https://github.com/avenger-dev-group/sugarwork.git
+cd sugarwork
 pnpm install
 pnpm run build
-pnpm dsh web
+pnpm sw web
 ```
 
-`pnpm run build` prepares the repository artifacts. `pnpm dsh web` uses those built artifacts without rebuilding.
+`pnpm run build` prepares repository artifacts. `pnpm sw web` starts the Web application at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch.
 
-## Upstream community and support
+Desktop development starts with:
 
-The following links belong to the upstream DeepSeek Harness project:
-
-- Submit feedback or bug reports through [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions).
-- Add the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic to your plugin repository for discoverability.
-- Join <a href="https://discord.gg/Ycq5dCaS4">DeepSeek Harness Discord community</a>.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+```sh
+pnpm run dev:desktop
+```
 
 ## Development
 
-Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md).
-
-For agents, follow [AGENTS.md](AGENTS.md).
-
-## Citation
-
-```bibtex
-@misc{deepseek-harness2026,
-  title={DeepSeek Harness: Everything is a Plugin},
-  author={DeepSeek-AI},
-  year={2026},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/deepseek-ai/deepseek-harness}},
-}
-```
+Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md). Agents must follow [AGENTS.md](AGENTS.md).
 
 ## License
 
 [MIT](LICENSE)
 
-Third-party dependencies and their licenses are disclosed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Third-party dependencies, retained notices, and their licenses are disclosed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

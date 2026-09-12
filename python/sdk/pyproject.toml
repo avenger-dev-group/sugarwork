@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "deepseek-harness-sdk"
 version = "0.0.0.dev0"
-description = "Python SDK for DeepSeek Harness"
+description = "Python SDK for SugarWork"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -16,10 +16,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/deepseek-ai/deepseek-harness"
-Documentation = "https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/python-sdk.md"
-Issues = "https://github.com/deepseek-ai/deepseek-harness/issues"
-Source = "https://github.com/deepseek-ai/deepseek-harness"
+Homepage = "https://github.com/avenger-dev-group/sugarwork"
+Documentation = "https://github.com/avenger-dev-group/sugarwork/blob/main/python/sdk/README.md"
+Issues = "https://github.com/avenger-dev-group/sugarwork/issues"
+Source = "https://github.com/avenger-dev-group/sugarwork"
 
 [dependency-groups]
 test = ["pytest>=8.0"]

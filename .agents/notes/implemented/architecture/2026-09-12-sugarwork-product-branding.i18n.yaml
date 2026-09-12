@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-12-sugarwork-product-branding.md
-2026-09-12-sugarwork-product-branding.md: 1ef77a62318be86bdfa28477ff64428ca2fd458d
-2026-09-12-sugarwork-product-branding.zh.md: 5fedf606612145575a104bc07276fbf7bcf6b5c0
+2026-09-12-sugarwork-product-branding.md: 1bf01c2469b5dc72f46b69e0461082099f15f2eb
+2026-09-12-sugarwork-product-branding.zh.md: 5d32e6d474afcc87283bbab7a5b8ccae30b20b6b

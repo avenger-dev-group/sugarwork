@@ -78,7 +78,7 @@ Weighed against that, telemetry is the one outbound channel whose loss costs the
 
 A user who exports `HTTPS_PROXY`, or writes it into `$DSH_HOME/.env`, is proxied everywhere the harness makes a request, with no flag and no configuration. The launcher installs it exactly once, before the first plugin mounts.
 
-Because the operating system's settings are not read, the user-facing documentation is now load-bearing rather than supplementary: a user who only toggled "system proxy" in a proxy application gets nothing and no diagnostic. `docs/user/guide/network-proxy.md` therefore states which variables to export and why a browser is proxied when a terminal is not — the three-mechanism confusion is the single most common report, and it is not specific to this harness.
+Because the operating system's settings are not read, package configuration documentation is required rather than supplementary: a user who only toggled "system proxy" in a proxy application gets nothing and no diagnostic. The [HTTP proxy package reference](../../../../packages/util/http-proxy/README.md) states which variables the runtime reads and why a browser can be proxied when a terminal is not.
 
 `web_fetch`'s safety story now has two shapes, and its README says so: direct hops keep address validation and pinning, proxied hops delegate destination selection to a proxy the operator configured. This is the one outward-facing security promise the change alters.
 

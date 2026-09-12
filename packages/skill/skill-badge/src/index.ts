@@ -1,5 +1,5 @@
 /**
- * Bundled `dsh-badge` skill provider.
+ * Bundled `sugarwork-badge` skill provider.
  *
  * @module @deepseek-ai/dsh-skill-badge
  */
@@ -14,16 +14,16 @@ import {
   type SkillProvider,
 } from '@deepseek-ai/dsh-skill'
 
-const PROVIDER_NAME = 'dsh-badge'
-const SKILL_BODY_URL = new URL('../assets/dsh-badge.md', import.meta.url)
+const PROVIDER_NAME = 'sugarwork-badge'
+const SKILL_BODY_URL = new URL('../assets/sugarwork-badge.md', import.meta.url)
 const RESOURCE_BASE = {
   kind: 'directory',
   path: fileURLToPath(new URL('../assets/', import.meta.url)),
 } as const
 const INVOCATION = { modelInvocable: true, userInvocable: true } as const
-const DESCRIPTION = 'Add the official “powered by dsh” badge to documents, pull requests, merge requests, and other content produced with DeepSeek Harness. Use whenever creating a pull request or merge request. Also use when the user asks for a dsh badge, powered-by-dsh attribution, or a reusable dsh badge asset or snippet.'
+const DESCRIPTION = 'Add the official “powered by SugarWork” badge to documents, pull requests, merge requests, and other content produced with SugarWork. Use whenever creating a pull request or merge request. Also use when the user asks for a SugarWork badge, powered-by-SugarWork attribution, or a reusable SugarWork badge snippet.'
 const CANDIDATE: SkillCandidate = {
-  name: 'dsh-badge',
+  name: 'sugarwork-badge',
   description: DESCRIPTION,
   invocation: INVOCATION,
   provider: PROVIDER_NAME,
@@ -54,7 +54,7 @@ export const name = 'skill-badge'
 /** Service required by the bundled provider. */
 export const inject = ['skills']
 
-/** Register the bundled `dsh-badge` provider on `ctx.skills`. */
+/** Register the bundled `sugarwork-badge` provider on `ctx.skills`. */
 export function apply(ctx: Context): void {
   ctx.skills.registerProvider(() => provider)
 }

@@ -4,7 +4,7 @@ English | [中文](UPSTREAM_BASELINE.zh.md)
 
 ## Summary
 
-This repository was initialized from DeepSeek Harness while preserving the complete imported Git history, license terms, third-party notices, and original copyright statements.
+This repository was initialized from SugarWork while preserving the complete imported Git history, license terms, third-party notices, and original copyright statements.
 
 ## Import record
 

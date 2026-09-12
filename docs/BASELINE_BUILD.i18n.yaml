@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/BASELINE_BUILD.md
-BASELINE_BUILD.md: c5f23835be030fe11031d8ea15fc02c2ca6f8461
-BASELINE_BUILD.zh.md: cebdf00863dcd6dba5833f92787e631224b314d0
+BASELINE_BUILD.md: 5d92cb2cf94d2fbcf7e6498dcf312cca7beeff4d
+BASELINE_BUILD.zh.md: 17bc3bb8181f997d23d35a285508f184cf0eb069

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/UPSTREAM_BASELINE.md
-UPSTREAM_BASELINE.md: 54e600ec8534a6252fea6a08aa8fc514cca7627b
-UPSTREAM_BASELINE.zh.md: 8eb1be39789083c4447f5692e3079ebf9ccc383d
+UPSTREAM_BASELINE.md: 4e62d8302ef16d1780475ae781d45008c7058aaa
+UPSTREAM_BASELINE.zh.md: 82e0ca7f0fd3ba86b713190255b9e417db8c4816

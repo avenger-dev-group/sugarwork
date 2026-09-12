@@ -33,10 +33,10 @@ Choose Schedule when you want reminders delivered as messages in the same live c
 
 ### Enable Schedule
 
-Add the Schedule overlay to a `dsh web` session; the reminder tools then appear in the conversation and the model can use them right away:
+Add the Schedule overlay to a `sw web` session; the reminder tools then appear in the conversation and the model can use them right away:
 
 ```sh
-dsh web --patch apps/cli/config/examples/schedule/cordis.yml
+sw web --patch apps/cli/config/examples/schedule/cordis.yml
 ```
 
 Success looks like this: ask the model "remind me in 10 minutes to review the PR", and it replies with the reminder's id, its target time, and a `scheduled` state. If storage cannot be confirmed at that moment, the tool reports `persistence_uncertain` and suggests re-listing instead of claiming success.
@@ -137,7 +137,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Conversational delivery decision](../../../.agents/notes/archived/simplification/2026-08-09-conversational-schedule-delivery.md) — the no-receipt boundary and follow-up delivery.
 - [Explicit time-zone boundary](../../../.agents/notes/implemented/simplification/2026-08-09-explicit-schedule-time-zone.md) — why the model must always pass an explicit zone.
 - [Bounded fixed-rate Schedule](../../../.agents/notes/archived/simplification/2026-08-09-bounded-fixed-rate-schedule.md) — recurrence scope: latest-only catch-up and batch delivery.
-- [Schedule user guide](../../../docs/user/guide/schedule.md) — the official configuration path for mounting this package with time-context.
+- [Schedule example](../../../apps/cli/config/examples/schedule/cordis.yml) — runnable configuration for mounting this package with time-context.
 
 -----
 

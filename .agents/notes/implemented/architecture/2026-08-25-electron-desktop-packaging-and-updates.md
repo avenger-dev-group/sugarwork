@@ -41,7 +41,7 @@ The renderer uses `nodeIntegration: false`, `contextIsolation: true`, and `sandb
 ## Filesystem layout
 
 ```text
-~/.dsh/
+~/.sw/
   desktop/
     pnpm/
       store/

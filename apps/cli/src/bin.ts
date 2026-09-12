@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Command-line entry for dsh.
+ * Command-line entry for SugarWork.
  * @module @deepseek-ai/dsh/bin
  */
 
@@ -32,7 +32,7 @@ export async function runCli(): Promise<void> {
     case 'profile': {
       const { runProfile } = await import('./profile-boot.ts')
       await runProfile({
-        environment: loadLayeredEnv('dsh'),
+        environment: loadLayeredEnv('sw'),
         profile: invocation.profile,
         fromDefaultProfile: invocation.fromDefaultProfile,
         patchFiles: invocation.patches,
@@ -57,7 +57,7 @@ export async function runCli(): Promise<void> {
     }
     default:
       invocation satisfies never
-      throw new Error(`dsh: unhandled invocation mode ${JSON.stringify(invocation)}`)
+      throw new Error(`sw: unhandled invocation mode ${JSON.stringify(invocation)}`)
   }
 }
 

@@ -14,7 +14,7 @@
   - img
   - img
   - text: System prompt
-- text: Use web_search once with queries ["DeepSeek Harness snapshot search","DeepSeek Harness multi-query search"]. Then reply exactly SEARCH_DONE and stop. {{clock}}
+- text: Use web_search once with queries ["SugarWork snapshot search","SugarWork multi-query search"]. Then reply exactly SEARCH_DONE and stop. {{clock}}
 - button "Copy":
   - img
 - button "1 tool call" [expanded]:
@@ -24,10 +24,10 @@
   - img
   - img
   - text: Context injection @deepseek-ai/dsh-system-prompt
-- button "Search DeepSeek Harness snapshot search, DeepSeek Harness multi-query search":
+- button "Search SugarWork snapshot search, SugarWork multi-query search":
   - img
   - img
-  - text: Search DeepSeek Harness snapshot search, DeepSeek Harness multi-query search
+  - text: Search SugarWork snapshot search, SugarWork multi-query search
 - paragraph: SEARCH_DONE
 - button "Copy":
   - img

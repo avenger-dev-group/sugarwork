@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-`dsh-headless` 从命令行运行一个 dsh 任务并打印最终答案，然后退出——没有 GUI、没有服务器、没有浏览器。输入 `dsh --profile headless "run the tests"`，agent（智能体）会以与所有其他表层相同的模型、工具与安全默认值完成该任务。它非常适合脚本、CI 与一次性任务：进程不打开任何端口，也不会留下任何后台运行的东西。退出码告诉你结果——任务完成时为 0，中止或出错时为 1。主要边界：每次调用只运行一个任务，没有交互式后续。
+`dsh-headless` 从命令行运行一个 dsh 任务并打印最终答案，然后退出——没有 GUI、没有服务器、没有浏览器。输入 `sw --profile headless "run the tests"`，agent（智能体）会以与所有其他表层相同的模型、工具与安全默认值完成该任务。它非常适合脚本、CI 与一次性任务：进程不打开任何端口，也不会留下任何后台运行的东西。退出码告诉你结果——任务完成时为 0，中止或出错时为 1。主要边界：每次调用只运行一个任务，没有交互式后续。
 
 ## 目录
 
@@ -30,7 +30,7 @@ kind: "package-bundle"
 ### 运行一次性任务
 
 ```sh
-dsh --profile headless "run the tests"
+sw --profile headless "run the tests"
 ```
 
 agent 会完成该任务，把提供方的每个非空推理（reasoning）增量流式写入 stderr 的 `dsh: reasoning:` 段，然后把最终答案写入 stdout 并退出。连续推理增量保持在同一段中；提供方未给尾换行时，runner 会在后续输出前结束该段。没有推理内容的成功运行保持 stderr 为空；失败时退出码为 1，并以 `dsh: <code>: <message>` 向 stderr 写入错误。缺失或空白任务会在任何执行开始之前被拒绝。任务文本通过唯一的 `task` 设置提供：
@@ -47,7 +47,7 @@ agent 会完成该任务，把提供方的每个非空推理（reasoning）增�
 
 ### 帮助与任务错误
 
-`dsh --profile headless --help` 打印该命令的帮助文本并直接退出，不运行任何内容。缺失或只有空白的任务属于用法错误：什么都不运行，进程退出 1。
+`sw --profile headless --help` 打印该命令的帮助文本并直接退出，不运行任何内容。缺失或只有空白的任务属于用法错误：什么都不运行，进程退出 1。
 
 -----
 

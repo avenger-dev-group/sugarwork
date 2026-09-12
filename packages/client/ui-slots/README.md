@@ -1,5 +1,5 @@
 ---
-description: "Slot registry pure core for the dsh web client: SlotMap declaration merging, the single register composition API, four-share props types, store seats, and the renderer install contract."
+description: "Slot registry pure core for the sw web client: SlotMap declaration merging, the single register composition API, four-share props types, store seats, and the renderer install contract."
 kind: "package-library"
 ---
 

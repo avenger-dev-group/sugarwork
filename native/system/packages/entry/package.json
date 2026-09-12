@@ -5,7 +5,7 @@
   "description": "Prebuilt system primitives: a Linux Landlock launcher and asynchronous POSIX flock through stable Node-API",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-harness/deepseek-harness.git",
+    "url": "git+https://github.com/avenger-dev-group/sugarwork.git",
     "directory": "native/system/packages/entry"
   },
   "exports": {

@@ -1,13 +1,13 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-workflow-run",
-  "description": "Durable workflow-run Conversation Node and nested member disclosure for dsh web",
+  "description": "Durable workflow-run Conversation Node and nested member disclosure for sw web",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/avenger-dev-group/sugarwork.git",
     "directory": "packages/client/ui-workflow-run"
   },
   "type": "module",

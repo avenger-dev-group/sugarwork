@@ -1,5 +1,5 @@
 ---
-description: "Plugins settings section for the dsh web client: feature-owned tabs, the configurable host-plane plugin cards, and the settings.plugin.item extension point."
+description: "Plugins settings section for the sw web client: feature-owned tabs, the configurable host-plane plugin cards, and the settings.plugin.item extension point."
 kind: "package-reference"
 ---
 

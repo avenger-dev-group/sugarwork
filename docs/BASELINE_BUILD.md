@@ -4,7 +4,7 @@ English | [中文](BASELINE_BUILD.zh.md)
 
 ## Summary
 
-This report records the pre-customization baseline verified on 2026-09-12 at commit `6f222c0c3974a3a623175ce5e5b02eee7964dae7`. The frozen dependency installation, repository typecheck, complete build, Web startup, and Desktop development startup succeeded without a source-code or lockfile change. The built Web browser suite completed with 358 passed tests and 16 skipped tests, but one suite failed because this macOS host does not resolve `remote.localhost`; the focused rerun reproduced the same host-resolution failure. Disposable Harness homes and the Desktop development directories contained all generated product state, while a metadata fingerprint of the normal `~/.dsh` tree remained unchanged.
+This report records the pre-customization baseline verified on 2026-09-12 at commit `6f222c0c3974a3a623175ce5e5b02eee7964dae7`. The frozen dependency installation, repository typecheck, complete build, Web startup, and Desktop development startup succeeded without a source-code or lockfile change. The built Web browser suite completed with 358 passed tests and 16 skipped tests, but one suite failed because this macOS host does not resolve `remote.localhost`; the focused rerun reproduced the same host-resolution failure. Disposable Harness homes and the Desktop development directories contained all generated product state, while a metadata fingerprint of the normal `~/.sw` tree remained unchanged.
 
 ## Contents
 
@@ -67,7 +67,7 @@ Elapsed times are wall-clock measurements from this host. The build followed typ
 | Full built Web suite | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run --config vitest.web.config.ts --reporter=dot` | 516.55 s | One host-specific failure | 100 test files passed, one failed, and one skipped; 358 tests passed and 16 skipped. The sole failure was `apps/web/tests/remote-welcome.e2e.ts`. |
 | Queue-action focused rerun | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run apps/web/tests/queue-actions.e2e.ts --config vitest.web.config.ts` | 7.54 s | Pass | All 3 tests passed, so the earlier queue-action symptom did not reproduce. |
 | Remote-welcome focused rerun | `PLAYWRIGHT_BROWSERS_PATH=/tmp/dsh-baseline-playwright corepack pnpm exec vitest run apps/web/tests/remote-welcome.e2e.ts --config vitest.web.config.ts` | 2.66 s | Fail | Startup failed at `getaddrinfo ENOTFOUND remote.localhost`, matching `node:dns.lookup` and `dscacheutil` checks on this host. |
-| Web startup | `DSH_HOME=/tmp/dsh-baseline-web-home.pwXKMg corepack pnpm dsh web --no-open --host 127.0.0.1 --port 0` | Ready within the 10 s observation window | Pass | The token exchange completed and the redirected page returned HTTP 200 with `text/html`; the process was then stopped with SIGINT. |
+| Web startup | `DSH_HOME=/tmp/dsh-baseline-web-home.pwXKMg corepack pnpm sw web --no-open --host 127.0.0.1 --port 0` | Ready within the 10 s observation window | Pass | The token exchange completed and the redirected page returned HTTP 200 with `text/html`; the process was then stopped with SIGINT. |
 | Electron asset preparation | Electron 44.0.0 darwin-arm64 download and package installer | 116.35 s | Pass | The 129,743,965-byte official archive matched SHA-256 `076d79742986e1b100b69ebecc691cb07368045e54c9087cef631b8622b76a80` and passed `unzip -tq`. |
 | Desktop development startup | `DSH_HOME=/tmp/dsh-baseline-desktop-home.SafW5G DSH_DESKTOP_OPEN_DEVTOOLS=0 corepack pnpm run start:desktop` | Ready within the 10 s observation window | Pass | Electron 44.0.0, its renderer, and the Node 22.22.3 Desktop Host started; the process was then stopped with SIGINT. |
 
@@ -87,7 +87,7 @@ Dependency installation reported expected unsupported-platform workspace package
 | Web Harness home | Product state was written to `/tmp/dsh-baseline-web-home.pwXKMg`; its initialized workspace store contained no workspace IDs or workspace records. |
 | Desktop Harness home | Product state was written to `/tmp/dsh-baseline-desktop-home.SafW5G`; its initialized workspace store contained no workspace IDs or workspace records. |
 | Desktop build state | The disposable npm project and Electron browser data remained under ignored `apps/desktop/.desktop-build/development/` paths described by the Desktop README. |
-| Normal Harness home | A path, modification-time, and size fingerprint of `~/.dsh` was `76c23d2f90a27b03790dbad8ad17f7c08d6f20555d8b5da34c8c5e9e44d12ee8` both before and after the Web and Desktop runs. |
+| Normal Harness home | A path, modification-time, and size fingerprint of `~/.sw` was `76c23d2f90a27b03790dbad8ad17f7c08d6f20555d8b5da34c8c5e9e44d12ee8` both before and after the Web and Desktop runs. |
 | Work directories | Neither runtime registered a workspace, and no session or settings file was created in the normal Harness home. The repository remained the process working directory only; it was not persisted as a product workspace. |
 
 Playwright assets stayed below `/tmp`. Electron's package-level first-launch installer populated the standard `~/Library/Caches/electron` download cache; this is executable dependency cache, not Harness session, settings, credential, or workspace data.

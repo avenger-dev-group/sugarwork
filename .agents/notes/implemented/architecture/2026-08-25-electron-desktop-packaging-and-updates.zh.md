@@ -41,7 +41,7 @@ Electron 拥有 `.dsh/profiles/desktop` 保留 profile。[内置运行时决策]
 ## 文件系统布局
 
 ```text
-~/.dsh/
+~/.sw/
   desktop/
     pnpm/
       store/

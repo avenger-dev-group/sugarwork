@@ -3,7 +3,7 @@
 # publication must always be an explicit, reviewed act from a dsh-v* tag, and it
 # must never appear as a PR check. It repacks the current tree before publishing
 # so the bytes uploaded are exactly what this dispatch produced.
-name: Release publish (dsh)
+name: Publish SugarWork packages
 
 on:
   workflow_dispatch:
@@ -84,7 +84,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dsh-npm-tarballs
+          name: sugarwork-npm-tarballs
           path: dist/npm/*
           if-no-files-found: error
           retention-days: 7
@@ -122,7 +122,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: dsh-npm-tarballs
+          name: sugarwork-npm-tarballs
           path: dist/npm
 
       - name: Publish tarballs

@@ -30,11 +30,11 @@ kind: "package-bundle"
 按以下顺序把 Host 与 Web Agent Teams 层添加到已初始化的 `web` profile：
 
 ```sh
-dsh plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-profile
-dsh plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-web-profile
+sw plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-profile
+sw plugin --profile web add @deepseek-ai/dsh-experimental-agent-team-web-profile
 ```
 
-第一条命令提供 Team domain、生成的 Remote 方法与模型工具。第二条命令激活本包声明的 patch 及其浏览器 presentation。执行 `dsh plugin --profile web remove @deepseek-ai/dsh-experimental-agent-team-web-profile` 移除本包时，Web 层也会从 profile 的有序 bundle 列表中移除。
+第一条命令提供 Team domain、生成的 Remote 方法与模型工具。第二条命令激活本包声明的 patch 及其浏览器 presentation。执行 `sw plugin --profile web remove @deepseek-ai/dsh-experimental-agent-team-web-profile` 移除本包时，Web 层也会从 profile 的有序 bundle 列表中移除。
 
 ### 获得的功能
 

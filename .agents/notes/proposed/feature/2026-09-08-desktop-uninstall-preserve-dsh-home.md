@@ -12,7 +12,7 @@ The [packaging configuration](../../../../apps/desktop/electron-builder.config.m
 
 ## Proposal
 
-Provide an uninstall operation whose successful result leaves the complete default `~/.dsh` and any configured `DSH_HOME` intact, removes Desktop-owned files outside those homes, and removes the selected application installation. Preserve plugin files, package-manager state, sessions, settings, and credentials within the retained homes. Do not launch or repair the Desktop profile during cleanup.
+Provide an uninstall operation whose successful result leaves the complete default `~/.sw` and any configured `DSH_HOME` intact, removes Desktop-owned files outside those homes, and removes the selected application installation. Preserve plugin files, package-manager state, sessions, settings, and credentials within the retained homes. Do not launch or repair the Desktop profile during cleanup.
 
 Windows Control Panel and Settings uninstallation will run this operation through NSIS. macOS will expose a localized **Uninstall and keep Harness data** action backed by a signed cleanup helper. Finder drag-to-Trash alone cannot invoke this operation; document that limitation and provide the same helper as a signed standalone uninstaller for users who already removed the application. A plain drag operation must not be advertised as complete cleanup.
 

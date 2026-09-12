@@ -3,8 +3,8 @@ import { homedir, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  DEFAULT_DSH_HOME_DISPLAY,
-  DSH_HOME_DIR_NAME,
+  DEFAULT_SW_HOME_DISPLAY,
+  SW_HOME_DIR_NAME,
   canonicalizeWatchPath,
   defaultDshHome,
   dshCachePath,
@@ -18,53 +18,54 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 
-describe('dsh path helpers', () => {
-  it('owns the shared default DSH home directory name', () => {
-    expect(DSH_HOME_DIR_NAME).toBe('.dsh')
-    expect(DEFAULT_DSH_HOME_DISPLAY).toBe('~/.dsh')
-    expect(defaultDshHome()).toBe(join(homedir(), '.dsh'))
+describe('SugarWork path helpers', () => {
+  it('owns the shared default SugarWork home directory name', () => {
+    expect(SW_HOME_DIR_NAME).toBe('.sw')
+    expect(DEFAULT_SW_HOME_DISPLAY).toBe('~/.sw')
+    expect(defaultDshHome()).toBe(join(homedir(), '.sw'))
   })
 
   it('expands tilde paths without changing non-tilde paths', () => {
     expect(expandHomePath('~')).toBe(homedir())
-    expect(expandHomePath('~/.dsh')).toBe(join(homedir(), '.dsh'))
-    expect(expandHomePath('~\\.dsh')).toBe(join(homedir(), '.dsh'))
-    expect(expandHomePath('/tmp/.dsh')).toBe('/tmp/.dsh')
-    expect(expandHomePath('~other/.dsh')).toBe('~other/.dsh')
+    expect(expandHomePath('~/.sw')).toBe(join(homedir(), '.sw'))
+    expect(expandHomePath('~\\.sw')).toBe(join(homedir(), '.sw'))
+    expect(expandHomePath('/tmp/.sw')).toBe('/tmp/.sw')
+    expect(expandHomePath('~other/.sw')).toBe('~other/.sw')
   })
 
-  it('resolves explicit path before DSH_HOME and the default', () => {
-    const envHome = join(homedir(), 'env-dsh')
+  it('resolves explicit path before SW_HOME, its compatibility alias, and the default', () => {
+    const envHome = join(homedir(), 'env-sw')
 
-    expect(resolveDshHome('/tmp/explicit-dsh', { DSH_HOME: '~/env-dsh' })).toBe(resolve('/tmp/explicit-dsh'))
-    expect(resolveDshHome(undefined, { DSH_HOME: '~/env-dsh' })).toBe(envHome)
+    expect(resolveDshHome('/tmp/explicit-sw', { SW_HOME: '~/env-sw' })).toBe(resolve('/tmp/explicit-sw'))
+    expect(resolveDshHome(undefined, { SW_HOME: '~/env-sw', DSH_HOME: '~/legacy' })).toBe(envHome)
+    expect(resolveDshHome(undefined, { DSH_HOME: '~/legacy' })).toBe(join(homedir(), 'legacy'))
     expect(resolveDshHome(undefined, {})).toBe(defaultDshHome())
   })
 
-  it('treats an empty or whitespace-only DSH_HOME as unset', () => {
-    expect(resolveDshHome(undefined, { DSH_HOME: '' })).toBe(defaultDshHome())
-    expect(resolveDshHome(undefined, { DSH_HOME: '   ' })).toBe(defaultDshHome())
+  it('treats an empty or whitespace-only SW_HOME as unset', () => {
+    expect(resolveDshHome(undefined, { SW_HOME: '' })).toBe(defaultDshHome())
+    expect(resolveDshHome(undefined, { SW_HOME: '   ' })).toBe(defaultDshHome())
   })
 
-  it('joins child segments onto the resolved DSH_HOME', () => {
-    vi.stubEnv('DSH_HOME', '~/env-dsh')
-    expect(dshHomePath()).toBe(join(homedir(), 'env-dsh'))
-    expect(dshHomePath('storages', 'cache')).toBe(join(homedir(), 'env-dsh', 'storages', 'cache'))
+  it('joins child segments onto the resolved SW_HOME', () => {
+    vi.stubEnv('SW_HOME', '~/env-sw')
+    expect(dshHomePath()).toBe(join(homedir(), 'env-sw'))
+    expect(dshHomePath('storages', 'cache')).toBe(join(homedir(), 'env-sw', 'storages', 'cache'))
   })
 
   it('labels a resolved home by whether it is the default root', () => {
-    expect(dshHomeDisplay(resolve(defaultDshHome()))).toBe('~/.dsh')
-    expect(dshHomeDisplay('/some/other/root')).toBe('$DSH_HOME')
+    expect(dshHomeDisplay(resolve(defaultDshHome()))).toBe('~/.sw')
+    expect(dshHomeDisplay('/some/other/root')).toBe('$SW_HOME')
   })
 
   it.each([
-    [undefined, join(homedir(), '.dsh')],
-    ['', join(homedir(), '.dsh')],
-    ['   ', join(homedir(), '.dsh')],
-    ['~/env-dsh', join(homedir(), 'env-dsh')],
-    ['./relative-dsh', resolve('./relative-dsh')],
-  ] as const)('resolves cache paths with DSH_HOME=%j', (home, expectedHome) => {
-    vi.stubEnv('DSH_HOME', home)
+    [undefined, join(homedir(), '.sw')],
+    ['', join(homedir(), '.sw')],
+    ['   ', join(homedir(), '.sw')],
+    ['~/env-sw', join(homedir(), 'env-sw')],
+    ['./relative-sw', resolve('./relative-sw')],
+  ] as const)('resolves cache paths with SW_HOME=%j', (home, expectedHome) => {
+    vi.stubEnv('SW_HOME', home)
     try {
       expect(dshCachePath()).toBe(join(expectedHome, 'cache'))
       expect(dshCachePath('models', 'index.json')).toBe(join(expectedHome, 'cache', 'models', 'index.json'))
@@ -74,12 +75,12 @@ describe('dsh path helpers', () => {
   })
 
   it('resolves configured cache homes before the environment', () => {
-    vi.stubEnv('DSH_HOME', '~/env-dsh')
+    vi.stubEnv('SW_HOME', '~/env-sw')
     try {
-      expect(dshCachePath({ dshHome: '~/explicit-dsh' })).toBe(join(homedir(), 'explicit-dsh', 'cache'))
-      expect(dshCachePath({ dshHome: './explicit-dsh' }, 'attachments', 'request-images'))
-        .toBe(resolve('./explicit-dsh/cache/attachments/request-images'))
-      expect(dshCachePath({}, 'attachments')).toBe(join(homedir(), 'env-dsh', 'cache', 'attachments'))
+      expect(dshCachePath({ dshHome: '~/explicit-sw' })).toBe(join(homedir(), 'explicit-sw', 'cache'))
+      expect(dshCachePath({ dshHome: './explicit-sw' }, 'attachments', 'request-images'))
+        .toBe(resolve('./explicit-sw/cache/attachments/request-images'))
+      expect(dshCachePath({}, 'attachments')).toBe(join(homedir(), 'env-sw', 'cache', 'attachments'))
     } finally {
       vi.unstubAllEnvs()
     }

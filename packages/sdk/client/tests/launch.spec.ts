@@ -46,7 +46,7 @@ describe('SDK dsh launch resolution', () => {
         '--patch', resolve(bin, '..', '..', 'src/sdk-source.cordis.patch.yml'),
       ])
     expect(launch.initializeTimeoutMs).toBe(DEFAULT_INITIALIZE_TIMEOUT_MS)
-    expect(launch.description).toBe('dsh profile "sdk"')
+    expect(launch.description).toBe('SugarWork profile "sdk"')
   })
 
   it('makes every filesystem input absolute before spawn and preserves patch order', () => {
@@ -73,14 +73,18 @@ describe('SDK dsh launch resolution', () => {
         '--patch', resolve(caller, '../second.yml'),
       ],
       cwd: join(caller, 'worker'),
-      description: 'dsh profile "custom-sdk"',
+      description: 'SugarWork profile "custom-sdk"',
       initializeTimeoutMs: 123,
       requestTimeoutMs: 456,
       shutdownTimeoutMs: 789,
       disposeEofGraceMs: 12,
       disposeGraceMs: 34,
     })
-    expect(launch.environment()).toEqual({ PATH: '/bin', DSH_HOME: join(caller, 'home') })
+    expect(launch.environment()).toEqual({
+      PATH: '/bin',
+      SW_HOME: join(caller, 'home'),
+      DSH_HOME: join(caller, 'home'),
+    })
   })
 
   it('falls back to the same package source entry through an absolute tsx loader', () => {
@@ -158,12 +162,23 @@ describe('SDK dsh launch resolution', () => {
     expect(resolveDshBinFromManifests(pair.dshUrl, pair.clientUrl)).toBe(join(pair.root, 'bin.js'))
   })
 
+  it('prefers the sw executable while accepting the legacy dsh alias', () => {
+    const canonical = manifestPair({
+      version: '1.0.0',
+      bin: { sw: './sw.js', dsh: './dsh.js' },
+    }, { version: '1.0.0' })
+    expect(resolveDshBinFromManifests(canonical.dshUrl, canonical.clientUrl)).toBe(join(canonical.root, 'sw.js'))
+
+    const legacy = manifestPair({ version: '1.0.0', bin: { dsh: './dsh.js' } }, { version: '1.0.0' })
+    expect(resolveDshBinFromManifests(legacy.dshUrl, legacy.clientUrl)).toBe(join(legacy.root, 'dsh.js'))
+  })
+
   it.each([null, {}, ''])(
     'rejects a manifest without a usable dsh executable (%j)',
     (bin) => {
       const pair = manifestPair({ version: '1.0.0', bin }, { version: '1.0.0' })
       expect(() => resolveDshBinFromManifests(pair.dshUrl, pair.clientUrl))
-        .toThrow('declares no dsh executable')
+        .toThrow('declares no sw executable')
     },
   )
 })

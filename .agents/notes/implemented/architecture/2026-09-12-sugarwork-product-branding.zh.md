@@ -14,11 +14,15 @@ SugarWork 是发布的 Web 与 Electron 应用唯一呈现的产品身份。文�
 
 Electron 在 macOS 与 Windows 上的发布标识为 `com.aixvo.sugarwork`。打包会拒绝取值不同的 `DSH_DESKTOP_APP_ID`。测试与生产更新 origin 分别通过 `DOWNLOAD_TEST_ORIGIN` 和 `DOWNLOAD_PROD_ORIGIN` 保持为部署输入；对象前缀为 `_/sugarwork/desktop/stable/<target>/`。
 
-用于标识实现而非产品呈现的兼容标识保持不变，包括 `@deepseek-ai/dsh-*` 包 scope、`dsh` 命令与环境变量、profile 与存储路径、TypeScript 与 Python API 名称、Session 与 ACP 协议标识、仓库 URL，以及 DeepSeek 模型提供方名称。面向提供方的 DeepSeek 名称继续标识可选择的模型服务，不充当 SugarWork 产品品牌。
+产品规范命令为 `sw`；发布的 CLI 暂时保留 `dsh` 作为迁移别名。新安装从 `$SW_HOME` 解析产品数据并默认使用 `~/.sw`，同时 `$DSH_HOME` 继续作为可显式设置的读取兼容覆盖值。包 scope、manifest 字段、其余环境变量族、TypeScript 与 Python API 名称，以及 Session 与 ACP 协议标识需要协调一致的兼容迁移；它们不会在发布 UI 中充当产品身份。面向提供方的 DeepSeek 名称继续标识可选择的模型服务，不充当 SugarWork 产品品牌。
 
 现有 `ui-brand-official` 包名与 `official` 构建 profile 值保持为兼容标识。它的实现同时向侧栏与会话 slot 提供 SugarWork 标志和名称，因此发布组合中不存在仍然生效的 DeepSeek 产品品牌 occupant。
 
+可选的仓库徽章 skill 现在注册为 `sugarwork-badge`，安装 SugarWork 图稿并链接公司仓库；其历史 npm 包名继续作为内部兼容标识保留。通用 HTTP 请求与模型归属信息使用 `sugarwork` 产品 token 和公司仓库 URL；DeepSeek 专用 wire header 名称作为对应提供方的协议标识保留。
+
 MIT License、第三方声明以及法律要求保留的版权或归属文字保持完整，不属于产品品牌界面。
+
+SugarWork 文档站在公司文档重建期间仅发布本地化产品首页。旧用户指南与开发教程目录已经删除；维护代码所需的仓库架构、测试说明、包约定、Agent Note、许可证与声明继续保留。默认分支 CI 使用 GitHub 托管 runner；真实提供方 E2E 需要仓库显式启用，因此缺少外部凭证不会表现为产品构建失败。
 
 ## 验证
 
@@ -26,7 +30,7 @@ MIT License、第三方声明以及法律要求保留的版权或归属文字保
 
 ## 考虑过的替代方案
 
-**重命名所有 DSH 与 DeepSeek 标识。** 这种方式可以从源码删除旧字符串，却会破坏包使用方、profile、环境配置、持久化 Session、协议对端、提供方路由与 SDK，而不会进一步改善用户可见的产品身份。
+**一次机械替换所有兼容标识。** 这种方式会破坏包使用方、profile、环境配置、持久化 Session、协议对端、提供方路由与 SDK。迁移先从产品拥有的规范入口开始，包身份则必须在确认公司拥有的 npm scope 后再修改。
 
 **保留上游品牌插件，只覆盖应用标题。** 侧栏、欢迎页、favicon、启动画面、安装包与应用图标仍会传达另一个身份。
 
@@ -34,4 +38,4 @@ MIT License、第三方声明以及法律要求保留的版权或归属文字保
 
 ## 影响
 
-用户在 Web 与 Desktop 中看到统一的 SugarWork 身份，发布产物带有公司的应用标识与命名。现有代码和存储数据保留兼容的 DSH 标识。维护者必须按受众判断后续出现的名称：面向产品的文案与图稿使用 SugarWork，DeepSeek 提供方名称保留为提供方标签，实现标识只通过明确的兼容迁移修改。
+用户在 Web、Desktop、CLI 帮助、文档与发布产物中看到统一的 SugarWork 身份。新的本地数据使用 SugarWork 路径，显式旧主目录配置仍可解析。维护者必须按受众判断后续出现的名称：面向产品的文案与图稿使用 SugarWork，DeepSeek 提供方名称保留为提供方标签，实现标识只通过明确的兼容迁移修改。

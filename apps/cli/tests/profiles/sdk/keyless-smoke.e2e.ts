@@ -173,7 +173,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       expect(shutdown).toMatchObject({ jsonrpc: '2.0', id: 3, result: {} })
       const exit = await child
       expect(exit.exitCode, `signal=${String(exit.signal)}; stderr=${stderr}`).toBe(0)
-      const sessionsRoot = join(root, '.dsh', 'sessions')
+      const sessionsRoot = join(root, '.sw', 'sessions')
       const files = await readdir(sessionsRoot, { recursive: true })
       const log = files.find(file => file.endsWith('.jsonl.zstd'))
       expect(log).toBeDefined()
@@ -196,11 +196,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-python-sdk-minimal-'))
     const editorPatch = join(root, 'editor.patch.yml')
     if (editorEnabled) {
-      const guide = await readFile(join(repoRoot, 'docs/user/guide/python-sdk.md'), 'utf8')
-      const yaml = guide.split('<a id="opt-in-to-str_replace_editor"></a>')[1]
-        ?.match(/```yaml\n([\s\S]*?)```/)?.[1]
-      expect(yaml).toBeDefined()
-      await writeFile(editorPatch, yaml!)
+      const fixture = await readFile(join(repoRoot, 'apps/cli/tests/fixtures/sdk-minimal-editor.patch.yml'), 'utf8')
+      await writeFile(editorPatch, fixture)
     }
     const editorFile = join(root, 'editor.txt')
     const editorContent = 'sdk-minimal editor opt-in\n'

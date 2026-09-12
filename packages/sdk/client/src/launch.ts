@@ -59,9 +59,10 @@ export function resolveDshBinFromManifests(dshManifestUrl: string, clientManifes
     throw new Error(`dsh SDK client ${String(clientManifest.version)} requires the same dsh version, got ${String(dshManifest.version)}`)
   }
   const bin = typeof dshManifest.bin === 'object' && dshManifest.bin !== null
-    ? (dshManifest.bin as Record<string, unknown>).dsh
+    ? (dshManifest.bin as Record<string, unknown>).sw
+      ?? (dshManifest.bin as Record<string, unknown>).dsh
     : dshManifest.bin
-  if (typeof bin !== 'string' || bin === '') throw new Error('@deepseek-ai/dsh declares no dsh executable')
+  if (typeof bin !== 'string' || bin === '') throw new Error('SugarWork CLI package declares no sw executable')
   return resolve(dirname(fileURLToPath(dshManifestUrl)), bin)
 }
 
@@ -145,9 +146,9 @@ export function resolveDshLaunch(
     environment: () => ({
       ...(options.env ?? process.env),
       ...dshLaunch.environment,
-      ...dshHome === undefined ? {} : { DSH_HOME: dshHome },
+      ...dshHome === undefined ? {} : { SW_HOME: dshHome, DSH_HOME: dshHome },
     }),
-    description: `dsh profile ${JSON.stringify(profile)}`,
+    description: `SugarWork profile ${JSON.stringify(profile)}`,
     initializeTimeoutMs: options.initializeTimeoutMs ?? DEFAULT_INITIALIZE_TIMEOUT_MS,
     ...options.requestTimeoutMs === undefined ? {} : { requestTimeoutMs: options.requestTimeoutMs },
     ...options.shutdownTimeoutMs === undefined ? {} : { shutdownTimeoutMs: options.shutdownTimeoutMs },

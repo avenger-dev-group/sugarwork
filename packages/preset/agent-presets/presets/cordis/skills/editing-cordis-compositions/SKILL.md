@@ -25,7 +25,7 @@ Two planes, and the choice is not about how "agent-related" something feels — 
 
 A preset is a directory holding one `agent.cordis.yml`, optionally beside a `preset.yml` carrying display metadata — `name` and `description` (and, for shipped presets, a roster `order`). Write the metadata too: a preset without it shows up in every picker as its bare directory name.
 
-Locally authored presets live one directory per preset under `${DSH_HOME:-$HOME/.dsh}/.agent-presets/`, and the shipped set sits beside the deployment's own config. Use those when the user asks where to look. A deployment can configure other roots, so the path you read or edit comes from `list()` or `resolve()` — which is also where `copy()` reports what it just created.
+Locally authored presets live one directory per preset under `${SW_HOME:-$HOME/.sw}/.agent-presets/`; the legacy `DSH_HOME` override remains accepted by the launcher. The shipped set sits beside the deployment's own config. Use those when the user asks where to look. A deployment can configure other roots, so the path you read or edit comes from `list()` or `resolve()` — which is also where `copy()` reports what it just created.
 
 ## The roster service
 
@@ -126,10 +126,10 @@ After a clean mount-validation, ask the user to start a session on the new prese
 Codex and Claude Code providers are independent optional Profile Bundles. Install only the products a Profile needs, then restart the Profile so its Host registers those providers:
 
 ```sh
-dsh plugin --profile <name> add @deepseek-ai/dsh-subagent-codex
-dsh plugin --profile <name> add @deepseek-ai/dsh-subagent-claude-code
-dsh plugin --profile <name> remove @deepseek-ai/dsh-subagent-codex
-dsh plugin --profile <name> remove @deepseek-ai/dsh-subagent-claude-code
+sw plugin --profile <name> add @deepseek-ai/dsh-subagent-codex
+sw plugin --profile <name> add @deepseek-ai/dsh-subagent-claude-code
+sw plugin --profile <name> remove @deepseek-ai/dsh-subagent-codex
+sw plugin --profile <name> remove @deepseek-ai/dsh-subagent-claude-code
 ```
 
 Each Bundle owns its Host availability; the preset separately grants one Agent its ordinary delegation tool. Never move a product provider into the preset and never add a product-specific settings field. Removing one package withdraws only that provider on the next Profile start.
