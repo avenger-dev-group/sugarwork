@@ -1,15 +1,17 @@
 {
   "id": "/",
-  "name": "DeepSeek Harness",
-  "short_name": "DSH",
+  "name": "SugarWork",
+  "short_name": "SugarWork",
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",
+  "theme_color": "#246bfe",
+  "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     }
   ]

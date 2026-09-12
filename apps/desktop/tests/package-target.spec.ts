@@ -71,7 +71,7 @@ describe('desktop package target', () => {
 
   it('removes ambient certificate inputs for unsigned builds and overrides an inherited signing mode', () => {
     const environment = {
-      DSH_DESKTOP_APP_ID: 'com.example.desktop',
+      DSH_DESKTOP_APP_ID: 'com.aixvo.sugarwork',
       DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
       CSC_LINK: 'private.pfx',
       CSC_KEY_PASSWORD: 'secret',
@@ -80,7 +80,7 @@ describe('desktop package target', () => {
       DSH_DESKTOP_UNSIGNED: '1',
     }
     expect(desktopElectronBuilderEnvironment(environment, true)).toEqual({
-      DSH_DESKTOP_APP_ID: 'com.example.desktop',
+      DSH_DESKTOP_APP_ID: 'com.aixvo.sugarwork',
       CSC_IDENTITY_AUTO_DISCOVERY: 'false',
       DSH_DESKTOP_UNSIGNED: '1',
     })

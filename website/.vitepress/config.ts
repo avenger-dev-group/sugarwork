@@ -1,6 +1,6 @@
 /** VitePress configuration for the locally projected documentation site. */
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { DefaultTheme, PageData, SiteConfig } from 'vitepress'
 import type { ViteDevServer } from 'vite'
@@ -205,17 +205,9 @@ const base = process.env.DOCS_BASE ?? '/'
 
 /** Site identity shared by the VitePress configuration and the llms.txt index. */
 const siteIdentity = {
-  title: 'DeepSeek Harness',
+  title: 'SugarWork',
   description: '用于构建 Agent Harness 的插件化 SDK',
 }
-
-/**
- * The DeepSeek wordmark, inlined so its `currentColor` fills follow the active
- * theme. An `<img>` would freeze the mark at the colors the file declares.
- */
-const wordmark = readFileSync(resolve(import.meta.dirname, '../public/wordmark.svg'), 'utf8')
-  .trim()
-  .replace('<svg ', '<svg class="dsh-wordmark" ')
 
 /**
  * Styles the default theme does not provide, carried inline because the site
@@ -229,8 +221,15 @@ const wordmark = readFileSync(resolve(import.meta.dirname, '../public/wordmark.s
  * stay behind a query only Firefox answers.
  */
 const siteStyle = `
+:root {
+  --vp-c-brand-1: #246bfe;
+  --vp-c-brand-2: #315bff;
+  --vp-c-brand-3: #174fd6;
+  --vp-c-brand-soft: rgb(36 107 254 / 14%);
+}
 .dsh-lockup { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-.dsh-wordmark { display: block; height: 22px; width: auto; color: var(--vp-c-text-1); }
+.sugarwork-mark { display: block; width: 24px; height: 24px; object-fit: contain; }
+.sugarwork-wordmark { color: var(--vp-c-brand-1); font-size: 17px; font-weight: 700; letter-spacing: -0.04em; }
 .dsh-tag {
   display: inline-flex;
   align-items: center;
@@ -282,14 +281,14 @@ const scrollbarScript = `
 `
 
 /**
- * Navigation-bar title: the DeepSeek wordmark and the release-stage tag.
+ * Navigation-bar title: the SugarWork mark, name, and release-stage tag.
  * VitePress renders `siteTitle` as HTML.
  *
  * @param previewTag - Localized release-stage label.
  * @returns Markup placed beside the navigation-bar home link.
  */
 function siteTitle(previewTag: string): string {
-  return `<span class="dsh-lockup">${wordmark}<span class="dsh-tag">${previewTag}</span></span>`
+  return `<span class="dsh-lockup"><img class="sugarwork-mark" src="${base}favicon.png" alt=""><span class="sugarwork-wordmark">SugarWork</span><span class="dsh-tag">${previewTag}</span></span>`
 }
 
 export default withMermaid({
@@ -303,7 +302,7 @@ export default withMermaid({
   },
   head: [
     // VitePress leaves head hrefs untouched, so the base belongs here explicitly.
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
+    ['link', { rel: 'icon', type: 'image/png', href: `${base}favicon.png` }],
     ['style', {}, siteStyle],
     ['script', {}, scrollbarScript],
   ],

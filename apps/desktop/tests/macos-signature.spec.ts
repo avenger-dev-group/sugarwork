@@ -8,6 +8,7 @@ import { verifyDesktopRuntime } from '../src/runtime-tree.ts'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { NotarizeOptions } from '@electron/notarize'
 import {
+  DESKTOP_APP_ID,
   resolveDesktopAppId,
   resolveMacOSNotarizationEnvironment,
   resolveMacOSSigningEnvironment,
@@ -24,7 +25,7 @@ const { copyFiles } = createRequire(import.meta.url)('app-builder-lib/out/fileMa
 }
 
 const RELEASE_ENVIRONMENT = {
-  DSH_DESKTOP_APP_ID: 'com.example.desktop',
+  DSH_DESKTOP_APP_ID: 'com.aixvo.sugarwork',
   DSH_DESKTOP_TARGET_PLATFORM: 'darwin',
   DSH_DESKTOP_TARGET_ARCH: 'arm64',
   DSH_DESKTOP_MACOS_SIGNING_IDENTITY: 'Example Company (TEAMID1234)',
@@ -59,7 +60,10 @@ describe('desktop macOS release signature', () => {
     expect(portablePath(config.extraResources[1]?.from ?? '')).toContain('/.desktop-build/targets/mac-arm64/dsh')
     expect(config).toMatchObject({
       appId: RELEASE_ENVIRONMENT.DSH_DESKTOP_APP_ID,
+      productName: 'SugarWork',
+      artifactName: 'sugarwork-${version}-${os}-${arch}.${ext}',
       mac: {
+        icon: 'build/icon.icns',
         identity: RELEASE_ENVIRONMENT.DSH_DESKTOP_MACOS_SIGNING_IDENTITY,
         forceCodeSigning: true,
         notarize: true,
@@ -71,8 +75,9 @@ describe('desktop macOS release signature', () => {
       },
       publish: [{
         provider: 'generic',
-        url: 'https://desktop-updates.example.com/_/harness/desktop/stable/mac-arm64/',
+        url: 'https://desktop-updates.example.com/_/sugarwork/desktop/stable/mac-arm64/',
       }],
+      win: { icon: 'build/icon.ico' },
     })
     expect(typeof config.artifactBuildCompleted).toBe('function')
   })
@@ -190,9 +195,14 @@ describe('desktop macOS release signature', () => {
     }).toThrow(`TeamIdentifier=${expected.teamId}`)
   })
 
-  it('rejects missing and malformed release identifiers', () => {
-    expect(() => resolveDesktopAppId({})).toThrow(/DSH_DESKTOP_APP_ID/u)
+  it('fixes the public application identifier and rejects overrides', () => {
+    expect(resolveDesktopAppId({})).toBe(DESKTOP_APP_ID)
+    expect(resolveDesktopAppId({ DSH_DESKTOP_APP_ID: DESKTOP_APP_ID })).toBe(DESKTOP_APP_ID)
     expect(() => resolveDesktopAppId({ DSH_DESKTOP_APP_ID: 'not-a-bundle-id' })).toThrow(/reverse-DNS/u)
+    expect(() => resolveDesktopAppId({ DSH_DESKTOP_APP_ID: 'com.example.desktop' })).toThrow(DESKTOP_APP_ID)
+  })
+
+  it('rejects missing and malformed macOS release identifiers', () => {
     expect(() => resolveMacOSSigningEnvironment({})).toThrow(/DSH_DESKTOP_MACOS_SIGNING_IDENTITY/u)
     expect(() => resolveMacOSSigningEnvironment({
       DSH_DESKTOP_MACOS_SIGNING_IDENTITY: 'Developer ID Application: Example Company (TEAMID1234)',

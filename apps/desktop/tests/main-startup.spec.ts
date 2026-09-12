@@ -62,6 +62,8 @@ const harness = await vi.hoisted(async () => {
     whenReady: () => Promise.resolve(),
     getLocale: () => 'en-US',
     getVersion: () => '1.0.0',
+    setName: vi.fn((name: string) => { app.name = name }),
+    setAboutPanelOptions: vi.fn(),
     getAppPath: () => 'desktop-test-app',
     requestSingleInstanceLock: () => true,
     exit: vi.fn(),
@@ -163,6 +165,11 @@ describe('desktop main startup', () => {
     harness.app.exit.mockImplementationOnce(() => { exited.resolve(undefined) })
     await import('../src/main.ts')
     await exited.promise
+    expect(harness.app.setName).toHaveBeenCalledWith('SugarWork')
+    expect(harness.app.setAboutPanelOptions).toHaveBeenCalledWith({
+      applicationName: 'SugarWork',
+      applicationVersion: '1.0.0',
+    })
     expect(harness.app.exit).toHaveBeenCalledWith(1)
     expect(console.error).toHaveBeenCalledWith(expect.objectContaining({ message: 'emergency navigation failed' }))
   })

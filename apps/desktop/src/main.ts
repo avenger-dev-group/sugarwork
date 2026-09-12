@@ -148,6 +148,11 @@ async function serveShellAsset(request: Request): Promise<Response> {
 }
 
 async function main(): Promise<void> {
+  app.setName('SugarWork')
+  app.setAboutPanelOptions({
+    applicationName: 'SugarWork',
+    applicationVersion: app.getVersion(),
+  })
   const resources = runtimeResources()
   const paths = resolveDesktopPaths()
   const development = app.isPackaged ? undefined : join(app.getAppPath(), '.desktop-build', 'development', 'project')
@@ -437,6 +442,8 @@ async function main(): Promise<void> {
   Menu.setApplicationMenu(Menu.buildFromTemplate([{
     label: process.platform === 'darwin' ? app.name : messages.application,
     submenu: [
+      { role: 'about' },
+      { type: 'separator' },
       {
         label: development === undefined ? messages.pluginsMenu : messages.pluginsMenuPackagedOnly,
         accelerator: 'CmdOrCtrl+,',

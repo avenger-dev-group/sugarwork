@@ -1,19 +1,24 @@
-import { BrandWordmark, FishLogo } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
+const BRAND_ICON_URL = './favicon.png'
 
-/**
- * Render the official mark with the presentation requested by its host surface.
- * @param props - Host-supplied mark presentation.
- * @returns the official whale mark.
- */
-export function OfficialBrandMark({ size }: SidebarBrandMarkOwnerProps) {
-  return <FishLogo size={size} />
+interface BrandMarkProps {
+  readonly size: number
+  readonly className?: string | undefined
 }
 
 /**
- * Render the official name artwork without its independently slotted mark.
- * @returns the official name wordmark.
+ * Render the SugarWork mark with the presentation requested by its host surface.
+ * @param props - Host-supplied mark presentation.
+ * @returns the SugarWork mark.
  */
-export function OfficialBrandName() {
-  return <BrandWordmark includeMark={false} />
+export function SugarWorkBrandMark({ size, className }: BrandMarkProps) {
+  return <img src={BRAND_ICON_URL} width={size} height={size} className={className} alt="" aria-hidden="true" />
+}
+
+/**
+ * Render the SugarWork name without its independently slotted mark.
+ * @param props - Localized product-name presentation.
+ * @returns the SugarWork wordmark text.
+ */
+export function SugarWorkBrandName({ name }: { readonly name: string }) {
+  return <span style={{ color: 'var(--dsw-alias-state-business-primary, #246bfe)' }} aria-hidden="true">{name}</span>
 }

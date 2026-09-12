@@ -36,25 +36,25 @@ describe('DocumentTitle', () => {
   it('projects a durable title and restores the product title', () => {
     const { sessionId, sessions, props } = titleSources()
     document.title = 'stale title'
-    const mounted = render(<DocumentTitle {...props} productTitle="DeepSeek Harness" />)
-    expect(document.title).toBe('DeepSeek Harness')
+    const mounted = render(<DocumentTitle {...props} productTitle="SugarWork" />)
+    expect(document.title).toBe('SugarWork')
     act(() => { sessions.update((state) => { state.byId[sessionId]!.title = 'First title' }) })
-    expect(document.title).toBe('First title — DeepSeek Harness')
+    expect(document.title).toBe('First title — SugarWork')
     act(() => { sessions.update((state) => { state.byId[sessionId]!.title = 'Revised title' }) })
-    expect(document.title).toBe('Revised title — DeepSeek Harness')
+    expect(document.title).toBe('Revised title — SugarWork')
     act(() => { sessions.update((state) => { state.current = undefined }) })
-    expect(document.title).toBe('DeepSeek Harness')
+    expect(document.title).toBe('SugarWork')
     mounted.unmount()
-    expect(document.title).toBe('DeepSeek Harness')
+    expect(document.title).toBe('SugarWork')
   })
 
   it('uses the localized product title supplied by the frame', () => {
     const { sessionId, sessions, props } = titleSources()
     sessions.update((state) => { state.byId[sessionId]!.title = 'First title' })
-    const mounted = render(<DocumentTitle {...props} productTitle="DSH Local Build" />)
-    expect(document.title).toBe('First title — DSH Local Build')
+    const mounted = render(<DocumentTitle {...props} productTitle="SugarWork Local Build" />)
+    expect(document.title).toBe('First title — SugarWork Local Build')
     mounted.unmount()
-    expect(document.title).toBe('DSH Local Build')
+    expect(document.title).toBe('SugarWork Local Build')
   })
 
   it('keeps the product title across global panels and restores the latest Session title on return', () => {

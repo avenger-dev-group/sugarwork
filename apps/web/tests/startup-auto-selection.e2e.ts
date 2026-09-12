@@ -41,15 +41,15 @@ describe('web e2e: startup auto-selection', () => {
   it('keeps the resident Hero and composer nodes when the first Workspace session appears', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-first-workspace-stable-tree'))
     await page.locator(`${ROOT_PHASE}[data-phase="hero"]`).waitFor({ timeout: 15_000 })
+    expect(await page.title()).toBe('SugarWork')
+    expect(await page.locator('body').innerText()).not.toContain('DeepSeek Harness')
+    await expect(page.locator('svg[viewBox="0 0 23.16 17.04"]').count()).resolves.toBe(0)
     const headline = page.getByText('Into the Unknown', { exact: true })
-    // The headline text sits in its own span inside the title group; the fish
-    // hitbox precedes the group, not the text span.
-    const fishHitbox = headline.locator('xpath=../preceding-sibling::span[1]')
-    const fish = fishHitbox.locator('svg')
-    expect(await fish.evaluate(node => getComputedStyle(node).color))
-      .toBe(await headline.evaluate(node => getComputedStyle(node).color))
-    await fishHitbox.hover()
-    expect(await fish.evaluate(node => getComputedStyle(node).animationName)).not.toBe('none')
+    // The product mark precedes the title group and remains mounted while
+    // startup selects the first Workspace session. Official builds use an
+    // image occupant; local builds use the SW fallback.
+    const markHitbox = headline.locator('xpath=../preceding-sibling::span[1]')
+    await expect(markHitbox.locator('img, [class*="fallbackMark"]').count()).resolves.toBe(1)
     await page.evaluate(() => {
       const refs = {
         root: document.querySelector('div[data-phase="hero"]'),

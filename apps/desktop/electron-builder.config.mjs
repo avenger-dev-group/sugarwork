@@ -54,8 +54,8 @@ export function createElectronBuilderConfig(
   const buildPaths = desktopTargetBuildPaths(resolveDesktopBuildTarget(env, hostPlatform, hostArch))
   return {
     appId,
-    productName: 'DeepSeek Harness',
-    artifactName: 'deepseek-harness-${version}-${os}-${arch}.${ext}',
+    productName: 'SugarWork',
+    artifactName: 'sugarwork-${version}-${os}-${arch}.${ext}',
     directories: { output: unsigned ? join(buildPaths.root, 'unsigned-artifacts') : buildPaths.artifacts },
     asar: true,
     files: [
@@ -71,6 +71,7 @@ export function createElectronBuilderConfig(
       { from: join(buildPaths.dsh, 'node_modules'), to: 'dsh/node_modules' },
     ],
     mac: {
+      icon: 'build/icon.icns',
       category: 'public.app-category.developer-tools',
       identity: macOSSigning?.signingIdentity,
       forceCodeSigning: true,
@@ -105,6 +106,7 @@ export function createElectronBuilderConfig(
       )
     },
     win: {
+      icon: 'build/icon.ico',
       forceCodeSigning: !unsigned,
       signtoolOptions: {
         sign: windowsSigner,
@@ -114,6 +116,7 @@ export function createElectronBuilderConfig(
     },
     linux: {
       category: 'Development',
+      icon: 'build/icon.png',
       target: ['AppImage'],
     },
     nsis: {

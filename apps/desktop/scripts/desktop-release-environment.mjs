@@ -3,6 +3,9 @@
 /** Environment variable that supplies the Electron application identifier. */
 export const DESKTOP_APP_ID_ENV = 'DSH_DESKTOP_APP_ID'
 
+/** Public application identifier shared by macOS and Windows releases. */
+export const DESKTOP_APP_ID = 'com.aixvo.sugarwork'
+
 /** Environment variable that supplies electron-builder's macOS certificate qualifier. */
 export const MACOS_SIGNING_IDENTITY_ENV = 'DSH_DESKTOP_MACOS_SIGNING_IDENTITY'
 
@@ -38,11 +41,14 @@ function requireEnvironmentValue(env, name) {
  * @returns {string} Reverse-DNS application identifier.
  */
 export function resolveDesktopAppId(env) {
-  const appId = requireEnvironmentValue(env, DESKTOP_APP_ID_ENV)
+  const appId = env[DESKTOP_APP_ID_ENV]?.trim() || DESKTOP_APP_ID
   if (!/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/u.test(appId)) {
     throw new Error(`desktop release environment: ${DESKTOP_APP_ID_ENV} must be a reverse-DNS identifier`)
   }
-  return appId
+  if (appId !== DESKTOP_APP_ID) {
+    throw new Error(`desktop release environment: ${DESKTOP_APP_ID_ENV} must be ${DESKTOP_APP_ID}`)
+  }
+  return DESKTOP_APP_ID
 }
 
 /**
