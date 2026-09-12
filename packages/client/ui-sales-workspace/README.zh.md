@@ -8,7 +8,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用本包可为销售部门提供现有客户、订单、通话记录和短信工作台。它会向共享 Dashboard 添加销售日程、关注计数和优先行动。其记录是模拟展示数据，不会授予 CRM 或通信访问权限。
+使用本包可为销售部门提供现有客户、订单、通话记录和短信工作台。每个紧凑业务面板都提供文本搜索、状态筛选和可见的结果计数。本包还会向共享 Dashboard 添加销售日程、关注计数和优先行动。其记录是模拟展示数据，不会授予 CRM 或通信访问权限。
 
 ## 目录
 
@@ -47,12 +47,13 @@ kind: "package-reference"
 <details>
 <summary>实现内部机制——点击展开</summary>
 
-本包注册一个部门功能。其 mount 回调贡献四个 keyed 主面板和四个侧边栏条目，然后填充 Dashboard 拥有的日程、指标和任务 Slot。停用该功能时，这些贡献会一并释放。
+本包注册一个部门功能。其 mount 回调贡献四个 keyed 主面板和四个侧边栏条目，然后填充 Dashboard 拥有的日程、指标和任务 Slot。每个面板都把本地化 mock 记录投影到同一个语义化 `BusinessDataTable`；该组件统一负责搜索、状态筛选、业务对象排序、结果计数和空状态展示。停用该功能时，这些贡献会一并释放。
 
 | 文件 | 职责 |
 |---|---|
 | [`src/client/index.ts`](src/client/index.ts) | 注册功能与 Slot contribution |
 | [`src/client/SalesWorkspace.tsx`](src/client/SalesWorkspace.tsx) | 渲染 Dashboard 卡片与销售面板 |
+| [`src/client/BusinessDataTable.tsx`](src/client/BusinessDataTable.tsx) | 渲染共享的可搜索、可排序表格 |
 | [`src/client/locales.ts`](src/client/locales.ts) | 拥有中英文产品文案 |
 
 </details>
@@ -85,6 +86,7 @@ kind: "package-reference"
 
 - 客户、订单、通话、短信、会议和任务记录是展示用 mock 数据；没有挂载 CRM 或通信 Tool。
 - Dashboard 计数不会从 Host projection 刷新。
+- 共享表格只处理当前内存结果集；服务端分页和服务端筛选等待 Sales 数据 API。
 
 <a id="dev-note"></a>
 ### 开发备注

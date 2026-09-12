@@ -3,6 +3,7 @@
 import type { AppWorkbenchPanelId } from '@deepseek-ai/dsh-api-app-bootstrap/types'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { SidebarPanelIconOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import { BusinessDataTable } from './BusinessDataTable.tsx'
 import css from './SalesWorkspace.module.css'
 
 /** Sales panel supported by the mock feature package. */
@@ -12,7 +13,7 @@ interface SalesNavigationInjected {
   readonly selectPanel: (panel: AppWorkbenchPanelId) => void
 }
 
-interface SalesPanelInjected extends SalesNavigationInjected {
+interface SalesPanelInjected {
   readonly kind: SalesPanelKind
 }
 
@@ -109,13 +110,17 @@ export function SalesTasks({ selectPanel, t }: SalesDashboardProps) {
 }
 
 /** Render one mock Sales business panel. */
-export function SalesPanel({ kind, selectPanel, t }: SalesPanelProps) {
+export function SalesPanel({ kind, t }: SalesPanelProps) {
   const rows = [1, 2, 3] as const
+  const localizedRows = rows.map(row => ({
+    id: row,
+    name: t(`panel.${kind}.row${row}.name`),
+    detail: t(`panel.${kind}.row${row}.meta`),
+    status: t(`panel.${kind}.row${row}.state`),
+  }))
+
   return (
     <main className={css.panel} aria-labelledby={`sales-${kind}-title`}>
-      <button type="button" className={css.back} onClick={() => { selectPanel('dashboard' as AppWorkbenchPanelId) }}>
-        <span aria-hidden="true">←</span> {t('panel.back')}
-      </button>
       <header className={css.panelHeader}>
         <div>
           <p>{t('panel.updated')}</p>
@@ -124,16 +129,24 @@ export function SalesPanel({ kind, selectPanel, t }: SalesPanelProps) {
         </div>
         <strong>{t(`panel.${kind}.summary`)}</strong>
       </header>
-      <div className={css.businessList}>
-        {rows.map(row => (
-          <article className={css.businessRow} key={row}>
-            <span className={css.businessAvatar} aria-hidden="true">{String(row).padStart(2, '0')}</span>
-            <div><strong>{t(`panel.${kind}.row${row}.name`)}</strong><p>{t(`panel.${kind}.row${row}.meta`)}</p></div>
-            <span className={css.businessState}>{t(`panel.${kind}.row${row}.state`)}</span>
-            <span className={css.businessArrow} aria-hidden="true">→</span>
-          </article>
-        ))}
-      </div>
+      <section className={css.panelWorkspace} aria-label={t(`panel.${kind}.title`)}>
+        <BusinessDataTable
+          rows={localizedRows}
+          labels={{
+            searchLabel: t('panel.search.label'),
+            searchPlaceholder: t('panel.search.placeholder'),
+            filterLabel: t('panel.filter.label'),
+            allStatuses: t('panel.filter.all'),
+            results: t('panel.results'),
+            recordColumn: t('panel.column.record'),
+            detailColumn: t('panel.column.details'),
+            statusColumn: t('panel.column.status'),
+            sortByRecord: t('panel.sort.record'),
+            emptyTitle: t('panel.empty.title'),
+            emptyDetail: t('panel.empty.detail'),
+          }}
+        />
+      </section>
     </main>
   )
 }

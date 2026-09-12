@@ -27,14 +27,27 @@ describe('Sales workspace presentation', () => {
     expect(selectPanel).toHaveBeenLastCalledWith('orders')
   })
 
-  it('renders localized business rows and returns to the Dashboard', () => {
-    const selectPanel = vi.fn<(panel: AppWorkbenchPanelId) => void>()
-    const props = { kind: 'messages', selectPanel, t } as unknown as Parameters<typeof SalesPanel>[0]
+  it('searches and filters localized business rows without an in-panel back action', () => {
+    const props = { kind: 'messages', t } as unknown as Parameters<typeof SalesPanel>[0]
     const view = render(<SalesPanel {...props} />)
 
     expect(view.getByRole('heading', { name: 'Messages' })).toBeTruthy()
+    expect(view.getByRole('table')).toBeTruthy()
+    expect(view.getByRole('columnheader', { name: /Business record/ })).toBeTruthy()
     expect(view.getByText('GreenValley Clinics')).toBeTruthy()
-    fireEvent.click(view.getByRole('button', { name: 'Back to Dashboard' }))
-    expect(selectPanel).toHaveBeenCalledWith('dashboard')
+    expect(view.queryByRole('button', { name: 'Back to Dashboard' })).toBeNull()
+
+    fireEvent.change(view.getByRole('searchbox', { name: 'Search sales records' }), { target: { value: 'BrightCare' } })
+    expect(view.getByText('BrightCare Medical')).toBeTruthy()
+    expect(view.queryByText('GreenValley Clinics')).toBeNull()
+
+    fireEvent.change(view.getByRole('combobox', { name: /Status/ }), { target: { value: 'Unread' } })
+    expect(view.getByText('No matching records')).toBeTruthy()
+
+    fireEvent.change(view.getByRole('searchbox', { name: 'Search sales records' }), { target: { value: '' } })
+    fireEvent.change(view.getByRole('combobox', { name: /Status/ }), { target: { value: 'all' } })
+    fireEvent.click(view.getByRole('button', { name: 'Sort by business record' }))
+    const bodyRows = view.getAllByRole('row').slice(1)
+    expect(bodyRows[0]?.textContent).toContain('BrightCare Medical')
   })
 })

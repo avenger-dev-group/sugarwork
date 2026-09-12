@@ -49,7 +49,7 @@ export function apply(ctx: Context): void {
       for (const [kind, panel] of Object.entries(panelIds) as Array<[SalesPanelKind, AppWorkbenchPanelId]>) {
         disposers.push(ctx.slots.inject('main', () => ctx.slots.register({
           name: 'main', key: brandString<MainPanelId>(panel), locale: NS,
-          inject: () => ({ kind, selectPanel }),
+          inject: () => ({ kind }),
         }, SalesPanel)))
       }
 

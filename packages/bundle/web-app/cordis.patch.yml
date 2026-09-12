@@ -109,7 +109,7 @@
         currentUserId: sales-demo-user
         users:
           - id: sales-demo-user
-            name: 林晨
+            name: SIMON.F
             status: active
             primaryDepartmentId: sales
         departments:

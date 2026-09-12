@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this package to give a Sales department an existing-customer, order, call-log, and message workspace. It adds Sales schedule, attention counts, and prioritized actions to the shared Dashboard. Its records are mock presentation data and do not grant CRM or communication access.
+Use this package to give a Sales department an existing-customer, order, call-log, and message workspace. Each compact business panel provides text search, status filtering, and visible result counts. The package also adds Sales schedule, attention counts, and prioritized actions to the shared Dashboard. Its records are mock presentation data and do not grant CRM or communication access.
 
 ## Table of Contents
 
@@ -47,12 +47,13 @@ The package has no configuration fields. The Host Bootstrap enables its `custome
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package registers one department feature. Its mount callback contributes four keyed main panels and four sidebar rows, then fills the Dashboard-owned agenda, metric, and task slots. Deactivating the feature disposes those contributions together.
+The package registers one department feature. Its mount callback contributes four keyed main panels and four sidebar rows, then fills the Dashboard-owned agenda, metric, and task slots. Every panel projects localized mock records into one semantic `BusinessDataTable`; that component owns search, status filtering, record sorting, result counts, and empty presentation. Deactivating the feature disposes those contributions together.
 
 | File | Role |
 |---|---|
 | [`src/client/index.ts`](src/client/index.ts) | Registers the feature and Slot contributions |
 | [`src/client/SalesWorkspace.tsx`](src/client/SalesWorkspace.tsx) | Renders Dashboard cards and Sales panels |
+| [`src/client/BusinessDataTable.tsx`](src/client/BusinessDataTable.tsx) | Renders the shared searchable and sortable table |
 | [`src/client/locales.ts`](src/client/locales.ts) | Owns English and Chinese product copy |
 
 </details>
@@ -85,6 +86,7 @@ The package currently demonstrates navigation and page composition rather than a
 
 - Customer, order, call, message, meeting, and task records are presentation-only mock data; no CRM or communication Tool is mounted.
 - Dashboard counts do not refresh from a Host projection.
+- The shared table processes the current in-memory result set; server pagination and server-side filtering wait for the Sales data API.
 
 <a id="dev-note"></a>
 ### Dev Note

@@ -9,6 +9,7 @@
     { "path": "../locale" },
     { "path": "../ui-department-workbench" },
     { "path": "../ui-layout" },
+    { "path": "../ui-primitives" },
     { "path": "../ui-renderer" },
     { "path": "../ui-sidebar" },
     { "path": "../ui-slots" }
