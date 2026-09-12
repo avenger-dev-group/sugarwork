@@ -101,6 +101,65 @@
     - id: plugin-inventory
       name: '@deepseek-ai/dsh-host-plugin-inventory'
 
+    # Development identity directory. The current account is selected by the
+    # deployment; the browser receives only the resolved bootstrap projection.
+    - id: department-workbench-mock
+      name: '@deepseek-ai/dsh-department-workbench-mock'
+      config:
+        currentUserId: sales-demo-user
+        users:
+          - id: sales-demo-user
+            name: 林晨
+            status: active
+            primaryDepartmentId: sales
+        departments:
+          - id: sales
+            name: 销售部
+            status: active
+            featureSetId: sales-workbench
+            agentPresetId: standard
+            homePanelId: dashboard
+        memberships:
+          - id: sales-demo-membership
+            userId: sales-demo-user
+            departmentId: sales
+            roleId: sales-representative
+            status: active
+        roles:
+          - id: sales-representative
+            name: 销售代表
+            kind: member
+        featureSets:
+          - id: sales-workbench
+            features: [common-dashboard, sales-workspace]
+            navigation:
+              - id: dashboard
+                featureId: common-dashboard
+                panelId: dashboard
+              - id: customers
+                featureId: sales-workspace
+                panelId: customers
+              - id: orders
+                featureId: sales-workspace
+                panelId: orders
+              - id: calls
+                featureId: sales-workspace
+                panelId: calls
+              - id: messages
+                featureId: sales-workspace
+                panelId: messages
+        policies:
+          - id: sales-representative-policy
+            departmentId: sales
+            roleId: sales-representative
+            actions: [session-create, customer-read, order-read, call-read, message-read]
+            dataScopes:
+              - kind: department
+                resource: sales
+
+    - id: app-bootstrap
+      name: '@deepseek-ai/dsh-api-app-bootstrap'
+
     # Session commands, cold reads, and live control over Typert Remote.
     - id: session-controller
       name: '@deepseek-ai/dsh-api-session-controller'
@@ -219,6 +278,12 @@
 
     - id: ui-sidebar
       name: '@deepseek-ai/dsh-client-ui-sidebar'
+
+    - id: ui-department-workbench
+      name: '@deepseek-ai/dsh-client-ui-department-workbench'
+
+    - id: ui-sales-workspace
+      name: '@deepseek-ai/dsh-client-ui-sales-workspace'
 
     # The right Sidebar: one docking surface per session over ui-dockkit.
     - id: ui-sidebar-right

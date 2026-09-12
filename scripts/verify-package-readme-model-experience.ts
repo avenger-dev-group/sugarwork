@@ -44,6 +44,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  * blocks. A package moves on or off this list with its context behavior.
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
+  'packages/api/app-bootstrap': { kind: 'none', reason: 'Account and department bootstrap transport; it registers no prompt, tool, or session event.' },
   'packages/attachment/attachment': { kind: 'indirect', reason: 'The storage seam delegates model request rendering to provider adapters.' },
   'packages/attachment/attachment-local': { kind: 'indirect', reason: 'The local backend delegates model request rendering to provider adapters.' },
   'packages/shell/shell': { kind: 'indirect', reason: 'The service interface delegates all model rendering to dsh-tool-bash.' },
@@ -85,7 +86,11 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/experimental/agent-team-web-profile': { kind: 'indirect', reason: 'The Web layer delegates model composition to the Host-side Agent Teams profile.' },
   'packages/experimental/client-ui-agent-team': { kind: 'none', reason: 'The browser projection and task controls register no model-facing input.' },
   'packages/client/ui-layout': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
+  'packages/client/ui-department-workbench': { kind: 'none', reason: 'Browser-side department navigation and Dashboard presentation; registers nothing model-facing.' },
+  'packages/client/ui-sales-workspace': { kind: 'none', reason: 'Browser-side Sales navigation and mock presentation; registers nothing model-facing.' },
   'packages/client/ui-dockkit': { kind: 'none', reason: 'Browser-side docking layout engine and components; registers nothing model-facing.' },
+  'packages/identity/department-workbench': { kind: 'none', reason: 'Identity and authorization Service Definition; it registers no model-facing contribution.' },
+  'packages/identity/department-workbench-mock': { kind: 'none', reason: 'Development identity provider; it registers no model-facing contribution.' },
   'packages/client/ui-sidebar-right': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
   'packages/client/ui-sidebar': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
   'packages/client/ui-brand-official': { kind: 'none', reason: 'Browser-side presentation occupants; registers nothing model-facing.' },

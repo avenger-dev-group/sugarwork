@@ -5,12 +5,28 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import { en } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
 import { LoginGate } from '../src/client/LoginGate.tsx'
+import type { AppBootstrapState, IAppBootstrapClient } from '@deepseek-ai/dsh-api-app-bootstrap/client'
 
 const t = ((key: string) => {
   if (key === 'brand.name') return 'SugarWork'
   if (key === 'brand.markFallback') return 'SW'
   return en[key as keyof typeof en]
 }) as TranslateNS<'common'>
+
+function bootstrapClient(): IAppBootstrapClient {
+  let state: AppBootstrapState = { phase: 'idle' }
+  const listeners = new Set<() => void>()
+  return {
+    getSnapshot: () => state,
+    subscribe: (listener) => { listeners.add(listener); return () => { listeners.delete(listener) } },
+    load: async () => {
+      state = { phase: 'ready', value: {} as never }
+      listeners.forEach((listener) => { listener() })
+      return state.value
+    },
+    reset: () => { state = { phase: 'idle' } },
+  }
+}
 
 afterEach(() => {
   cleanup()
@@ -20,7 +36,7 @@ afterEach(() => {
 
 describe('LoginGate', () => {
   it('keeps the application unmounted until the user enters without credentials', () => {
-    const view = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const view = render(<LoginGate t={t} appBootstrap={bootstrapClient()}><div>private workspace</div></LoginGate>)
 
     expect(view.queryByText('private workspace')).toBeNull()
     expect((view.getByLabelText('Account') as HTMLInputElement).value).toBe('')
@@ -30,16 +46,17 @@ describe('LoginGate', () => {
   })
 
   it('retains entry when the application remounts in the same tab', () => {
-    const view = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const client = bootstrapClient()
+    const view = render(<LoginGate t={t} appBootstrap={client}><div>private workspace</div></LoginGate>)
 
     fireEvent.click(view.getByRole('button', { name: /Enter workspace/ }))
     view.unmount()
-    const restored = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const restored = render(<LoginGate t={t} appBootstrap={client}><div>private workspace</div></LoginGate>)
     expect(restored.getByText('private workspace')).toBeTruthy()
   })
 
   it('accepts arbitrary display credentials without retaining them', () => {
-    const view = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const view = render(<LoginGate t={t} appBootstrap={bootstrapClient()}><div>private workspace</div></LoginGate>)
     fireEvent.change(view.getByLabelText('Account'), { target: { value: 'any-account' } })
     fireEvent.change(view.getByLabelText('Password'), { target: { value: 'demo-password' } })
     fireEvent.click(view.getByRole('button', { name: /Enter workspace/ }))
@@ -49,7 +66,7 @@ describe('LoginGate', () => {
 
   it('does not interpret an unrelated storage value as workspace entry', () => {
     sessionStorage.setItem('sugarwork.workspace.entered', 'false')
-    const view = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const view = render(<LoginGate t={t} appBootstrap={bootstrapClient()}><div>private workspace</div></LoginGate>)
 
     expect(view.queryByText('private workspace')).toBeNull()
     expect(view.getByRole('button', { name: /Enter workspace/ })).toBeTruthy()
@@ -57,7 +74,7 @@ describe('LoginGate', () => {
 
   it('accepts the browser-test handoff marker and removes it from the address', () => {
     history.replaceState(null, '', '/workspace?fixture#dsh-enter-workspace')
-    const view = render(<LoginGate t={t}><div>private workspace</div></LoginGate>)
+    const view = render(<LoginGate t={t} appBootstrap={bootstrapClient()}><div>private workspace</div></LoginGate>)
 
     expect(view.getByText('private workspace')).toBeTruthy()
     expect(location.pathname).toBe('/workspace')

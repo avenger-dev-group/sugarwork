@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "tsBuildInfoFile": "lib/tsconfig.host.tsbuildinfo"
+  },
+  "files": ["src/index.ts", "src/types.ts"],
+  "references": [
+    { "path": "../../util/brand" },
+    { "path": "../../../vendor/cordis" },
+    { "path": "../../identity/department-workbench" },
+    { "path": "../../typert/protocol" }
+  ]
+}

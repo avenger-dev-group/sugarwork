@@ -1,0 +1,82 @@
+.agendaList { display: grid; gap: 1px; margin-top: 13px; }
+.agendaRow { display: grid; grid-template-columns: 48px 1fr; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+.agendaRow:last-child { border-bottom: 0; }
+.agendaRow time { padding-top: 2px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); font: var(--dsw-font-xs-13); font-weight: 700; font-variant-numeric: tabular-nums; }
+.agendaRow span { display: grid; min-width: 0; gap: 2px; }
+.agendaRow strong { overflow: hidden; color: var(--dsw-alias-label-primary); font: var(--dsw-font-s-14); text-overflow: ellipsis; white-space: nowrap; }
+.agendaRow small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+
+.metricCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 112px;
+  padding: 15px;
+  overflow: hidden;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 14px;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+.metricCard:hover { border-color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: var(--dsw-alias-interactive-bg-hover); transform: translateY(-2px); }
+.metricCard:focus-visible,
+.taskRow:focus-visible,
+.back:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary-new-colorprimary-new-color); outline-offset: 2px; }
+.metricMark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 12px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 11%, transparent); font-size: 15px; font-weight: 780; }
+.metricCopy { display: grid; min-width: 0; gap: 2px; }
+.metricCopy strong { font-size: 27px; line-height: 1; letter-spacing: -0.04em; }
+.metricCopy > span { overflow: hidden; color: var(--dsw-alias-label-secondary); font: var(--dsw-font-s-14); font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.metricCopy small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+.metricArrow { position: absolute; top: 10px; right: 12px; color: var(--dsw-alias-label-dimmed); font-size: 12px; }
+
+.tasks { min-height: 100%; }
+.tasksHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding: 22px 24px 18px; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+.tasksHeader p { margin: 0 0 5px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); font: var(--dsw-font-xs-13); font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.tasksHeader h2 { margin: 0; color: var(--dsw-alias-label-primary); font-size: 22px; letter-spacing: -0.02em; }
+.tasksHeader > span { color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); }
+.taskList { display: grid; }
+.taskRow { display: grid; grid-template-columns: 52px 10px minmax(0, 1fr) auto auto; align-items: center; gap: 13px; min-height: 72px; padding: 8px 24px; border: 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); background: transparent; text-align: left; cursor: pointer; }
+.taskRow:last-child { border-bottom: 0; }
+.taskRow:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.taskRow time { color: var(--dsw-alias-label-secondary); font: var(--dsw-font-xs-13); font-weight: 650; font-variant-numeric: tabular-nums; }
+.taskState { width: 8px; height: 8px; border-radius: 50%; corner-shape: round; background: var(--dsw-alias-brand-primary-new-colorprimary-new-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 9%, transparent); }
+.taskCopy { display: grid; min-width: 0; gap: 3px; }
+.taskCopy strong { overflow: hidden; font: var(--dsw-font-s-14); font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.taskCopy small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+.taskBadge { padding: 4px 8px; border-radius: 999px; corner-shape: round; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-interactive-bg-hover-solid); font: var(--dsw-font-xs-13); }
+.taskOpen { color: var(--dsw-alias-label-secondary); font: var(--dsw-font-xs-13); }
+
+.panel { min-height: 100%; box-sizing: border-box; padding: clamp(28px, 5vw, 70px); overflow: auto; color: var(--dsw-alias-label-primary); background: radial-gradient(circle at 82% 0%, color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 11%, transparent), transparent 32%), var(--dsw-alias-bg-base); }
+.back { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border: 0.5px solid var(--dsw-alias-border-l2); border-radius: 10px; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-1); font: var(--dsw-font-xs-13); cursor: pointer; }
+.back:hover { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.panelHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; max-width: 1040px; margin: 54px auto 30px; }
+.panelHeader p { margin: 0 0 10px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); font: var(--dsw-font-xs-13); font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.panelHeader h1 { margin: 0; font-size: clamp(38px, 6vw, 70px); letter-spacing: -0.055em; line-height: 1; }
+.panelHeader div > span { display: block; max-width: 650px; margin-top: 15px; color: var(--dsw-alias-label-secondary); font: var(--dsw-font-base-16); line-height: 1.6; }
+.panelHeader > strong { flex: none; padding: 9px 13px; border-radius: 999px; corner-shape: round; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 10%, transparent); font: var(--dsw-font-s-14); }
+.businessList { display: grid; max-width: 1040px; margin: 0 auto; overflow: hidden; border: 0.5px solid var(--dsw-alias-border-l2); border-radius: 18px; background: var(--dsw-alias-bg-layer-1); box-shadow: 0 18px 60px color-mix(in srgb, var(--dsw-alias-label-primary) 5%, transparent); }
+.businessRow { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto 24px; align-items: center; gap: 16px; min-height: 86px; padding: 0 22px; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+.businessRow:last-child { border-bottom: 0; }
+.businessAvatar { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 13px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 10%, transparent); font: var(--dsw-font-xs-13); font-weight: 700; }
+.businessRow div { min-width: 0; }
+.businessRow div strong { display: block; overflow: hidden; font: var(--dsw-font-base-16); font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.businessRow p { margin: 5px 0 0; overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-s-14); text-overflow: ellipsis; white-space: nowrap; }
+.businessState { padding: 5px 9px; border-radius: 999px; corner-shape: round; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-interactive-bg-hover-solid); font: var(--dsw-font-xs-13); }
+.businessArrow { color: var(--dsw-alias-label-dimmed); }
+
+@media (max-width: 760px) {
+  .metricCard { min-height: 96px; }
+  .taskRow { grid-template-columns: 44px 8px minmax(0, 1fr); padding-inline: 16px; }
+  .taskBadge,
+  .taskOpen { display: none; }
+  .panelHeader { align-items: flex-start; flex-direction: column; margin-top: 36px; }
+  .businessRow { grid-template-columns: 38px minmax(0, 1fr) auto; padding-inline: 14px; }
+  .businessArrow { display: none; }
+  .businessState { max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

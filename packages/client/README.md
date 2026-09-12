@@ -41,6 +41,8 @@ The kernel packages boot and serve the page; the UI feature packages present it.
 | [`ui-primitives/`](ui-primitives/README.md) | Provides shared React controls, icons, and content renderers | — |
 | [`ui-attachment/`](ui-attachment/README.md) | Registers composer and message-image attachment presentation | — |
 | [`ui-layout/`](ui-layout/README.md) | Arranges the main application regions | — |
+| [`ui-department-workbench/`](ui-department-workbench/README.md) | Activates server-enabled department features and provides the shared Dashboard | `ctx.departmentFeatures` |
+| [`ui-sales-workspace/`](ui-sales-workspace/README.md) | Adds Sales navigation, Dashboard attention cards, and mock business panels | — |
 | [`ui-sidebar/`](ui-sidebar/README.md) | Presents workspace and session navigation | — |
 | [`resources/`](resources/README.md) | Unified resource model: protocol providers behind the `useResource` session standard hook | `ctx.resources` |
 | [`ui-sidebar-files/`](ui-sidebar-files/README.md) | Right-Sidebar workspace file tree tab type | — |

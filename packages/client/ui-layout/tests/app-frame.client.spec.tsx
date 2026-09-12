@@ -9,6 +9,7 @@ import type { AppFrameProps } from '../src/client/AppFrame.tsx'
 import type { MainPanelId, RightbarOwnerProps, SidebarOwnerProps } from '../src/client/index.ts'
 import { createLayoutStore } from '../src/client/stores.ts'
 import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { IAppBootstrapClient } from '@deepseek-ai/dsh-api-app-bootstrap/client'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
@@ -18,6 +19,13 @@ let workspacesReady = true
 type AttentionSnapshot = Parameters<Parameters<AppFrameProps['useSessionPendingInteraction']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
 const useSessionPendingInteraction: AppFrameProps['useSessionPendingInteraction'] = selector => selector(noAttention)
+const readyBootstrapState = { phase: 'ready' as const, value: {} as never }
+const readyBootstrap = {
+  getSnapshot: () => readyBootstrapState,
+  subscribe: () => () => {},
+  load: async () => undefined,
+  reset: () => {},
+} satisfies IAppBootstrapClient
 
 let observers: ResizeObserverStub[]
 class ResizeObserverStub {
@@ -93,6 +101,7 @@ function mountFrame(windowWidth = frameWidth) {
   })
   const element = () => (
     <AppFrame
+      appBootstrap={readyBootstrap}
       useStore={useStore}
       actions={instance.actions}
       renderSlot={renderSlot}

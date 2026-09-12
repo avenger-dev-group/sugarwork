@@ -114,6 +114,17 @@
   line-height: 1.6;
 }
 
+.error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-state-danger-primary) 32%, transparent);
+  border-radius: 10px;
+  color: var(--dsw-alias-state-danger-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-danger-primary) 8%, transparent);
+  font: var(--dsw-font-s-14);
+  line-height: 1.5;
+}
+
 @media (max-width: 480px) {
   .page { padding: 24px; }
   .welcome h1 { font-size: 28px; }

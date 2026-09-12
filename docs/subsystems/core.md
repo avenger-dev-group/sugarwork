@@ -898,6 +898,30 @@ roots(): Agent[]
 
 Source: [`packages/core/agent/src/index.ts`](../../packages/core/agent/src/index.ts)
 
+<a id="ctxdepartmentworkbench--departmentworkbenchprovider-abstract-seam"></a>
+
+### `ctx.departmentWorkbench` — `DepartmentWorkbenchProvider` (abstract seam)
+
+Provider for the current account's workbench and business authorization.
+
+```ts cordis-catalog
+/**
+ * Resolve the current authenticated account's active primary workbench.
+ * @returns the complete server-side workbench composition.
+ * @throws when account data is absent, disabled, or inconsistent.
+ */
+abstract resolveCurrent(): Promise<ResolvedDepartmentWorkbench>
+
+/**
+ * Authorize one business operation against current membership and policy.
+ * @param request - server-owned identity, action, and optional resource.
+ * @returns denial or mandatory provider constraints.
+ */
+abstract authorize(request: DepartmentAccessRequest): Promise<DepartmentAccessDecision>
+```
+
+Source: [`packages/identity/department-workbench/src/index.ts`](../../packages/identity/department-workbench/src/index.ts)
+
 <a id="agent-events"></a>
 
 ### `agent/*` events

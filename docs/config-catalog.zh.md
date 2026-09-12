@@ -542,6 +542,118 @@ export interface Config {
 
 来源：[`packages/credentials/credentials-local/src/index.ts:64`](../packages/credentials/credentials-local/src/index.ts)
 
+<a id="deepseek-aidsh-department-workbench-mock"></a>
+
+## `@deepseek-ai/dsh-department-workbench-mock`
+
+```ts config-catalog
+/** Complete mock organization directory supplied by the deployment. */
+export interface Config {
+  /** Deployment-selected account id; browser requests cannot override it. */
+  readonly currentUserId: string
+  /** Complete mock user directory. */
+  readonly users: readonly UserConfig[]
+  /** Complete mock department directory. */
+  readonly departments: readonly DepartmentConfig[]
+  /** User-to-department role assignments. */
+  readonly memberships: readonly MembershipConfig[]
+  /** Roles referenced by memberships. */
+  readonly roles: readonly RoleConfig[]
+  /** Feature sets referenced by departments. */
+  readonly featureSets: readonly FeatureSetConfig[]
+  /** Department-and-role authorization policies. */
+  readonly policies: readonly PolicyConfig[]
+}
+
+interface UserConfig {
+  /** Stable user id. */
+  readonly id: string
+  /** Display name. */
+  readonly name: string
+  /** Account entry status. */
+  readonly status: 'active' | 'disabled'
+  /** MVP primary department id. */
+  readonly primaryDepartmentId?: string
+}
+
+interface DepartmentConfig {
+  /** Stable department id. */
+  readonly id: string
+  /** Display name. */
+  readonly name: string
+  /** Department entry status. */
+  readonly status: 'active' | 'disabled'
+  /** Referenced feature-set id. */
+  readonly featureSetId: string
+  /** Server-selected Agent preset id. */
+  readonly agentPresetId: string
+  /** Initial main-panel id. */
+  readonly homePanelId: string
+}
+
+interface MembershipConfig {
+  /** Stable membership id. */
+  readonly id: string
+  /** Referenced user id. */
+  readonly userId: string
+  /** Referenced department id. */
+  readonly departmentId: string
+  /** Referenced role id. */
+  readonly roleId: string
+  /** Membership authorization status. */
+  readonly status: 'active' | 'disabled'
+}
+
+interface RoleConfig {
+  /** Stable role id. */
+  readonly id: string
+  /** Display name. */
+  readonly name: string
+  /** Shared-shell role behavior. */
+  readonly kind: 'member' | 'administrator'
+}
+
+interface FeatureSetConfig {
+  /** Stable feature-set id. */
+  readonly id: string
+  /** Enabled client feature ids. */
+  readonly features: readonly string[]
+  /** Ordered navigation entries. */
+  readonly navigation: readonly NavigationConfig[]
+}
+
+interface PolicyConfig {
+  /** Stable policy id. */
+  readonly id: string
+  /** Department governed by the policy. */
+  readonly departmentId: string
+  /** Role governed by the policy. */
+  readonly roleId: string
+  /** Allowed business action ids. */
+  readonly actions: readonly string[]
+  /** Mandatory data constraints for allowed actions. */
+  readonly dataScopes: readonly DataScopeConfig[]
+}
+
+interface NavigationConfig {
+  /** Stable navigation-item id. */
+  readonly id: string
+  /** Feature that owns this item. */
+  readonly featureId: string
+  /** Panel selected by this item. */
+  readonly panelId: string
+}
+
+interface DataScopeConfig {
+  /** Provider-interpreted scope kind. */
+  readonly kind: string
+  /** Provider-interpreted resource name. */
+  readonly resource: string
+}
+```
+
+来源：[`packages/identity/department-workbench-mock/src/index.ts:121`](../packages/identity/department-workbench-mock/src/index.ts)
+
 <a id="deepseek-aidsh-e2b"></a>
 
 ## `@deepseek-ai/dsh-e2b`
@@ -3446,6 +3558,7 @@ export interface Config {
 
 - `@deepseek-ai/dsh-acp-app` — 需要 `cmdlineArgs`（[`packages/bundle/acp-app/src/index.ts`](../packages/bundle/acp-app/src/index.ts)）
 - `@deepseek-ai/dsh-agent`（[`packages/core/agent/src/index.ts`](../packages/core/agent/src/index.ts)）
+- `@deepseek-ai/dsh-api-app-bootstrap` — 需要 `departmentWorkbench` · `typert`（[`packages/api/app-bootstrap/src/index.ts`](../packages/api/app-bootstrap/src/index.ts)）
 - `@deepseek-ai/dsh-api-remotes` — 需要 `typertGateway`（[`packages/api/remotes/src/index.ts`](../packages/api/remotes/src/index.ts)）
 - `@deepseek-ai/dsh-api-workspace-controller` — 需要 `typert` · `workspaceRegistry`（[`packages/api/workspace-controller/src/index.ts`](../packages/api/workspace-controller/src/index.ts)）
 - `@deepseek-ai/dsh-authorization` — 需要 `credentials`（[`packages/credentials/authorization/src/index.ts`](../packages/credentials/authorization/src/index.ts)）
@@ -3462,6 +3575,7 @@ export interface Config {
 - `@deepseek-ai/dsh-client-ui-conversation`（[`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-cordis`（[`packages/extensions/ui-cordis/src/index.ts`](../packages/extensions/ui-cordis/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-deliverables` — 需要 `systemPrompt` · `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy`（[`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts)）
+- `@deepseek-ai/dsh-client-ui-department-workbench`（[`packages/client/ui-department-workbench/src/index.ts`](../packages/client/ui-department-workbench/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-directory-picker-browse`（[`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-directory-picker-native`（[`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-goal`（[`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts)）
@@ -3475,6 +3589,7 @@ export interface Config {
 - `@deepseek-ai/dsh-client-ui-plan`（[`packages/client/ui-plan/src/index.ts`](../packages/client/ui-plan/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-reference`（[`packages/client/ui-reference/src/index.ts`](../packages/client/ui-reference/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-renderer`（[`packages/client/ui-renderer/src/index.ts`](../packages/client/ui-renderer/src/index.ts)）
+- `@deepseek-ai/dsh-client-ui-sales-workspace`（[`packages/client/ui-sales-workspace/src/index.ts`](../packages/client/ui-sales-workspace/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-schedule`（[`packages/client/ui-schedule/src/index.ts`](../packages/client/ui-schedule/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-session`（[`packages/client/ui-session/src/index.ts`](../packages/client/ui-session/src/index.ts)）
 - `@deepseek-ai/dsh-client-ui-settings`（[`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts)）
@@ -3536,6 +3651,7 @@ export interface Config {
 - `@deepseek-ai/dsh-code-runtime` — 抽象 `CodeRuntime`（[`packages/code-runtime/code-runtime/src/index.ts`](../packages/code-runtime/code-runtime/src/index.ts)）
 - `@deepseek-ai/dsh-compaction` — 抽象 `CompactionEngine`（[`packages/compaction/compaction/src/index.ts`](../packages/compaction/compaction/src/index.ts)）
 - `@deepseek-ai/dsh-credentials` — 抽象 `Credentials`（[`packages/credentials/credentials/src/index.ts`](../packages/credentials/credentials/src/index.ts)）
+- `@deepseek-ai/dsh-department-workbench` — 抽象 `DepartmentWorkbenchProvider`（[`packages/identity/department-workbench/src/index.ts`](../packages/identity/department-workbench/src/index.ts)）
 - `@deepseek-ai/dsh-file-reference` — 抽象 `FileReferenceService`（[`packages/context/file-reference/src/index.ts`](../packages/context/file-reference/src/index.ts)）
 - `@deepseek-ai/dsh-fs` — 抽象 `FileSystem`（[`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts)）
 - `@deepseek-ai/dsh-host-directory-picker` — 抽象 `DirectoryPicker`（[`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts)）

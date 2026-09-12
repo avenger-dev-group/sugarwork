@@ -60,6 +60,12 @@ async function bench() {
   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
   // ui-theme's Appearance row binds a durable scope through these two.
   ctx.provide('remote', { $on: () => () => {} } as never)
+  ctx.provide('appBootstrap', {
+    getSnapshot: () => ({ phase: 'ready', value: {} }),
+    subscribe: () => () => {},
+    load: async () => undefined,
+    reset: () => {},
+  } as never)
   ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
   await ctx.plugin({ inject: themeInject, apply: themeApply }).await()
   await slotsFiber.await()
@@ -76,7 +82,7 @@ async function bench() {
 
 describe('ui-layout client apply', () => {
   it('declares its service dependencies', () => {
-    expect(inject).toEqual(['slots', 'theme', 'locale'])
+    expect(inject).toEqual(['appBootstrap', 'slots', 'theme', 'locale'])
   })
 
   it('provides ctx.layout and declares the four root-scoped frame slots', async () => {
@@ -96,7 +102,7 @@ describe('ui-layout client apply', () => {
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
     const entry = slots.entries('root')[0]!
-    expect(entry.inject).toBeUndefined()
+    expect(entry.inject).toBeTypeOf('function')
     const handle = entry.store as ReturnType<typeof createLayoutStore>
     const instance = handle.create()
     expect(handle.create()).toBe(instance)

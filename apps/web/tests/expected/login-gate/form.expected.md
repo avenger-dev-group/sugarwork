@@ -10,4 +10,4 @@
     - textbox "Password":
       - /placeholder: Enter your password
     - button "Enter workspace"
-    - paragraph: Demo interface. Account and password are optional.
+    - paragraph: Development mode. The server selects the mock account, department, and role.

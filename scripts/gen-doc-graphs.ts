@@ -165,6 +165,22 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns Session commands, cold reads, durable-event following, live control state, model catalogs, workspace opening, and Agent activation policy.',
   },
   {
+    key: 'departmentWorkbench',
+    pkg: 'department-workbench',
+    title: 'Account-driven department workbench seam',
+    mode: 'seam',
+    implementations: ['department-workbench-mock'],
+    consumers: ['api-app-bootstrap'],
+    note: 'Providers resolve the current server-owned account, primary membership, feature set, preset reference, and policy; consumers cannot substitute browser-provided identity values.',
+  },
+  {
+    key: 'appBootstrapController',
+    pkg: 'api-app-bootstrap',
+    title: 'Application bootstrap Remote controller',
+    mode: 'core',
+    note: 'Projects a resolved department workbench to client-safe identity, feature, and navigation fields while retaining preset and authorization policy on the Host.',
+  },
+  {
     key: 'sessionFileReferences',
     pkg: 'api-session-controller',
     title: 'Session-addressed file-reference Remote adapter',

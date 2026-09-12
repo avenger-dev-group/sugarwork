@@ -23,6 +23,8 @@ identity 组为每个 harness home 提供一个匿名 id，该安装的遥测、
 | 包 | 职责 |
 |---|---|
 | [`anonymous-user-id`](anonymous-user-id/README.zh.md) | 让每个 harness home 拥有一个匿名 id，遥测、反馈与 DeepSeek 请求把它附加到记录上，使来自同一安装的记录无需识别用户即可被辨认 |
+| [`department-workbench`](department-workbench/README.zh.md) | 定义由服务端解析的账号、部门、成员关系、角色、功能集和策略契约 |
+| [`department-workbench-mock`](department-workbench-mock/README.zh.md) | 为开发提供经过校验的内存组织目录 |
 
 <a id="related-documentation"></a>
 ## 相关文档

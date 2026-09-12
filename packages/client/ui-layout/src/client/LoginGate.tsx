@@ -1,5 +1,6 @@
-/** Tab-scoped welcome screen for the application shell; not authentication. */
-import { useState, type FormEvent, type ReactNode } from 'react'
+/** Tab-scoped entry screen that admits only a server-resolved workbench. */
+import { useEffect, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react'
+import type { IAppBootstrapClient } from '@deepseek-ai/dsh-api-app-bootstrap/client'
 import { Button, Input } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import css from './LoginGate.module.css'
@@ -13,6 +14,8 @@ export interface LoginGateProps {
   children: ReactNode
   /** Application-shell translator. */
   t: TranslateNS<'common'>
+  /** Server bootstrap state and load command. */
+  appBootstrap: IAppBootstrapClient
 }
 
 /** Read the tab's entry state and consume the browser automation handoff. */
@@ -25,22 +28,42 @@ function initiallyEntered(): boolean {
 }
 
 /**
- * Present a one-click welcome screen before mounting the application.
- * Account and password inputs are presentation-only and are never read or stored.
- * Entry persists for this browser tab and provides no identity or authorization.
+ * Present the workbench entry screen and mount the application only after the
+ * server resolves the current account, department, role, and feature set.
+ * Account and password inputs remain presentation-only while the configured
+ * mock provider owns the current user.
  * @param props - application content and localized copy.
  * @returns the welcome screen or application.
  */
-export function LoginGate({ children, t }: LoginGateProps) {
+export function LoginGate({ children, t, appBootstrap }: LoginGateProps) {
   const [entered, setEntered] = useState(initiallyEntered)
+  const state = useSyncExternalStore(
+    listener => appBootstrap.subscribe(listener),
+    () => appBootstrap.getSnapshot(),
+  )
 
-  if (entered) return children
+  useEffect(() => {
+    if (entered && state.phase === 'idle') void appBootstrap.load()
+  }, [appBootstrap, entered, state.phase])
+
+  if (state.phase === 'ready') return children
 
   const enter = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
     sessionStorage.setItem(ENTRY_STORAGE_KEY, 'true')
     setEntered(true)
+    void appBootstrap.load()
   }
+
+  const error = state.phase === 'error'
+    ? state.code === 'account/workbench-unconfigured'
+      ? t('login.error.unconfigured')
+      : state.code === 'department/disabled'
+        ? t('login.error.departmentDisabled')
+        : state.code === 'account/disabled'
+          ? t('login.error.accountDisabled')
+          : t('login.error.generic')
+    : undefined
 
   return (
     <main className={css.page}>
@@ -60,11 +83,12 @@ export function LoginGate({ children, t }: LoginGateProps) {
             <span>{t('login.password')}</span>
             <Input className={css.field} type="password" autoComplete="current-password" placeholder={t('login.password.placeholder')} />
           </label>
-          <Button type="submit" variant="primary" className={css.enter}>
-            {t('login.submit')}
+          <Button type="submit" variant="primary" className={css.enter} disabled={state.phase === 'loading'}>
+            {state.phase === 'loading' ? t('login.loading') : error === undefined ? t('login.submit') : t('login.retry')}
             <span className={css.arrow} aria-hidden="true">→</span>
           </Button>
         </form>
+        {error !== undefined && <p className={css.error} role="alert">{error}</p>}
         <p className={css.notice}>{t('login.mockNotice')}</p>
       </section>
     </main>

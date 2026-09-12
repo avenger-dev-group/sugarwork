@@ -63,6 +63,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   shell: 'shell.md',
   shellEnv: 'shell.md',
   clientModules: 'client-modules.md',
+  appBootstrapController: 'typert.md',
   codeRuntime: 'code-runtime.md',
   commands: 'commands.md',
   compaction: 'compaction.md',
@@ -72,6 +73,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   credentialsController: 'credentials.md',
   settingsController: 'settings.md',
   directoryPicker: 'workspace.md',
+  departmentWorkbench: 'core.md',
   deepseekLlmApiExtensions: 'llm-streaming.md',
   dynamicCordisRunner: 'extensions.md',
   e2b: 'subprocess.md',
@@ -149,6 +151,7 @@ export const SERVICE_PAGE: Record<string, string> = {
 export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   appReady: 'not a service: launcher-provided successful-startup signal — packages/boot/cmdline/README.md owns the launcher contract',
   appExit: 'not a service: launcher-provided bounded process-exit callback — packages/boot/cmdline/README.md owns the launcher contract',
+  appBootstrap: 'client-side account and department bootstrap state — packages/api/app-bootstrap/README.md owns the API',
   cmdlineArgs: 'not a service: launcher-provided immutable app argument accessor — packages/boot/cmdline/README.md owns the launcher contract',
   configuredAgentIdentities: 'not a service: launcher-provided boot-context value (ConfiguredAgentIdentities | undefined) — packages/core/agent-loop/README.md owns this launcher contract',
   launcherSessionQueryPath: 'not a service: launcher-provided boot-context value (string | undefined) — packages/session-query/session-query-sqlite/README.md owns this launcher contract',
@@ -180,6 +183,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   sidebarRight: 'client-side right-Sidebar navigation face — packages/client/ui-sidebar-right/README.md owns the API',
   sidebarRightTabs: 'client-side right-Sidebar tab-type registry — packages/client/ui-sidebar-right/README.md owns the API',
   documentPreviews: 'client-side document renderer registry — docs/subsystems/sidebar-right.md owns the API',
+  departmentFeatures: 'client-side department feature registry — packages/client/ui-department-workbench/README.md owns the API',
 }
 
 /**
@@ -227,6 +231,7 @@ export const EVENT_SCOPE_PAGE: Record<string, string> = {
  * exemption cannot mask another declaration in that scope.
  */
 export const EVENT_WALK_EXEMPTIONS: Record<string, string> = {
+  'app-bootstrap/ready': 'client-face bootstrap acceptance signal — packages/api/app-bootstrap/README.md owns the API',
   'command/executed': 'client-face local command acknowledgment — packages/client/ui-commands/README.md owns the API',
   'connection/reset': 'client-face transport signal — packages/api/session-controller/README.md owns the API',
   'locale/change': 'client-face locale switch signal — packages/client/locale/README.md owns the API',
@@ -687,6 +692,11 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
+  AppBootstrap: 'application bootstrap payload is owned by packages/api/app-bootstrap/README.md',
+  AppBootstrapRequest: 'application bootstrap request is owned by packages/api/app-bootstrap/README.md',
+  DepartmentAccessDecision: 'department authorization result is owned by packages/identity/department-workbench/README.md',
+  DepartmentAccessRequest: 'department authorization input is owned by packages/identity/department-workbench/README.md',
+  ResolvedDepartmentWorkbench: 'resolved organization state is owned by packages/identity/department-workbench/README.md',
   z: 'schemastery schema constructor is owned by vendor/schemastery (vendored upstream)',
   BeginCommandRequest: 'event-local request contract is owned by packages/client/ui-input-trigger/src/types.ts',
   InsertReferenceRequest: 'event-local request contract is owned by packages/client/ui-input-trigger/src/types.ts',
