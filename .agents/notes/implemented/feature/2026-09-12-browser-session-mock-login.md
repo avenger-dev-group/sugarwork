@@ -10,11 +10,11 @@ The Web application needs an entry step before the main workspace while the prod
 
 ## Decision
 
-The root layout owns a localized mock login and does not mount the three-column application frame until it succeeds. The form accepts the exact username `simon` after trimming whitespace and accepts every password, including an empty value. Success is retained in `sessionStorage`, so it survives a refresh in the same browser tab but does not become a cross-tab or durable identity.
+The root layout owns a localized entry screen and does not mount the three-column application frame until the user enters. Entry is retained in `sessionStorage`, so it survives a refresh in the same browser tab without creating a durable identity. The [account-free entry decision](../simplification/2026-09-12-account-free-workspace-entry.md) replaces the fixed-account form.
 
-The browser test scaffold can request the same public mock identity through the `#dsh-mock-login=simon` fragment. The gate consumes and removes that fragment before mounting the application, which keeps unrelated browser scenarios focused on their owning behavior without adding another authentication mechanism.
+The browser test scaffold can request the same workspace entry through the `#dsh-enter-workspace` fragment. The gate consumes and removes that fragment before mounting the application, which keeps unrelated browser scenarios focused on their owning behavior without adding another authentication mechanism.
 
-The page labels itself as demo authentication and states that the production identity service is pending. The component contract and package documentation explicitly state that it provides no server-side authentication or authorization. Replacing it requires a server-verified session and an application bootstrap decision; production credentials never belong in this component.
+The page identifies the form as a demo and states that the account and password are optional. The component contract and package documentation explicitly state that it provides no server-side authentication or authorization. Replacing it requires a server-verified session and an application bootstrap decision; production credentials never belong in this component.
 
 ## Alternatives considered
 
@@ -26,7 +26,7 @@ The page labels itself as demo authentication and states that the production ide
 
 ## Consequences
 
-- Every fresh browser tab starts at the login page; `simon` enters with any password.
+- A browser tab without an entry flag starts at the welcome screen; one click enters the workspace.
 - Application services represented below the root React frame do not mount until the mock login succeeds, while Host services remain unchanged.
-- The UI is localized, responsive, theme-token based, keyboard-operable, and announces an invalid username as an alert.
+- The UI is localized, responsive, theme-token based, keyboard-operable, and keeps the entry action visible on narrow screens.
 - The placeholder does not protect data and must not be described or deployed as a security control.

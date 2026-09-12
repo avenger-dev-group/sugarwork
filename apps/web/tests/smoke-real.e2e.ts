@@ -339,7 +339,7 @@ describe('sw web keyless CLI smoke', () => {
           cacheHeaders.set(resource, response.headers()['cache-control'])
         }
       })
-      await page.goto(`${readyUrl}#dsh-mock-login=simon`)
+      await page.goto(`${readyUrl}#dsh-enter-workspace`)
       await page.getByRole('button', { name: 'New session', exact: true }).first().waitFor({ timeout: 30_000 })
       const batchPaths = [...new Set(pluginScripts)].sort()
       expect(batchPaths).toHaveLength(2)
@@ -713,7 +713,7 @@ describe.skipIf(!process.env.METIS_API_KEY || notReady.length > 0)('web smoke (r
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     page.on('pageerror', e => pageErrors.push(String(e)))
-    await page.goto(`${baseUrl}#dsh-mock-login=simon`, { waitUntil: 'load' })
+    await page.goto(`${baseUrl}#dsh-enter-workspace`, { waitUntil: 'load' })
   }, 120_000)
 
   afterAll(async () => {

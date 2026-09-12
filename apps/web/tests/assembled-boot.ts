@@ -256,7 +256,7 @@ export function installAssembledBootEnv(): void {
 export function mountAssembledApp(search = '?fixture', options: AssembledBootOptions = {}): void {
   const excluded = new Set(options.exclude)
   const plugins = PLUGINS.filter(plugin => !excluded.has(plugin.id))
-  sessionStorage.setItem('sugarwork.mock-login.username', 'simon')
+  sessionStorage.setItem('sugarwork.workspace.entered', 'true')
   history.replaceState(null, '', `/${search}`)
   const root = document.createElement('div')
   root.id = 'root'

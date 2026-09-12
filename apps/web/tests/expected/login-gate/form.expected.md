@@ -1,14 +1,13 @@
 - main:
-  - region "SugarWork":
-    - text: SugarWork METIS AGENT ONLINE
-    - paragraph: Demo authentication · Production identity service pending
-  - paragraph: Internal agent workspace
-  - heading "Sign in to SugarWork" [level=1]
-  - paragraph: Use your workspace identity to enter the agent collaboration space.
-  - text: Username
-  - textbox "Username":
-    - /placeholder: simon
-  - text: Password
-  - textbox "Password":
-    - /placeholder: Any password is accepted in this demo
-  - button "Enter workspace"
+  - region "Make room for your next idea":
+    - text: SugarWork
+    - heading "Make room for your next idea" [level=1]
+    - paragraph: Turn ideas into outcomes, together with your agents.
+    - text: Account
+    - textbox "Account":
+      - /placeholder: Enter your account
+    - text: Password
+    - textbox "Password":
+      - /placeholder: Enter your password
+    - button "Enter workspace"
+    - paragraph: Demo interface. Account and password are optional.

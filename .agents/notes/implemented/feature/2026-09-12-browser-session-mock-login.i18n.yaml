@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-12-browser-session-mock-login.md
-2026-09-12-browser-session-mock-login.md: b6acc6dd0f55f4cf104ad46fe9c7535c36a6d4d8
-2026-09-12-browser-session-mock-login.zh.md: a8575c9b699aafc17e0b13e1c4d1b7d019ccb7c3
+2026-09-12-browser-session-mock-login.md: 546d6de2aaf1e828023e82e845f773381d2f8c54
+2026-09-12-browser-session-mock-login.zh.md: 1e01bb9277e4047db1bcd3620424d7be16afc5de

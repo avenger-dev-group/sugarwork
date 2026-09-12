@@ -1,4 +1,4 @@
-// Keyless assembled-browser coverage for the temporary application login.
+// Keyless assembled-browser coverage for the workspace welcome screen.
 // The Host authentication cookie is established separately so this scenario
 // exercises the client gate without weakening the real Web transport guard.
 import { fileURLToPath } from 'node:url'
@@ -16,7 +16,7 @@ const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/login-gate', import.meta.
 const FORM_EXPECTED = join(SNAPSHOT_DIR, 'form.expected.md')
 const MODE = webSnapshotMode()
 
-describe('web e2e: mock login gate', () => {
+describe('web e2e: workspace welcome screen', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
@@ -38,25 +38,32 @@ describe('web e2e: mock login gate', () => {
     await scaffold?.close()
   })
 
-  it('keeps the application unmounted until simon signs in', async () => {
+  it('enters without credentials and retains entry after reload', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-login-gate'))
     const form = page.getByRole('main')
-    await page.getByRole('heading', { name: 'Sign in to SugarWork' }).waitFor({ timeout: 30_000 })
+    await page.getByRole('heading', { name: 'Make room for your next idea' }).waitFor({ timeout: 30_000 })
     expect(await page.locator('[class*="frame"]').count()).toBe(0)
 
     const snapshot = await captureStableAria(page, 'main', scaffold.workspaceCwd)
     await compareOrRefreshGolden(FORM_EXPECTED, snapshot, MODE)
 
-    await page.getByRole('textbox', { name: 'Username' }).fill('someone-else')
-    await page.getByRole('button', { name: 'Enter workspace' }).click()
-    await page.getByRole('alert').waitFor()
-    expect(await form.getByText('That username is not recognized. Use simon.').count()).toBe(1)
-    expect(await page.locator('[class*="frame"]').count()).toBe(0)
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 568 }]) {
+      await page.setViewportSize(viewport)
+      const button = await page.getByRole('button', { name: 'Enter workspace' }).boundingBox()
+      expect(button).not.toBeNull()
+      expect(button!.x).toBeGreaterThanOrEqual(0)
+      expect(button!.x + button!.width).toBeLessThanOrEqual(viewport.width)
+      expect(button!.y + button!.height).toBeLessThanOrEqual(viewport.height)
+    }
 
-    await page.getByRole('textbox', { name: 'Username' }).fill('simon')
-    await page.getByRole('button', { name: 'Enter workspace' }).click()
+    expect(await form.locator('input').count()).toBe(2)
+    await page.getByLabel('Account', { exact: true }).fill('any-account')
+    await page.getByLabel('Password', { exact: true }).fill('demo-password')
+    await page.keyboard.press('Enter')
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
-    expect(await page.getByRole('heading', { name: 'Sign in to SugarWork' }).count()).toBe(0)
+    await page.reload()
+    await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
+    expect(await page.getByRole('button', { name: 'Enter workspace' }).count()).toBe(0)
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])
   }, 60_000)

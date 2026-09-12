@@ -241,9 +241,9 @@ function AuthenticatedFrame({
 }
 
 /**
- * Application root with the mock browser-session login in front of the shell.
+ * Application root with the tab-scoped welcome screen before the shell.
  * @param props - assembled root Slot shares.
- * @returns login or authenticated application frame.
+ * @returns the welcome screen or application frame.
  */
 export function AppFrame(props: AppFrameProps) {
   return (

@@ -781,11 +781,11 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       ), 'web e2e scaffold: route-only adapter')
     }
     baseUrl = `http://${browserHost}:${String(port)}`
-    // The product login is intentionally a UI-only mock. The scaffold's
-    // explicit fragment performs the same public `simon` login without making
+    // The welcome screen records only a tab-scoped entry flag. The scaffold's
+    // explicit fragment performs the same workspace entry without making
     // every unrelated browser scenario repeat that gesture. Fragments survive
     // the token exchange redirect and never reach the Host.
-    authenticatedUrl = `${ctx.connection.authenticatedUrl(baseUrl)}#dsh-mock-login=simon`
+    authenticatedUrl = `${ctx.connection.authenticatedUrl(baseUrl)}#dsh-enter-workspace`
     const login = await fetch(authenticatedUrl, { redirect: 'manual' })
     const setCookie = login.headers.get('set-cookie')
     if (login.status !== 303 || login.headers.get('location') !== '/' || setCookie === null) {

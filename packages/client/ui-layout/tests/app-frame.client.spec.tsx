@@ -138,7 +138,7 @@ function drag(handle: Element, fromX: number, toX: number): void {
 }
 
 beforeEach(() => {
-  sessionStorage.setItem('sugarwork.mock-login.username', 'simon')
+  sessionStorage.setItem('sugarwork.workspace.entered', 'true')
   originalTitle = document.title
   frameWidth = 1920
   selectedSession = 's-test' as SessionId
