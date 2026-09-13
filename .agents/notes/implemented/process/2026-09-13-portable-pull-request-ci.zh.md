@@ -12,6 +12,8 @@ Status: implemented
 
 `ci.yml` 的 Linux 正确性作业默认使用 `ubuntu-24.04`，原生 Windows 作业默认使用 `windows-2025`。现有 `DSH_CI_FAILOVER_LINUX` 与 `DSH_CI_FAILOVER_WINDOWS` 选择器仍接受 `selfhosted` 和 `blacksmith`；选择器指向持久化自托管池时，Dependabot 继续回退到标准托管运行器。因此，仓库专属的大型运行器容量成为可选项，而不是取得拉取请求判定的前提。
 
+每项作业通过选择运行器的同一选择器来选择并发量。标准托管作业把聚合作业、覆盖率分区、Vitest worker、产物读取器与快照的并发控制在四个 vCPU 的容量内。自托管与 Blacksmith 作业保留与所选机器匹配的更高并发量。
+
 安装后 wheel 的真实 Metis 检查要求每个轮次在模型请求工具调用后完成。它通过外部观察验证文件创建、仅宿主知道的挑战值复制、源文件保留和 session 日志 framing。提示词仍要求 sentinel 确认，但测试不断言提供方生成的文字；确定性的 keyless SDK 测试负责最终响应的精确投影。
 
 本决策只取代 [CI 故障切换手册](2026-07-26-ci-failover-runbook.zh.md)与[原生 Windows CI 决策](2026-08-08-native-windows-pull-request-ci.zh.md)中默认选择大型运行器的部分。它们拆分作业的拓扑、平台覆盖、可选故障切换路径与信任规则继续生效。[安装后 Python wheel 验证决策](../testing/2026-08-23-installed-python-wheel-black-box-ci.zh.md)负责外部效果检查。
@@ -26,4 +28,4 @@ Status: implemented
 
 ## Consequences
 
-拉取请求作业无需仓库专属运行器设置即可进入 GitHub 的标准托管队列。标准机器的并行容量低于原大型运行器目标，因此完整作业在获得机器后可能执行更久；取消、快速失败行为和作业超时继续约束已被取代或失败的工作。维护者明确选择时，仍可使用自托管与 Blacksmith 路径。真实提供方的措辞变化不再造成误报，而缺少凭据、轮次未完成、没有工具调用、字节错误、源文件被修改或 session 日志无效仍会使检查失败。
+拉取请求作业无需仓库专属运行器设置即可进入 GitHub 的标准托管队列。按资源设置的并发量可防止标准机器启动超出其 CPU 容量的子进程；取消、快速失败行为和作业超时继续约束已被取代或失败的工作。维护者明确选择自托管或 Blacksmith 路径时，这些路径保留更高的并行吞吐量。真实提供方的措辞变化不再造成误报，而缺少凭据、轮次未完成、没有工具调用、字节错误、源文件被修改或 session 日志无效仍会使检查失败。

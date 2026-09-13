@@ -67,7 +67,7 @@ export function Dashboard({ bootstrap, openAgent, renderSlot, t }: DashboardProp
             </div>
           </div>
           <dl className={css.employeeMeta}>
-            <div><dt>{t('employee.number')}</dt><dd>SW-0286</dd></div>
+            <div><dt>{t('employee.number')}</dt><dd>{t('employee.numberValue')}</dd></div>
             <div><dt>{t('employee.workday')}</dt><dd>{t('employee.workdayValue')}</dd></div>
           </dl>
         </article>
@@ -126,7 +126,7 @@ export function Dashboard({ bootstrap, openAgent, renderSlot, t }: DashboardProp
           })}
         </div>
         <aside className={css.aiCard}>
-          <span className={css.aiMark} aria-hidden="true">AI</span>
+          <span className={css.aiMark} aria-hidden="true">{t('ai.mark')}</span>
           <p className={css.aiEyebrow}>{t('ai.eyebrow')}</p>
           <h2>{t('ai.title')}</h2>
           <p>{t('ai.description')}</p>

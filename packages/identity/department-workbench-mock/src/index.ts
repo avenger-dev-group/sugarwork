@@ -264,11 +264,7 @@ export class MockDepartmentWorkbenchProvider extends DepartmentWorkbenchProvider
 
   /** Resolve the configured current account and its active primary workbench. */
   resolveCurrent(): Promise<ResolvedDepartmentWorkbench> {
-    try {
-      return Promise.resolve(this.resolveCurrentValue())
-    } catch (error) {
-      return Promise.reject(error instanceof Error ? error : new Error(String(error)))
-    }
+    return Promise.resolve().then(() => this.resolveCurrentValue())
   }
 
   private resolveCurrentValue(): ResolvedDepartmentWorkbench {
@@ -292,12 +288,12 @@ export class MockDepartmentWorkbenchProvider extends DepartmentWorkbenchProvider
       throw new DepartmentWorkbenchError('workbench-unconfigured', 'primary department needs exactly one active membership')
     }
     const membership = matching[0] as Membership
-    const role = this.roles.get(membership.roleId)
-    const featureSet = this.featureSets.get(department.featureSetId)
+    const role = this.roles.get(membership.roleId) as Role
+    const featureSet = this.featureSets.get(department.featureSetId) as FeatureSet
     const policy = this.policies.find(candidate =>
       candidate.departmentId === department.id && candidate.roleId === membership.roleId)
-    if (role === undefined || featureSet === undefined || policy === undefined) {
-      throw new DepartmentWorkbenchError('directory-invalid', 'primary workbench references missing role, feature set, or policy')
+    if (policy === undefined) {
+      throw new DepartmentWorkbenchError('directory-invalid', 'primary workbench references a missing policy')
     }
     return { user, department, membership, role, featureSet, policy }
   }

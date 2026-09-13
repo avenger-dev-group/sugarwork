@@ -29,4 +29,28 @@ describe('Call workspace', () => {
     fireEvent.click(view.getByRole('button', { name: 'Close call details' }))
     expect(view.queryByRole('complementary', { name: 'Call details' })).toBeNull()
   })
+
+  it('searches, filters direction, opens rows, and toggles playable recordings', () => {
+    const view = render(<CallWorkspace t={t} />)
+    fireEvent.change(view.getByRole('searchbox', { name: /Search call records/ }), { target: { value: 'protective supplies' } })
+    expect(view.getByText('BrightCare Medical')).toBeTruthy()
+    fireEvent.change(view.getByRole('searchbox', { name: /Search call records/ }), { target: { value: 'absent' } })
+    expect(view.getByText('No matching records')).toBeTruthy()
+    fireEvent.change(view.getByRole('searchbox', { name: /Search call records/ }), { target: { value: '' } })
+
+    fireEvent.change(view.getByLabelText('Direction'), { target: { value: 'inbound' } })
+    expect(view.getByText('ALISON SJ')).toBeTruthy()
+    expect(view.queryByText('BrightCare Medical')).toBeNull()
+    fireEvent.change(view.getByLabelText('Status'), { target: { value: 'answered' } })
+    fireEvent.click(view.getByText('ALISON SJ').closest('tr')!)
+
+    const play = view.getByRole('button', { name: 'Play' })
+    fireEvent.click(play)
+    expect(view.getByRole('button', { name: 'Pause' }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(view.getByRole('button', { name: 'Pause' }))
+    expect(view.getByRole('button', { name: 'Play' }).getAttribute('aria-pressed')).toBe('false')
+
+    fireEvent.change(view.getByLabelText('Direction'), { target: { value: 'outbound' } })
+    expect(view.getByText('BrightCare Medical')).toBeTruthy()
+  })
 })

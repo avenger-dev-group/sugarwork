@@ -35,4 +35,51 @@ describe('DepartmentFeatureRegistry', () => {
     const registry = new DepartmentFeatureRegistry(new Context())
     expect(() => { registry.activate(bootstrap) }).toThrow(/not registered/)
   })
+
+  it('rejects duplicate registrations and unregisters through its disposer', () => {
+    const registry = new DepartmentFeatureRegistry(new Context())
+    const dispose = registry.register({ id: feature, panels: [panel], mount: () => () => {} })
+    expect(() => { registry.register({ id: feature, panels: [panel], mount: () => () => {} }) }).toThrow(/already registered/)
+    dispose()
+    expect(() => { registry.activate(bootstrap) }).toThrow(/not registered/)
+  })
+
+  it('rejects duplicate panel ownership, disabled navigation, and absent home navigation', () => {
+    const registry = new DepartmentFeatureRegistry(new Context())
+    const otherFeature = brandString<AppFeatureId>('sales-workspace')
+    registry.register({ id: feature, panels: [panel], mount: () => () => {} })
+    registry.register({ id: otherFeature, panels: [panel], mount: () => () => {} })
+    expect(() => { registry.activate({ ...bootstrap, features: [feature, otherFeature] }) }).toThrow(/owned by both/)
+    expect(() => {
+      registry.activate({
+        ...bootstrap,
+        features: [feature],
+        navigation: [{ ...bootstrap.navigation[0]!, featureId: otherFeature }],
+      })
+    }).toThrow(/disabled feature/)
+    expect(() => { registry.activate({ ...bootstrap, navigation: [] }) }).toThrow(/absent from navigation/)
+  })
+
+  it('unwinds earlier mounts when a later feature mount fails and replaces active mounts', () => {
+    const registry = new DepartmentFeatureRegistry(new Context())
+    const otherFeature = brandString<AppFeatureId>('sales-workspace')
+    const otherPanel = brandString<AppWorkbenchPanelId>('customers')
+    const firstDispose = vi.fn()
+    registry.register({ id: feature, panels: [panel], mount: () => firstDispose })
+    registry.register({ id: otherFeature, panels: [otherPanel], mount: () => { throw new Error('mount failed') } })
+    const twoFeatures = {
+      ...bootstrap,
+      features: [feature, otherFeature],
+      navigation: [
+        ...bootstrap.navigation,
+        { id: brandString<AppNavigationItemId>('customers'), featureId: otherFeature, panelId: otherPanel },
+      ],
+    }
+    expect(() => { registry.activate(twoFeatures) }).toThrow('mount failed')
+    expect(firstDispose).toHaveBeenCalledOnce()
+
+    registry.activate(bootstrap)
+    registry.activate(bootstrap)
+    expect(firstDispose).toHaveBeenCalledTimes(2)
+  })
 })

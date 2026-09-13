@@ -218,8 +218,8 @@ describe.skipIf(!builtArtifactsExist)('sw web browser-open assembled snapshot', 
     })
 
     const diagnostic = result.stderr.split(/\r?\n/u)
-      .find(line => line.startsWith('Error: dsh: '))
-      ?.replace(/^Error: dsh: .*[/\\]\.env/u, 'dsh: {{root}}/.env')
+      .find(line => line.startsWith('Error: sw: '))
+      ?.replace(/^Error: sw: .*[/\\]\.env/u, 'sw: {{root}}/.env')
 
     expect({
       diagnostic,
@@ -229,7 +229,7 @@ describe.skipIf(!builtArtifactsExist)('sw web browser-open assembled snapshot', 
       ready: result.stdout.includes('sw web: '),
     }).toMatchInlineSnapshot(`
       {
-        "diagnostic": "dsh: {{root}}/.env sets "BROWSER", which only the launching environment may set (it decides how this process starts, where its code and instructions load from, or how it reaches the network); export BROWSER instead of putting it in a .env file",
+        "diagnostic": "sw: {{root}}/.env sets "BROWSER", which only the launching environment may set (it decides how this process starts, where its code and instructions load from, or how it reaches the network); export BROWSER instead of putting it in a .env file",
         "exitCode": 1,
         "opened": false,
         "opening": false,

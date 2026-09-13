@@ -47,6 +47,8 @@ const agenda = [
   { time: '16:30', title: 'agenda.pipeline.title', detail: 'agenda.pipeline.detail' },
 ] as const
 
+const messageIconPath = 'M3.25 4.25h13.5v10H8l-3.5 2.5v-2.5H3.25zM6 7.5h8M6 10.5h5.5'
+
 /** Render the Sales schedule in the common Dashboard. */
 export function SalesAgenda({ t }: PropsRuntime<'department.dashboard.agenda'> & PropsLocale<'sales-workspace'>) {
   return (
@@ -165,7 +167,7 @@ export function SalesNavIcon({ active, kind, size }: SalesIconProps) {
     customers: 'M6.5 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-4.25 7c.3-3 1.7-4.5 4.25-4.5s3.95 1.5 4.25 4.5M13 6.5h4.5M15.25 4.25v4.5',
     orders: 'M4 3.25h12v13.5H4zM7 7h6M7 10h6M7 13h3.5',
     calls: 'M5 3.5 8 7 6.5 8.75c1.15 2.2 2.55 3.6 4.75 4.75L13 12l3.5 3c-.9 1.2-2.15 1.7-3.5 1.25-4.7-1.55-7.7-4.55-9.25-9.25C3.3 5.65 3.8 4.4 5 3.5Z',
-    messages: 'M3.25 4.25h13.5v10H8l-3.5 2.5v-2.5H3.25zM6 7.5h8M6 10.5h5.5',
+    messages: messageIconPath,
   }
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden="true">

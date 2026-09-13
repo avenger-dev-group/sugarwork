@@ -75,13 +75,13 @@ export function CustomerMaintenance({ t }: PropsLocale<'sales-workspace'>) {
     if (field === 'customerId') setDuplicateId(false)
   }
   const save = (): void => {
-    if (editor === null || form.customerId.trim() === '' || form.name1.trim() === '') return
+    const currentEditor = editor as NonNullable<typeof editor>
     const normalizedId = form.customerId.trim()
-    if (records.some(record => record.customerId === normalizedId && record.customerId !== editor.originalId)) {
+    if (records.some(record => record.customerId === normalizedId && record.customerId !== currentEditor.originalId)) {
       setDuplicateId(true)
       return
     }
-    const previous = records.find(record => record.customerId === editor.originalId)
+    const previous = records.find(record => record.customerId === currentEditor.originalId)
     const saved: SapCustomer = {
       ...form,
       customerId: normalizedId,
@@ -89,9 +89,9 @@ export function CustomerMaintenance({ t }: PropsLocale<'sales-workspace'>) {
       createdAt: previous?.createdAt ?? '2026-09-13',
       updatedAt: '2026-09-13 10:30',
     }
-    setRecords(current => editor.mode === 'add'
+    setRecords(current => currentEditor.mode === 'add'
       ? [saved, ...current]
-      : current.map(record => record.customerId === editor.originalId ? saved : record))
+      : current.map(record => record.customerId === currentEditor.originalId ? saved : record))
     setEditor(null)
   }
 

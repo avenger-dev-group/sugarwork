@@ -4,7 +4,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import type { AppWorkbenchPanelId } from '@deepseek-ai/dsh-api-app-bootstrap/types'
-import { SalesMetrics, SalesPanel, SalesTasks } from '../src/client/SalesWorkspace.tsx'
+import { SalesAgenda, SalesMetrics, SalesNavIcon, SalesPanel, SalesTasks } from '../src/client/SalesWorkspace.tsx'
 import { en } from '../src/client/locales.ts'
 import type {} from '../src/client/index.ts'
 
@@ -49,5 +49,28 @@ describe('Sales workspace presentation', () => {
     fireEvent.click(view.getByRole('button', { name: 'Sort by business record' }))
     const bodyRows = view.getAllByRole('row').slice(1)
     expect(bodyRows[0]?.textContent).toContain('BrightCare Medical')
+    fireEvent.click(view.getByRole('button', { name: 'Sort by business record' }))
+    expect(view.getAllByRole('row').slice(1)[0]?.textContent).toContain('Maple Pediatrics')
+  })
+
+  it('renders the agenda, specialized panels, and every sidebar glyph state', () => {
+    const agenda = render(<SalesAgenda {...({ t } as unknown as Parameters<typeof SalesAgenda>[0])} />)
+    expect(agenda.getByText('Sales stand-up')).toBeTruthy()
+    agenda.unmount()
+
+    for (const kind of ['customers', 'calls', 'orders'] as const) {
+      const panel = render(<SalesPanel {...({ kind, t } as unknown as Parameters<typeof SalesPanel>[0])} />)
+      expect(panel.getByRole('main')).toBeTruthy()
+      panel.unmount()
+    }
+
+    for (const kind of ['customers', 'orders', 'calls', 'messages'] as const) {
+      const inactive = render(<SalesNavIcon size={20} active={false} kind={kind} />)
+      expect(inactive.container.querySelector('path')?.getAttribute('stroke-width')).toBe('1.45')
+      inactive.unmount()
+      const active = render(<SalesNavIcon size={16} active kind={kind} />)
+      expect(active.container.querySelector('path')?.getAttribute('stroke-width')).toBe('1.8')
+      active.unmount()
+    }
   })
 })

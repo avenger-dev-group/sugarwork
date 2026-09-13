@@ -165,6 +165,14 @@ describe('CI workflow', () => {
     if (!Array.isArray(aggregate.needs)) {
       throw new TypeError('CI aggregate must define needs')
     }
+    const expectResourceBudget = (
+      job: Record<string, unknown>, key: string, selector: string, accelerated: string, standard: string,
+    ): void => {
+      if (!isRecord(job.env) || typeof job.env[key] !== 'string') throw new TypeError(`${key} must be a string expression`)
+      expect(job.env[key]).toContain(selector)
+      expect(job.env[key]).toContain(`'${accelerated}'`)
+      expect(job.env[key]).toContain(`'${standard}'`)
+    }
     // The split native jobs all resolve their pool through the Windows switch.
     for (const [jobName, job] of [['windows-build', windowsBuild], ['windows-coverage', windowsCoverage], ['windows-native-tests', windowsNativeTests], ['windows-observational', windowsObservational]] as const) {
       expect(typeof job['runs-on']).toBe('string')
@@ -214,9 +222,22 @@ describe('CI workflow', () => {
       expect(install!.run).not.toContain('$cloneFlag')
     }
 
-    // windows-coverage uses the lower 4-partition profile.
+    // Standard 4-vCPU runners avoid oversubscription while accelerated
+    // failover runners retain their wider worker and gate budgets.
     expect(windowsCoverage.name).toBe('windows node 24 / coverage')
-    expect(windowsCoverage.env).toMatchObject({ DSH_COVERAGE_PARTITIONS: '4' })
+    expectResourceBudget(windowsCoverage, 'DSH_COVERAGE_MAX_WORKERS', 'DSH_CI_FAILOVER_WINDOWS', '6', '3')
+    expectResourceBudget(windowsCoverage, 'DSH_COVERAGE_PARTITIONS', 'DSH_CI_FAILOVER_WINDOWS', '4', '2')
+    expectResourceBudget(windowsCoverage, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_WINDOWS', '3', '2')
+    expectResourceBudget(windowsObservational, 'DSH_PUBLINT_CONCURRENCY', 'DSH_CI_FAILOVER_WINDOWS', '8', '2')
+    expectResourceBudget(node24, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '8', '4')
+    expectResourceBudget(node24Coverage, 'DSH_COVERAGE_MAX_WORKERS', 'DSH_CI_FAILOVER_LINUX', '6', '3')
+    expectResourceBudget(node24Coverage, 'DSH_COVERAGE_PARTITIONS', 'DSH_CI_FAILOVER_LINUX', '4', '2')
+    expectResourceBudget(node24Coverage, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '3', '2')
+    expectResourceBudget(node24Consumers, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '10', '3')
+    expectResourceBudget(node24Consumers, 'DSH_OXLINT_THREADS', 'DSH_CI_FAILOVER_LINUX', '8', '2')
+    expectResourceBudget(node24Consumers, 'DSH_PUBLINT_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '8', '2')
+    expectResourceBudget(node24Consumers, 'DSH_WEB_SNAPSHOT_WORKERS', 'DSH_CI_FAILOVER_LINUX', '6', '2')
+    expectResourceBudget(node24Consumers, 'DSH_SNAPSHOT_MAX_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '32', '4')
     const coverageSteps = windowsCoverage.steps as unknown[]
     const coverageCommands = coverageSteps.filter((step): step is Record<string, unknown> & { run: string } => (
       isRecord(step) && typeof step.run === 'string'

@@ -213,6 +213,13 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
   ].join('\n'))
 }
 
+/** Point the shipped Metis route at one private mock server for a keyless test. */
+function configureMetisMock(home: string, baseURL: string): void {
+  writeFileSync(join(home, 'settings.yaml'), JSON.stringify({
+    'llm-pi-ai': { providers: { metis: { baseURL } } },
+  }))
+}
+
 interface StartupFixture {
   home: string
   ready: string
@@ -502,6 +509,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'ACP BUILT PROFILE OK',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-acp-'))
+    configureMetisMock(home, server.baseURL)
     const child = execa(process.execPath, [dshBin, '--profile', 'acp'], {
       cwd: home,
       reject: false,
@@ -511,8 +519,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         ...process.env,
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        METIS_API_KEY: apiKey,
         DSH_PERMISSION_MODE: 'danger-full-access',
       },
       extendEnv: false,
@@ -587,12 +594,12 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'published headless profile reached the mock',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-headless-'))
+    configureMetisMock(home, server.baseURL)
     try {
       const result = await runBuiltBin(['--profile', 'headless', 'answer', 'from', 'the', 'published', 'entry'], {
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        METIS_API_KEY: apiKey,
       })
       expect(result.code, result.stderr).toBe(0)
       expect(result.stdout).toBe('published headless profile reached the mock')

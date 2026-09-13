@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
-import { Dashboard } from '../src/client/Dashboard.tsx'
+import { Dashboard, DashboardIcon } from '../src/client/Dashboard.tsx'
 import { en } from '../src/client/locales.ts'
 import type {} from '../src/client/index.ts'
 
@@ -36,5 +36,14 @@ describe('Department Dashboard', () => {
     expect(renderSlot).toHaveBeenCalledWith('department.dashboard.metrics', {}, expect.any(Object))
     fireEvent.click(view.getByRole('button', { name: /Open AI Agent/ }))
     expect(openAgent).toHaveBeenCalledOnce()
+  })
+
+  it('renders inactive and active navigation glyphs', () => {
+    const inactive = render(<DashboardIcon size={20} active={false} />)
+    expect(inactive.container.querySelectorAll('path')).toHaveLength(1)
+    inactive.unmount()
+    const active = render(<DashboardIcon size={16} active />)
+    expect(active.container.querySelector('svg')?.getAttribute('width')).toBe('16')
+    expect(active.container.querySelectorAll('path')).toHaveLength(2)
   })
 })
