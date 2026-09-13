@@ -84,7 +84,7 @@ async function stopTree(child: SubprocessHandle): Promise<void> {
 
 it('hot-reloads a real client-plugin source edit without refreshing the page', async () => {
   const world = await mkdtemp(join(tmpdir(), 'dsh-web-hmr-world-'))
-  const sourcePath = join(REPO_ROOT, 'packages/client/ui-conversation/src/client/locales.ts')
+  const sourcePath = join(REPO_ROOT, 'packages/client/ui-department-workbench/src/client/locales.ts')
   const binPath = join(REPO_ROOT, 'apps/cli/lib/bin.js')
   if (!existsSync(binPath)) throw new Error('HMR browser test needs the built dsh bin; run pnpm run build first')
   const clientBuildEnvironment = readClientBuildRecord(REPO_ROOT).environment
@@ -92,10 +92,11 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     .map(async path => [path, await readFile(path)] as const))
   const originalClientArtifactPaths = new Set(originalClientArtifacts.map(([path]) => path))
   const originalSource = await readFile(sourcePath)
-  const oldText = 'Into the Unknown'
-  const sourceNeedle = "'hero.headline': 'Into the Unknown'"
+  const localeKey = 'dashboard.eyebrow'
+  const oldText = 'Department workspace'
+  const sourceNeedle = `'${localeKey}': '${oldText}'`
   const newText = `HMR UPDATED ${'x'.repeat(80)}`
-  const updatedSource = originalSource.toString().replace(sourceNeedle, `'hero.headline': '${newText}'`)
+  const updatedSource = originalSource.toString().replace(sourceNeedle, `'${localeKey}': '${newText}'`)
   if (updatedSource === originalSource.toString()) throw new Error(`HMR source lacks ${JSON.stringify(sourceNeedle)}`)
 
   const subprocessCtx = new Context()
