@@ -130,7 +130,6 @@ def test_live_smoke_requires_fresh_external_content(live_smoke: SimpleNamespace)
         }},
     }]}, "turn ended with.*AUTH.*401"),
     ({"events": []}, "turn made no model-requested tool call"),
-    ({"final_response": "PYTHON_SDK_LIVE_OK extra"}, "turn returned"),
 ])
 def test_live_smoke_rejects_invalid_turn_before_continuing(
     live_smoke: SimpleNamespace, label: str, overrides: dict[str, object], message: str,
@@ -143,6 +142,15 @@ def test_live_smoke_rejects_invalid_turn_before_continuing(
     assert live_smoke.closed
     if label == "create":
         assert not live_smoke.challenges
+
+
+def test_live_smoke_accepts_provider_wording_when_external_effects_match(
+    live_smoke: SimpleNamespace,
+) -> None:
+    live_smoke.create_result = live_result(final_response="Created the requested file.")
+    live_smoke.verify_result = live_result(final_response="Receipt copied successfully.")
+    SMOKE["smoke_sdk_live"]()
+    assert len(live_smoke.checked_logs) == 1
 
 
 @pytest.mark.parametrize("content", [None, b"wrong", b"PYTHON_SDK_LIVE_OK\n"])
