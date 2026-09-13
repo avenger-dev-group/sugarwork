@@ -25,7 +25,7 @@ describe('department workbench apply', () => {
     const ctx = new Context()
     await ctx.plugin(SlotRegistry).await()
     ctx.provide('locale', new LocaleRuntime(ctx))
-    ctx.provide('appBootstrap', {} as never)
+    ctx.provide('appBootstrap', { getSnapshot: () => ({ phase: 'idle' }) } as never)
     const selectPanel = vi.fn()
     ctx.provide('layout', { selectPanel } as never)
     const slots = ctx.get('slots') as SlotRegistry
@@ -51,6 +51,34 @@ describe('department workbench apply', () => {
     expect(injected.bootstrap).toBe(bootstrap)
     injected.openAgent()
     expect(selectPanel).toHaveBeenLastCalledWith(null)
+
+    await fiber.dispose()
+    expect(slots.entries('main')).toHaveLength(0)
+    expect(slots.entries('sidebar.panellist')).toHaveLength(0)
+  })
+
+  it('reactivates the cached workbench when the client plugin mounts after bootstrap', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SlotRegistry).await()
+    ctx.provide('locale', new LocaleRuntime(ctx))
+    ctx.provide('appBootstrap', { getSnapshot: () => ({ phase: 'ready', value: bootstrap }) } as never)
+    const selectPanel = vi.fn()
+    ctx.provide('layout', { selectPanel } as never)
+    const slots = ctx.get('slots') as SlotRegistry
+    slots.register({
+      name: 'root',
+      children: {
+        main: { kind: 'keyed', scope: 'root' },
+        'sidebar.panellist': { kind: 'list', scope: 'root' },
+      },
+    } as never, () => null)
+
+    const fiber = ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+
+    expect(slots.entries('main')[0]?.component).toBe(Dashboard)
+    expect(slots.entries('sidebar.panellist')[0]?.component).toBe(DashboardIcon)
+    expect(selectPanel).toHaveBeenCalledWith('dashboard')
 
     await fiber.dispose()
     expect(slots.entries('main')).toHaveLength(0)

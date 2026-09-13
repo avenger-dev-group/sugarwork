@@ -22,6 +22,7 @@ declare module '@deepseek-ai/cordis' {
 export class DepartmentFeatureRegistry extends Service {
   private readonly definitions = new Map<AppFeatureId, DepartmentFeatureDefinition>()
   private active: readonly (() => void)[] = []
+  private current: AppBootstrap | undefined
 
   /** @param ctx - owning Client context. */
   constructor(ctx: Context) {
@@ -38,9 +39,15 @@ export class DepartmentFeatureRegistry extends Service {
       throw new Error(`department feature ${JSON.stringify(definition.id)} is already registered`)
     }
     this.definitions.set(definition.id, definition)
+    try {
+      this.activateCurrentIfComplete()
+    } catch (error) {
+      this.definitions.delete(definition.id)
+      throw error
+    }
     return () => {
       this.definitions.delete(definition.id)
-      this.deactivate()
+      if (this.current?.features.includes(definition.id) === true) this.deactivate()
     }
   }
 
@@ -49,6 +56,29 @@ export class DepartmentFeatureRegistry extends Service {
    * @param bootstrap - server-selected feature and navigation identifiers.
    */
   activate(bootstrap: AppBootstrap): void {
+    this.mount(bootstrap)
+    this.current = bootstrap
+  }
+
+  /**
+   * Retain a cached bootstrap and mount it once every enabled feature has registered.
+   * @param bootstrap - previously accepted server bootstrap restored after client-plugin replacement.
+   */
+  resume(bootstrap: AppBootstrap): void {
+    this.current = bootstrap
+    this.activateCurrentIfComplete()
+  }
+
+  private activateCurrentIfComplete(): void {
+    if (
+      this.current === undefined
+      || this.active.length > 0
+      || this.current.features.some(id => !this.definitions.has(id))
+    ) return
+    this.mount(this.current)
+  }
+
+  private mount(bootstrap: AppBootstrap): void {
     const enabled = new Set(bootstrap.features)
     const definitions = bootstrap.features.map((id) => {
       const definition = this.definitions.get(id)

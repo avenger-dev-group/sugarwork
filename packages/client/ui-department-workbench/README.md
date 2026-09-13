@@ -20,7 +20,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Feature plugins register stable feature ids, their owned panel ids, and a mount callback. Activation rejects missing features, duplicate panel ownership, invalid navigation, and an absent home panel before mounting any department surface. Department packages fill the Dashboard agenda, attention-metric, and task-list slots without importing this feature's runtime values.
+Feature plugins register stable feature ids, their owned panel ids, and a mount callback. Activation rejects missing features, duplicate panel ownership, invalid navigation, and an absent home panel before mounting any department surface. A client-plugin mount retains an already cached bootstrap and restores the workbench when every enabled feature registers again, without another server request or ready event. Department packages fill the Dashboard agenda, attention-metric, and task-list slots without importing this feature's runtime values.
 
 <a id="model-experience"></a>
 ## Model Experience

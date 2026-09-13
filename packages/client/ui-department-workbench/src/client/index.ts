@@ -2,7 +2,7 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-api-app-bootstrap/client'
-import type { AppFeatureId, AppWorkbenchPanelId } from '@deepseek-ai/dsh-api-app-bootstrap/types'
+import type { AppBootstrap, AppFeatureId, AppWorkbenchPanelId } from '@deepseek-ai/dsh-api-app-bootstrap/types'
 import { brandString } from '@deepseek-ai/dsh-brand'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
@@ -75,9 +75,17 @@ export function apply(ctx: Context): void {
       }
     },
   }), 'ui-department-workbench: common Dashboard feature')
+  const selectHome = (bootstrap: AppBootstrap): void => {
+    ctx.layout.selectPanel(brandString<MainPanelId>(bootstrap.department.homePanelId))
+  }
   ctx.on('app-bootstrap/ready', (bootstrap) => {
     registry.activate(bootstrap)
-    ctx.layout.selectPanel(brandString<MainPanelId>(bootstrap.department.homePanelId))
+    selectHome(bootstrap)
   })
+  const current = ctx.appBootstrap.getSnapshot()
+  if (current.phase === 'ready') {
+    registry.resume(current.value)
+    selectHome(current.value)
+  }
   ctx.effect(() => () => { registry.deactivate() }, 'ui-department-workbench: active features')
 }

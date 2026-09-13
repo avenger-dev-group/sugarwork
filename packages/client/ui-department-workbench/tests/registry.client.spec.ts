@@ -16,11 +16,16 @@ const bootstrap = {
 describe('DepartmentFeatureRegistry', () => {
   it('mounts only the server-enabled registered features and unwinds them', () => {
     const registry = new DepartmentFeatureRegistry(new Context())
+    const disabledFeature = brandString<AppFeatureId>('sales-workspace')
+    const disabledPanel = brandString<AppWorkbenchPanelId>('customers')
     const disposeMounted = vi.fn()
     const mount = vi.fn(() => disposeMounted)
     registry.register({ id: feature, panels: [panel], mount })
     registry.activate(bootstrap)
     expect(mount).toHaveBeenCalledWith(bootstrap)
+    const unregisterDisabled = registry.register({ id: disabledFeature, panels: [disabledPanel], mount: vi.fn(() => () => {}) })
+    unregisterDisabled()
+    expect(mount).toHaveBeenCalledOnce()
     registry.deactivate()
     expect(disposeMounted).toHaveBeenCalledOnce()
   })
@@ -42,6 +47,53 @@ describe('DepartmentFeatureRegistry', () => {
     expect(() => { registry.register({ id: feature, panels: [panel], mount: () => () => {} }) }).toThrow(/already registered/)
     dispose()
     expect(() => { registry.activate(bootstrap) }).toThrow(/not registered/)
+  })
+
+  it('resumes a cached bootstrap after all enabled features register again', () => {
+    const registry = new DepartmentFeatureRegistry(new Context())
+    const otherFeature = brandString<AppFeatureId>('sales-workspace')
+    const otherPanel = brandString<AppWorkbenchPanelId>('customers')
+    const firstDispose = vi.fn()
+    const secondDispose = vi.fn()
+    const firstMount = vi.fn(() => firstDispose)
+    const secondMount = vi.fn(() => secondDispose)
+    registry.register({ id: feature, panels: [panel], mount: firstMount })
+    const twoFeatures = {
+      ...bootstrap,
+      features: [feature, otherFeature],
+      navigation: [
+        ...bootstrap.navigation,
+        { id: brandString<AppNavigationItemId>('customers'), featureId: otherFeature, panelId: otherPanel },
+      ],
+    }
+
+    registry.resume(twoFeatures)
+    expect(firstMount).not.toHaveBeenCalled()
+    const unregister = registry.register({ id: otherFeature, panels: [otherPanel], mount: secondMount })
+    expect(firstMount).toHaveBeenCalledWith(twoFeatures)
+    expect(secondMount).toHaveBeenCalledWith(twoFeatures)
+
+    unregister()
+    expect(firstDispose).toHaveBeenCalledOnce()
+    expect(secondDispose).toHaveBeenCalledOnce()
+    registry.register({ id: otherFeature, panels: [otherPanel], mount: secondMount })
+    expect(firstMount).toHaveBeenCalledTimes(2)
+    expect(secondMount).toHaveBeenCalledTimes(2)
+  })
+
+  it('rolls back a late registration that makes a resumed bootstrap invalid', () => {
+    const registry = new DepartmentFeatureRegistry(new Context())
+    const otherFeature = brandString<AppFeatureId>('sales-workspace')
+    const otherPanel = brandString<AppWorkbenchPanelId>('customers')
+    registry.register({ id: feature, panels: [panel], mount: () => () => {} })
+    registry.resume({ ...bootstrap, features: [feature, otherFeature] })
+
+    expect(() => {
+      registry.register({ id: otherFeature, panels: [panel], mount: () => () => {} })
+    }).toThrow(/owned by both/)
+    expect(() => {
+      registry.register({ id: otherFeature, panels: [otherPanel], mount: () => () => {} })
+    }).not.toThrow()
   })
 
   it('rejects duplicate panel ownership, disabled navigation, and absent home navigation', () => {

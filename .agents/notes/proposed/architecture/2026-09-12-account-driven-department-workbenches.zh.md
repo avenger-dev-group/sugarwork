@@ -227,6 +227,8 @@ Skill 是模型指导，不是权限。在销售 preset 中暴露 CRM 工具 sch
 
 Bootstrap 提供已启用 feature 与导航标识符的有序列表。注册表校验每个标识符和 `homePanelId` 都存在、导航目标属于已启用 feature，且所有依赖满足。未知或不一致引用作为部署错误明确失败。路由器和 panel controller 拒绝直接导航到已注册但未启用的 panel。
 
+客户端在连接世代保持启用期间保留已接受的 bootstrap。当 HMR 替换注册表或已启用的 feature 插件时，注册表会等待所有已启用 feature 重新注册，然后使用缓存的 bootstrap 恢复全部 contribution，无需再次请求服务端或等待 ready 事件。
+
 公共 feature 注册 Dashboard、AI Agent、消息和设置。销售、市场和以后其他部门分别注册独立 feature bundle。框架渲染相同的品牌与外壳，核心区域则随启用 bundle 改变。静态客户端文案继续归 locale 所有；服务端把用户和 Department 名称作为数据发送，而不发送翻译后的菜单字符串。
 
 Feature 过滤不是安全检查。没有 UI 时，直接 Remote 调用、工具执行、导出和数据提供方查询仍受保护。

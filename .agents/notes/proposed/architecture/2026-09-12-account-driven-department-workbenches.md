@@ -227,6 +227,8 @@ A skill is model guidance, not permission. Exposing a CRM tool schema in the sal
 
 Bootstrap provides an ordered list of enabled feature and navigation identifiers. The registry validates that every identifier and `homePanelId` exists, that a navigation target belongs to an enabled feature, and that dependencies are satisfied. Unknown or inconsistent references fail visibly as deployment errors. The router and panel controller refuse direct navigation to a registered but disabled panel.
 
+The client retains the accepted bootstrap while its connection generation remains active. When HMR replaces the registry or an enabled feature plugin, the registry waits until every enabled feature has registered again, then restores all contributions from that cached bootstrap without another server request or ready event.
+
 Common features register Dashboard, AI Agent, messages, and settings. Sales, marketing, and later departments register independent feature bundles. The shell renders the same brand and frame while the enabled bundle changes the core area. Static client copy remains locale-owned; the server sends user and Department names as data, not translated menu strings.
 
 Feature filtering is not a security check. Direct Remote calls, tool execution, exports, and data-provider queries remain protected when no UI is present.
