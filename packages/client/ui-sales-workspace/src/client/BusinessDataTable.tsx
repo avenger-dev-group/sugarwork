@@ -35,7 +35,7 @@ interface BusinessDataTableProps {
 type SortDirection = 'none' | 'ascending' | 'descending'
 
 /**
- * Render one compact business table shared by every Sales list panel.
+ * Render the compact business table shared by simple Sales list panels.
  * @param props - localized rows and complete table copy.
  * @returns searchable, filterable, sortable table content.
  */

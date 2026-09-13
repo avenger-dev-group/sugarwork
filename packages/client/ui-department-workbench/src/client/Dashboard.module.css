@@ -159,7 +159,7 @@
 .agendaCard { overflow: hidden; }
 .empty { margin: 22px 0 0; color: var(--workbench-caption); font: var(--dsw-font-s-14); line-height: 1.6; }
 
-.section { margin-top: 14px; padding: 22px; border-radius: 18px; }
+.section { box-sizing: border-box; margin-top: 14px; padding: 22px; border-radius: 18px; }
 .sectionHeading { align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .sectionHeading p { margin: 0 0 5px; }
 .sectionHeading h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }

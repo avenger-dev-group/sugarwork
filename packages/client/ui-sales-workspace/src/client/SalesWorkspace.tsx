@@ -4,6 +4,8 @@ import type { AppWorkbenchPanelId } from '@deepseek-ai/dsh-api-app-bootstrap/typ
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { SidebarPanelIconOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import { BusinessDataTable } from './BusinessDataTable.tsx'
+import { CallWorkspace } from './CallWorkspace.tsx'
+import { CustomerMaintenance } from './CustomerMaintenance.tsx'
 import css from './SalesWorkspace.module.css'
 
 /** Sales panel supported by the mock feature package. */
@@ -130,22 +132,28 @@ export function SalesPanel({ kind, t }: SalesPanelProps) {
         <strong>{t(`panel.${kind}.summary`)}</strong>
       </header>
       <section className={css.panelWorkspace} aria-label={t(`panel.${kind}.title`)}>
-        <BusinessDataTable
-          rows={localizedRows}
-          labels={{
-            searchLabel: t('panel.search.label'),
-            searchPlaceholder: t('panel.search.placeholder'),
-            filterLabel: t('panel.filter.label'),
-            allStatuses: t('panel.filter.all'),
-            results: t('panel.results'),
-            recordColumn: t('panel.column.record'),
-            detailColumn: t('panel.column.details'),
-            statusColumn: t('panel.column.status'),
-            sortByRecord: t('panel.sort.record'),
-            emptyTitle: t('panel.empty.title'),
-            emptyDetail: t('panel.empty.detail'),
-          }}
-        />
+        {kind === 'customers'
+          ? <CustomerMaintenance t={t} />
+          : kind === 'calls'
+            ? <CallWorkspace t={t} />
+            : (
+              <BusinessDataTable
+                rows={localizedRows}
+                labels={{
+                  searchLabel: t('panel.search.label'),
+                  searchPlaceholder: t('panel.search.placeholder'),
+                  filterLabel: t('panel.filter.label'),
+                  allStatuses: t('panel.filter.all'),
+                  results: t('panel.results'),
+                  recordColumn: t('panel.column.record'),
+                  detailColumn: t('panel.column.details'),
+                  statusColumn: t('panel.column.status'),
+                  sortByRecord: t('panel.sort.record'),
+                  emptyTitle: t('panel.empty.title'),
+                  emptyDetail: t('panel.empty.detail'),
+                }}
+              />
+            )}
       </section>
     </main>
   )
