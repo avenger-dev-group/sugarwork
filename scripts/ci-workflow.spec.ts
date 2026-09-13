@@ -552,7 +552,7 @@ describe('CI workflow', () => {
         ci: true,
       },
       secrets: {
-        DEEPSEEK_API_KEY_EXTERNAL: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}',
+        METIS_API_KEY: '${{ secrets.METIS_API_KEY }}',
       },
     })
     expect(aggregate.needs).toContain('python-runtime')
@@ -732,7 +732,7 @@ describe('Python release workflows', () => {
       release: { type: 'boolean', default: false },
     })
     expect(call.secrets).toMatchObject({
-      DEEPSEEK_API_KEY_EXTERNAL: { required: false },
+      METIS_API_KEY: { required: false },
     })
     expect(workflow.concurrency).toMatchObject({
       group: 'build-single-exe-${{ github.workflow }}-${{ github.ref }}',
@@ -776,21 +776,26 @@ describe('Python release workflows', () => {
     expect(cleanVenvWindows).toMatchObject({ if: "runner.os == 'Windows'", shell: 'pwsh' })
     expect(JSON.stringify(cleanVenvWindows)).toContain('Scripts\\\\python.exe')
     expect(realApiPreflightPosix).toMatchObject({
-      env: { DEEPSEEK_API_KEY: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}' },
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
     })
     expect(String(realApiPreflightPosix.if)).toContain('inputs.ci')
     expect(String(realApiPreflightPosix.if)).toContain('head.repo.fork')
     expect(String(realApiPreflightPosix.if)).toContain('dependabot[bot]')
-    expect(realApiPreflightWindows).toMatchObject({ shell: 'pwsh' })
+    expect(realApiPreflightWindows).toMatchObject({
+      shell: 'pwsh',
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
+    })
     expect(installedRealApiPosix).toMatchObject({
       env: {
-        DEEPSEEK_API_KEY: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}',
-        DEEPSEEK_BASE_URL: 'https://api.deepseek.com',
+        METIS_API_KEY: '${{ secrets.METIS_API_KEY }}',
       },
     })
     expect(JSON.stringify(installedRealApiPosix)).toContain('--scenario sdk-live')
     expect(JSON.stringify(installedRealApiPosix)).toContain('-u DSH_RUNTIME_MODE')
-    expect(installedRealApiWindows).toMatchObject({ shell: 'pwsh' })
+    expect(installedRealApiWindows).toMatchObject({
+      shell: 'pwsh',
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
+    })
     expect(JSON.stringify(installedRealApiWindows)).toContain('--scenario sdk-live --installed-wheel')
     expect(manylinuxSmoke).toMatchObject({ if: "runner.os == 'Linux'" })
     expect(JSON.stringify(manylinuxSmoke)).toContain('-e DSH_TELEMETRY_DISABLED')

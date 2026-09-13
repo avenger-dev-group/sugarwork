@@ -27,6 +27,12 @@ def live_result(**overrides: object) -> RunResult:
     return RunResult(**values)
 
 
+def test_live_smoke_requires_metis_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("METIS_API_KEY", raising=False)
+    with pytest.raises(AssertionError, match="sdk-live requires METIS_API_KEY"):
+        SMOKE["smoke_sdk_live"]()
+
+
 @pytest.fixture
 def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
     import deepseek_harness
@@ -49,6 +55,14 @@ def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
         def __init__(self, **kwargs: object) -> None:
             state.root = Path(kwargs["cwd"])
             assert "toolChoice" not in kwargs
+            assert kwargs["provider"] == "metis"
+            assert kwargs["model"] == "metis-coder-max"
+            assert kwargs["env"] == {
+                "DSH_PERMISSION_MODE": "danger-full-access",
+                "DSH_TELEMETRY_DISABLED": "1",
+                "METIS_API_KEY": "unit-test-key",
+            }
+            assert "api_key" not in kwargs and "base_url" not in kwargs
 
         def __enter__(self) -> ScriptedHarness:
             return self
@@ -90,8 +104,9 @@ def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
                 raise AssertionError(state.receipt_mode)
             return state.verify_result
 
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "unit-test-key")
-    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.invalid")
+    monkeypatch.setenv("METIS_API_KEY", "unit-test-key")
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_BASE_URL", raising=False)
     monkeypatch.setattr(deepseek_harness, "DeepSeekHarness", ScriptedHarness)
     monkeypatch.setattr(globals_["secrets"], "token_hex", fresh_challenge)
     monkeypatch.setitem(globals_, "assert_zstd_session_log", state.checked_logs.append)
