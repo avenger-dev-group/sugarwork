@@ -2,7 +2,7 @@
 /** Trajectory ledger selection, details, status, and fold behavior. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import type { RenderMessageImages } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import { TrajectoryTable as LocalizedTrajectoryTable } from '../src/client/TrajectoryTable.tsx'
@@ -63,6 +63,16 @@ function TrajectoryTable(
       t={t}
     />
   )
+}
+
+function fireSettledVirtualScroll(element: HTMLElement): void {
+  vi.useFakeTimers()
+  try {
+    fireEvent.scroll(element)
+    act(() => { vi.advanceTimersByTime(150) })
+  } finally {
+    vi.useRealTimers()
+  }
 }
 
 afterEach(() => {
@@ -537,8 +547,8 @@ describe('TrajectoryTable', () => {
       scrollHeight: { configurable: true, get: () => scrollHeight },
     })
     tablePane.scrollTop = 0
-    fireEvent.scroll(tablePane)
-    fireEvent.scroll(tablePane)
+    fireSettledVirtualScroll(tablePane)
+    fireSettledVirtualScroll(tablePane)
 
     await waitFor(() => { expect(onLoadOlder).toHaveBeenCalledOnce() })
     expect(screen.getByRole('status').textContent).toContain('Loading earlier history…')
@@ -691,7 +701,7 @@ describe('TrajectoryTable', () => {
 
     const tablePane = screen.getByRole('table').parentElement as HTMLElement
     tablePane.scrollTop = 9_000
-    fireEvent.scroll(tablePane)
+    fireSettledVirtualScroll(tablePane)
     await waitFor(() => {
       expect(Number(view.container.querySelector(
         'tr[data-virtual-position]',
@@ -784,7 +794,7 @@ describe('TrajectoryTable', () => {
     )
     const tablePane = screen.getByRole('table').parentElement as HTMLElement
     tablePane.scrollTop = 5_000
-    fireEvent.scroll(tablePane)
+    fireSettledVirtualScroll(tablePane)
 
     await waitFor(() => {
       expect(view.container.querySelector('tr[data-virtual-position="201"]')).toBeTruthy()
