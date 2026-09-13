@@ -44,8 +44,7 @@ const CALLED: [string, Record<string, unknown>, readonly string[]][] = [
   ['node:child_process', childProcess, ['execFileSync', 'execSync', 'fork']],
   ['node-pty', nodePty, ['spawn', 'open']],
   ['@deepseek-ai/pi-ai', piAi, [
-    'createProvider', 'createModels', 'openAICompletionsApi', 'openAIResponsesApi', 'anthropicMessagesApi',
-    'isContextOverflow', 'getSupportedThinkingLevels',
+    'isContextOverflow',
   ]],
 ]
 
@@ -112,6 +111,61 @@ describe('constructible-but-inert fakes', () => {
     let closed = false
     server.close(() => { closed = true })
     expect(closed).toBe(true)
+  })
+})
+
+describe('pi-ai structural catalog', () => {
+  it('preserves configured providers and models while request operations refuse', () => {
+    quiet()
+    const provider = piAi.createProvider({
+      id: 'metis',
+      name: 'Metis',
+      baseUrl: 'https://metis.invalid',
+      auth: {},
+      models: [{ id: 'metis-coder-max', provider: 'metis', reasoning: false }],
+      api: piAi.openAICompletionsApi(),
+    })
+    const models = piAi.createModels()
+    models.setProvider(provider)
+    const configuredModel = provider.getModels()[0]
+    if (configuredModel === undefined) throw new Error('fixture provider has no model')
+
+    expect(models.getProviders()).toEqual([provider])
+    expect(models.getProvider('metis')).toBe(provider)
+    expect(models.getModels()).toEqual([configuredModel])
+    expect(models.getModels('metis')).toEqual([configuredModel])
+    expect(models.getModels('missing')).toEqual([])
+    expect(models.getModel('metis', 'metis-coder-max')).toEqual(configuredModel)
+    expect(models.getModel('missing', 'metis-coder-max')).toBeUndefined()
+    expect(piAi.getSupportedThinkingLevels(configuredModel)).toEqual(['off'])
+    expect(() => models.streamSimple()).toThrow(/pi-ai\.stream is not available/)
+    expect(() => models.checkAuth()).toThrow(/pi-ai\.auth is not available/)
+    expect(() => provider.stream()).toThrow(/pi-ai\.stream is not available/)
+
+    models.deleteProvider('metis')
+    expect(models.getProviders()).toEqual([])
+    models.setProvider(provider)
+    models.clearProviders()
+    expect(models.getProviders()).toEqual([])
+  })
+
+  it('constructs default provider metadata and each structural API entry', () => {
+    const provider = piAi.createProvider({ id: 'fixture', auth: {}, models: [], api: {} })
+    expect(provider).toEqual(expect.objectContaining({ id: 'fixture', name: 'fixture', auth: {} }))
+    expect(provider).not.toHaveProperty('baseUrl')
+    expect(provider).not.toHaveProperty('headers')
+    expect(piAi.anthropicMessagesApi()).toHaveProperty('stream')
+    expect(piAi.openAICompletionsApi()).toHaveProperty('stream')
+    expect(piAi.openAIResponsesApi()).toHaveProperty('stream')
+  })
+
+  it('returns only mapped extended reasoning levels', () => {
+    expect(piAi.getSupportedThinkingLevels({
+      id: 'reasoner',
+      provider: 'fixture',
+      reasoning: true,
+      thinkingLevelMap: { low: null, xhigh: 'xhigh' },
+    })).toEqual(['off', 'minimal', 'medium', 'high', 'xhigh'])
   })
 })
 

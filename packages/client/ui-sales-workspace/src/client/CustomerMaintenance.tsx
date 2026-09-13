@@ -151,8 +151,8 @@ export function CustomerMaintenance({ t }: PropsLocale<'sales-workspace'>) {
         title={editor?.mode === 'edit' ? t('customers.editor.editTitle') : t('customers.editor.addTitle')}
         description={t('customers.editor.description')}
         closeLabel={t('customers.editor.close')}
-        className={css.editorModal ?? ''}
-        contentClassName={css.editorContent ?? ''}
+        className={css.editorModal as string}
+        contentClassName={css.editorContent as string}
         footer={(
           <>
             <Button variant="outline" onClick={() => { setEditor(null) }}>{t('customers.editor.cancel')}</Button>
