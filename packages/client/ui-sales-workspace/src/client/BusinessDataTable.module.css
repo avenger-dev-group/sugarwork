@@ -65,6 +65,9 @@
 }
 
 .tableViewport {
+  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+
   overflow-x: auto;
   border: 0.5px solid var(--dsw-alias-border-l3);
   border-radius: 10px;

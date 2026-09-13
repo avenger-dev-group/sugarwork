@@ -26,7 +26,7 @@ The implementation supports interactive shells and line-oriented REPLs on Linux 
 | `dsh-terminal-bash` | Persistent-shell backend over `ctx.subprocess.spawnTerminal()`: readiness, bounded terminal buffers, sandbox resolution, and owner-aware session lifecycle | registers a backend on `ctx.terminals` |
 | `dsh-tool-terminal` | Six model-facing tools, task-runtime integration for background sends, guidance, and UI render intents | registers on `ctx.tools` |
 
-Readiness remains PTY-backend behavior, not a second public contract. The terminal-process provider supplies only substrate facts such as the foreground process group and whether it can prove that group is waiting on input; `dsh-terminal-bash` combines those facts with prompt and silence evidence into the common send result.
+Readiness remains PTY-backend behavior, not a second public contract. The terminal-process provider supplies only substrate facts such as the foreground process group and whether it can prove that group is waiting on input; `dsh-terminal-bash` combines those facts with prompt and silence evidence into the common send result. PowerShell setup accepts stdin-wait evidence only after the sanitizer has observed the owned OSC marker followed by the exact printable prompt, so a default prompt or pre-setup input wait cannot publish the session.
 
 ### Agent ownership and identity
 
