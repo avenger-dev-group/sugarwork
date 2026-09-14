@@ -4,6 +4,12 @@
 - button "New session":
   - img
   - text: New Session
+- navigation "Global panels":
+  - button "Dashboard"
+  - button "Existing Customers"
+  - button "Orders"
+  - button "Call Logs"
+  - button "Messages"
 - text: Workspaces
 - button "Search sessions":
   - img

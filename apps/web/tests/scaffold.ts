@@ -781,12 +781,20 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       ), 'web e2e scaffold: route-only adapter')
     }
     baseUrl = `http://${browserHost}:${String(port)}`
-    // The welcome screen records only a tab-scoped entry flag. The scaffold's
-    // explicit fragment performs the same workspace entry without making
-    // every unrelated browser scenario repeat that gesture. Fragments survive
-    // the token exchange redirect and never reach the Host.
-    authenticatedUrl = `${ctx.connection.authenticatedUrl(baseUrl)}#dsh-enter-workspace`
-    const login = await fetch(authenticatedUrl, { redirect: 'manual' })
+    // The explicit fragment enters the AI conversation and remains across
+    // reloads so unrelated browser scenarios do not inherit the department
+    // Dashboard's navigation state. Fragments survive the token exchange
+    // redirect and never reach the Host.
+    authenticatedUrl = `${ctx.connection.authenticatedUrl(baseUrl)}#dsh-open-agent`
+    const tokenExchangeUrl = new URL(authenticatedUrl)
+    const tokenExchangeHeaders = new Headers()
+    if (options.remoteAuthority !== undefined) {
+      // Node does not consistently resolve *.localhost on every supported
+      // host. Keep the authority under test in Host while dialing loopback.
+      tokenExchangeUrl.hostname = '127.0.0.1'
+      tokenExchangeHeaders.set('host', `${options.remoteAuthority}:${String(port)}`)
+    }
+    const login = await fetch(tokenExchangeUrl, { headers: tokenExchangeHeaders, redirect: 'manual' })
     const setCookie = login.headers.get('set-cookie')
     if (login.status !== 303 || login.headers.get('location') !== '/' || setCookie === null) {
       throw new Error('web e2e scaffold: browser token exchange did not return its session cookie')

@@ -35,6 +35,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 const NS = 'department-workbench'
 const DASHBOARD_FEATURE = brandString<AppFeatureId>('common-dashboard')
 const DASHBOARD_PANEL = brandString<AppWorkbenchPanelId>('dashboard')
+const OPEN_AGENT_AUTOMATION_HASH = '#dsh-open-agent'
 
 /** Required bootstrap, layout, locale, and slot services. */
 export const inject = ['appBootstrap', 'layout', 'locale', 'slots']
@@ -76,7 +77,9 @@ export function apply(ctx: Context): void {
     },
   }), 'ui-department-workbench: common Dashboard feature')
   const selectHome = (bootstrap: AppBootstrap): void => {
-    ctx.layout.selectPanel(brandString<MainPanelId>(bootstrap.department.homePanelId))
+    ctx.layout.selectPanel(typeof location !== 'undefined' && location.hash === OPEN_AGENT_AUTOMATION_HASH
+      ? null
+      : brandString<MainPanelId>(bootstrap.department.homePanelId))
   }
   ctx.on('app-bootstrap/ready', (bootstrap) => {
     registry.activate(bootstrap)

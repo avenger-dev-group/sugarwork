@@ -7,6 +7,7 @@ import css from './LoginGate.module.css'
 
 const ENTRY_STORAGE_KEY = 'sugarwork.workspace.entered'
 const AUTOMATION_ENTRY_HASH = '#dsh-enter-workspace'
+const OPEN_AGENT_AUTOMATION_HASH = '#dsh-open-agent'
 
 /** Props for the workspace welcome screen. */
 export interface LoginGateProps {
@@ -20,9 +21,11 @@ export interface LoginGateProps {
 
 /** Read the tab's entry state and consume the browser automation handoff. */
 function initiallyEntered(): boolean {
-  if (location.hash === AUTOMATION_ENTRY_HASH) {
+  if (location.hash === AUTOMATION_ENTRY_HASH || location.hash === OPEN_AGENT_AUTOMATION_HASH) {
     sessionStorage.setItem(ENTRY_STORAGE_KEY, 'true')
-    history.replaceState(history.state, '', `${location.pathname}${location.search}`)
+    if (location.hash === AUTOMATION_ENTRY_HASH) {
+      history.replaceState(history.state, '', `${location.pathname}${location.search}`)
+    }
   }
   return sessionStorage.getItem(ENTRY_STORAGE_KEY) === 'true'
 }

@@ -3880,6 +3880,25 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         case 'credentials/set': return Promise.resolve(credentialRemotes.set(args.ref as string))
         case 'credentials/unset': return Promise.resolve(credentialRemotes.unset(args.ref as string))
         case 'settings/describe': return Promise.resolve(settingsRemotes.describe())
+        case 'appBootstrap/get': return Promise.resolve({
+          ok: true,
+          value: {
+            user: {
+              id: 'fixture-user',
+              name: 'Fixture User',
+              role: { id: 'fixture-member', name: 'Fixture Member', kind: 'member' },
+            },
+            department: { id: 'fixture-department', name: 'Fixture Department', homePanelId: 'dashboard' },
+            features: ['common-dashboard', 'sales-workspace'],
+            navigation: [
+              { id: 'dashboard', featureId: 'common-dashboard', panelId: 'dashboard' },
+              { id: 'customers', featureId: 'sales-workspace', panelId: 'customers' },
+              { id: 'orders', featureId: 'sales-workspace', panelId: 'orders' },
+              { id: 'calls', featureId: 'sales-workspace', panelId: 'calls' },
+              { id: 'messages', featureId: 'sales-workspace', panelId: 'messages' },
+            ],
+          },
+        })
         case 'settings/canOpenAgentPresetDirectory': return Promise.resolve({ ok: true, value: true })
         case 'settings/openSettingsDocument': return Promise.resolve(settingsRemotes.openSettingsDocument())
         case 'settings/openAgentPresetDirectory': return Promise.resolve(

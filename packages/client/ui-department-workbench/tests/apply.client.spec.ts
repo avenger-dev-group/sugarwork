@@ -3,7 +3,7 @@ import type { AppBootstrap } from '@deepseek-ai/dsh-api-app-bootstrap/types'
 import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
 import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
 import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Dashboard, DashboardIcon } from '../src/client/Dashboard.tsx'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
@@ -14,6 +14,8 @@ const bootstrap = {
   features: ['common-dashboard'],
   navigation: [{ id: 'dashboard', featureId: 'common-dashboard', panelId: 'dashboard' }],
 } as unknown as AppBootstrap
+
+afterEach(() => { vi.unstubAllGlobals() })
 
 describe('department workbench apply', () => {
   it('keeps the host entry inert and declares its client dependencies', () => {
@@ -83,5 +85,30 @@ describe('department workbench apply', () => {
     await fiber.dispose()
     expect(slots.entries('main')).toHaveLength(0)
     expect(slots.entries('sidebar.panellist')).toHaveLength(0)
+  })
+
+  it('keeps browser automation on the AI conversation across bootstrap', async () => {
+    vi.stubGlobal('location', { hash: '#dsh-open-agent' })
+    const ctx = new Context()
+    await ctx.plugin(SlotRegistry).await()
+    ctx.provide('locale', new LocaleRuntime(ctx))
+    ctx.provide('appBootstrap', { getSnapshot: () => ({ phase: 'idle' }) } as never)
+    const selectPanel = vi.fn()
+    ctx.provide('layout', { selectPanel } as never)
+    const slots = ctx.get('slots') as SlotRegistry
+    slots.register({
+      name: 'root',
+      children: {
+        main: { kind: 'keyed', scope: 'root' },
+        'sidebar.panellist': { kind: 'list', scope: 'root' },
+      },
+    } as never, () => null)
+
+    const fiber = ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+    ctx.emit('app-bootstrap/ready', bootstrap)
+
+    expect(selectPanel).toHaveBeenCalledWith(null)
+    await fiber.dispose()
   })
 })

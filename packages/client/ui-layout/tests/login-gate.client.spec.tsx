@@ -81,4 +81,12 @@ describe('LoginGate', () => {
     expect(location.search).toBe('?fixture')
     expect(location.hash).toBe('')
   })
+
+  it('retains the AI-conversation automation marker across reloads', () => {
+    history.replaceState(null, '', '/workspace?fixture#dsh-open-agent')
+    const view = render(<LoginGate t={t} appBootstrap={bootstrapClient()}><div>private workspace</div></LoginGate>)
+
+    expect(view.getByText('private workspace')).toBeTruthy()
+    expect(location.hash).toBe('#dsh-open-agent')
+  })
 })
