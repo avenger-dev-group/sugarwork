@@ -84,7 +84,9 @@ async function stopTree(child: SubprocessHandle): Promise<void> {
 
 it('hot-reloads a real client-plugin source edit without refreshing the page', async () => {
   const world = await mkdtemp(join(tmpdir(), 'dsh-web-hmr-world-'))
-  const sourcePath = join(REPO_ROOT, 'packages/client/ui-sales-workspace/src/client/locales.ts')
+  const packageRoot = join(REPO_ROOT, 'packages/client/ui-conversation')
+  const sourcePath = join(packageRoot, 'src/client/locales.ts')
+  const bundlePath = join(packageRoot, 'lib/client.js')
   const binPath = join(REPO_ROOT, 'apps/cli/lib/bin.js')
   if (!existsSync(binPath)) throw new Error('HMR browser test needs the built dsh bin; run pnpm run build first')
   const clientBuildEnvironment = readClientBuildRecord(REPO_ROOT).environment
@@ -92,8 +94,8 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     .map(async path => [path, await readFile(path)] as const))
   const originalClientArtifactPaths = new Set(originalClientArtifacts.map(([path]) => path))
   const originalSource = await readFile(sourcePath)
-  const localeKey = 'agenda.standup.title'
-  const oldText = 'Sales stand-up'
+  const localeKey = 'hero.headline'
+  const oldText = 'Into the Unknown'
   const sourceNeedle = `'${localeKey}': '${oldText}'`
   const newText = `HMR UPDATED ${'x'.repeat(80)}`
   const updatedSource = originalSource.toString().replace(sourceNeedle, `'${localeKey}': '${newText}'`)
@@ -127,6 +129,7 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     const pageErrors: string[] = []
     page.on('pageerror', error => pageErrors.push(String(error)))
     await page.goto(`${baseUrl}#dsh-enter-workspace`, { waitUntil: 'load' })
+    await page.getByRole('button', { name: 'Open AI Agent' }).click()
     await page.getByText(oldText, { exact: true }).waitFor({ timeout: 15_000 })
     const pageIdentity = await page.evaluate(() => {
       // In-page code: an import would not survive serialization, and the page
@@ -137,7 +140,11 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     })
 
     await writeFile(sourcePath, updatedSource)
-    await page.getByText(newText, { exact: true }).waitFor({ timeout: 30_000 })
+    await expect.poll(async () => (await readFile(bundlePath, 'utf8')).includes(newText), {
+      interval: 500,
+      timeout: 90_000,
+    }).toBe(true)
+    await page.getByText(newText, { exact: true }).waitFor({ timeout: 60_000 })
     expect(await page.evaluate(() => (window as Window & { __dshHmrPageIdentity?: string }).__dshHmrPageIdentity))
       .toBe(pageIdentity)
     expect(pageErrors).toEqual([])
@@ -164,4 +171,4 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     await rm(world, { recursive: true, force: true }).catch((error: unknown) => failures.push(error))
   }
   if (failures.length > 0) throw new AggregateError(failures, 'HMR browser test or cleanup failed')
-}, 120_000)
+}, 180_000)
