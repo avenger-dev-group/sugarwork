@@ -184,6 +184,7 @@ export class LocalPtySession implements TerminalBackendSession {
   private polling = false
   private promptSeen = false
   private promptTextSeen = false
+  private controlledPromptObserved = false
   private promptTail = ''
   private shellPgid: number | undefined
   private initializing = false
@@ -246,6 +247,14 @@ export class LocalPtySession implements TerminalBackendSession {
     } finally {
       this.initializing = false
     }
+  }
+
+  /**
+   * Report whether this shell emitted the Harness prompt marker followed by its exact printable prompt.
+   * @returns Whether controlled prompt output has been observed during this session.
+   */
+  hasObservedControlledPrompt(): boolean {
+    return this.controlledPromptObserved
   }
 
   startSend(request: TerminalSendRequest): TerminalSendOperation {
@@ -434,6 +443,7 @@ export class LocalPtySession implements TerminalBackendSession {
       this.promptTail += sanitized.promptTail.slice(0, remaining)
       if (sanitized.promptTail.length > remaining) this.promptTail = `${CONTROLLED_PROMPT}\0`
       this.promptTextSeen = this.promptTail === CONTROLLED_PROMPT
+      this.controlledPromptObserved ||= this.promptTextSeen
     }
   }
 

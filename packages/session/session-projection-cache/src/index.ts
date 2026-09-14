@@ -96,6 +96,7 @@ export class SessionProjectionCache extends Service {
 
   private table?: KvTable<SessionId, CheckpointRecord>
   private readonly dirty = new Map<Session, DirtyState>()
+  private readonly writes = new Map<SessionId, Promise<void>>()
 
   constructor(ctx: Context, public config: Config) {
     super(ctx, 'sessionProjectionCache')
@@ -104,7 +105,16 @@ export class SessionProjectionCache extends Service {
   /** Open the domain and install the write-behind listeners. */
   protected async [Service.init](): Promise<void> {
     const domain = await this.ctx.storageDomain.open(projectionCacheDomainSpec)
-    this.ctx.effect(() => () => domain.close(), 'sessionProjectionCache.domainClose')
+    this.ctx.effect(() => async () => {
+      for (const state of this.dirty.values()) {
+        if (state.timer !== undefined) clearTimeout(state.timer)
+      }
+      this.dirty.clear()
+      while (this.writes.size > 0) {
+        await Promise.allSettled(this.writes.values())
+      }
+      await domain.close()
+    }, 'sessionProjectionCache.lifecycle')
     this.table = domain.table('sessions')
     this.installWritePath()
   }
@@ -237,28 +247,37 @@ export class SessionProjectionCache extends Service {
   /**
    * Durably checkpoint one live session NOW (all mandatory points call
    * this; tests and carriers may too). The registry cut is snapshotted at
-   * this boundary (states are live references), then the session's record is
-   * replaced on the domain's write chain. NOT fail-soft — callers on the
-   * fail-soft paths contain it.
+   * this boundary (states are live references), then the complete
+   * durability-and-record operation joins the session id's write chain.
+   * That chain preserves checkpoint observation order even when an earlier
+   * session-log flush is slower than a later one. NOT fail-soft — callers on
+   * the fail-soft paths contain it.
    * @param session - the live session to checkpoint.
    * @returns resolution after durability and event emission.
    */
   async write(session: Session): Promise<void> {
+    const id = session.id
     const rows = this.ctx.sessionProjections.checkpoint(session)
+    const identity = identityOf(session.header, session.inheritedEventCount)
     this.markClean(session)
-    // Durability barrier: the checkpoint cut was taken above, so flushing
-    // AFTER it guarantees every event inside the cut is durably logged
-    // before the cache row lands — a crash can leave the cache behind the
-    // log (longer tail replay) but never ahead of it (phantom values folded
-    // from events no stored log contains). At detach the store entry is
-    // already gone; persistence's own retirement drain covers that path and
-    // any residual overreach is caught by the cold read's anchored floor.
-    if (this.ctx.sessions.get(session.id) === session) await this.ctx.sessions.flush(session)
-    await this.put(
-      session.id,
-      identityOf(session.header, session.inheritedEventCount),
-      rows,
-    )
+    const previous = this.writes.get(id) ?? Promise.resolve()
+    const current = previous.catch(() => undefined).then(async () => {
+      // Durability barrier: the checkpoint cut was taken above, so flushing
+      // AFTER it guarantees every event inside the cut is durably logged
+      // before the cache row lands — a crash can leave the cache behind the
+      // log (longer tail replay) but never ahead of it (phantom values folded
+      // from events no stored log contains). At detach the store entry is
+      // already gone; persistence's own retirement drain covers that path and
+      // any residual overreach is caught by the cold read's anchored floor.
+      if (this.ctx.sessions.get(id) === session) await this.ctx.sessions.flush(session)
+      await this.put(id, identity, rows)
+    })
+    this.writes.set(id, current)
+    try {
+      await current
+    } finally {
+      if (this.writes.get(id) === current) this.writes.delete(id)
+    }
   }
 
   /**
@@ -338,17 +357,6 @@ export class SessionProjectionCache extends Service {
       this.dirty.delete(session)
     })
 
-    // With the plugin (their sessions outlive the cache): clear pending
-    // timers and stop accepting new work. The domain-close effect registered
-    // in init runs after this disposer and drains already-queued writes, so
-    // a late flush can never land after disposal (it rejects `closed` into
-    // flushSoft's warning instead).
-    this.ctx.effect(() => () => {
-      for (const state of this.dirty.values()) {
-        if (state.timer !== undefined) clearTimeout(state.timer)
-      }
-      this.dirty.clear()
-    }, 'sessionProjectionCache.timers')
   }
 
   /**

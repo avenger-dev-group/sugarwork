@@ -294,6 +294,14 @@ const notReady = UI_PLUGIN_DIRS.filter((dir) => {
 })
 if (notReady.length > 0) console.warn(`[smoke-real] skipped — client bundles not ready: ${notReady.join(', ')}`)
 
+/** Point the shipped Metis route at one private mock server for a keyless test. */
+function configureMetisMock(home: string, baseURL: string): void {
+  mkdirSync(home, { recursive: true })
+  writeFileSync(join(home, 'settings.yaml'), JSON.stringify({
+    'llm-pi-ai': { providers: { metis: { baseURL } } },
+  }))
+}
+
 describe('sw web keyless CLI smoke', () => {
   it('serves a usable app from two immutable plugin batches', async () => {
     requireDist()
@@ -339,7 +347,7 @@ describe('sw web keyless CLI smoke', () => {
           cacheHeaders.set(resource, response.headers()['cache-control'])
         }
       })
-      await page.goto(`${readyUrl}#dsh-enter-workspace`)
+      await page.goto(`${readyUrl}#dsh-open-agent`)
       await page.getByRole('button', { name: 'New session', exact: true }).first().waitFor({ timeout: 30_000 })
       const batchPaths = [...new Set(pluginScripts)].sort()
       expect(batchPaths).toHaveLength(2)
@@ -421,6 +429,8 @@ describe('sw web keyless CLI smoke', () => {
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
     const address = provider.address()
     if (address === null || typeof address === 'string') throw new Error('mock provider did not bind a TCP port')
+    const harnessHome = join(workspace, '.dsh')
+    configureMetisMock(harnessHome, `http://127.0.0.1:${address.port}`)
     const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
     const child = spawn(
       process.execPath,
@@ -430,8 +440,7 @@ describe('sw web keyless CLI smoke', () => {
         env: {
           ...process.env,
           METIS_API_KEY: 'keyless-web-workspace',
-          METIS_BASE_URL: `http://127.0.0.1:${address.port}`,
-          DSH_HOME: join(workspace, '.dsh'),
+          DSH_HOME: harnessHome,
           DSH_AGENTS_HOME: join(workspace, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
@@ -536,6 +545,8 @@ describe('sw web keyless CLI smoke', () => {
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
     const address = provider.address()
     if (address === null || typeof address === 'string') throw new Error('mock provider did not bind a TCP port')
+    const harnessHome = join(workspace, '.dsh')
+    configureMetisMock(harnessHome, `http://127.0.0.1:${address.port}`)
     const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
     const child = spawn(
       process.execPath,
@@ -545,8 +556,7 @@ describe('sw web keyless CLI smoke', () => {
         env: {
           ...process.env,
           METIS_API_KEY: 'keyless-web-retry',
-          METIS_BASE_URL: `http://127.0.0.1:${address.port}`,
-          DSH_HOME: join(workspace, '.dsh'),
+          DSH_HOME: harnessHome,
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -621,6 +631,8 @@ describe('sw web keyless CLI smoke', () => {
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
     const address = provider.address()
     if (address === null || typeof address === 'string') throw new Error('mock provider did not bind a TCP port')
+    const harnessHome = join(workspace, '.dsh')
+    configureMetisMock(harnessHome, `http://127.0.0.1:${address.port}`)
     const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
     const child = spawn(
       process.execPath,
@@ -630,9 +642,8 @@ describe('sw web keyless CLI smoke', () => {
         env: {
           ...process.env,
           METIS_API_KEY: 'keyless-web-ptc',
-          METIS_BASE_URL: `http://127.0.0.1:${address.port}`,
           DSH_TOOLS_MODE: 'ptc',
-          DSH_HOME: join(workspace, '.dsh'),
+          DSH_HOME: harnessHome,
           DSH_AGENTS_HOME: join(workspace, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
@@ -713,7 +724,7 @@ describe.skipIf(!process.env.METIS_API_KEY || notReady.length > 0)('web smoke (r
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     page.on('pageerror', e => pageErrors.push(String(e)))
-    await page.goto(`${baseUrl}#dsh-enter-workspace`, { waitUntil: 'load' })
+    await page.goto(`${baseUrl}#dsh-open-agent`, { waitUntil: 'load' })
   }, 120_000)
 
   afterAll(async () => {

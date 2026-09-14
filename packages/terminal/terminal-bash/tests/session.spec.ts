@@ -510,8 +510,10 @@ describe('LocalPtySession readiness and output', () => {
     const terminal = new FakeTerminal()
     const inspector = new FakeInspector()
     const session = makeSession(terminal, inspector, config())
+    expect(session.hasObservedControlledPrompt()).toBe(false)
     await initialize(session, terminal)
     expect(session.motd).toBe('dsh> ')
+    expect(session.hasObservedControlledPrompt()).toBe(true)
 
     inspector.waiting = true
     const operation = session.startSend({ text: 'python3', submit: true })

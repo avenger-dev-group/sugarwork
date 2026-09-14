@@ -170,9 +170,11 @@ hydratePrepared( session: Session, events: readonly SessionEvent[], ): Projectio
 /**
  * Durably checkpoint one live session NOW (all mandatory points call
  * this; tests and carriers may too). The registry cut is snapshotted at
- * this boundary (states are live references), then the session's record is
- * replaced on the domain's write chain. NOT fail-soft — callers on the
- * fail-soft paths contain it.
+ * this boundary (states are live references), then the complete
+ * durability-and-record operation joins the session id's write chain.
+ * That chain preserves checkpoint observation order even when an earlier
+ * session-log flush is slower than a later one. NOT fail-soft — callers on
+ * the fail-soft paths contain it.
  * @param session - the live session to checkpoint.
  * @returns resolution after durability and event emission.
  */

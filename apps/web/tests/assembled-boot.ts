@@ -256,8 +256,7 @@ export function installAssembledBootEnv(): void {
 export function mountAssembledApp(search = '?fixture', options: AssembledBootOptions = {}): void {
   const excluded = new Set(options.exclude)
   const plugins = PLUGINS.filter(plugin => !excluded.has(plugin.id))
-  sessionStorage.setItem('sugarwork.workspace.entered', 'true')
-  history.replaceState(null, '', `/${search}`)
+  history.replaceState(null, '', `/${search}#dsh-open-agent`)
   const root = document.createElement('div')
   root.id = 'root'
   document.body.appendChild(root)

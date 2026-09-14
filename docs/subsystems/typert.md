@@ -242,6 +242,23 @@ interface TypertClientRemote extends TypertRemoteNamespaceMap {
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
 
+<a id="ctxappbootstrapcontroller--appbootstrapcontroller"></a>
+
+### `ctx.appBootstrapController` — `AppBootstrapController`
+
+Host service backing the generated `ctx.remote.appBootstrap` namespace.
+
+```ts cordis-catalog
+/**
+ * Resolve the current account's presentation bootstrap without exposing its preset or policy.
+ * @param _request - reserved empty request.
+ * @returns client-safe user, department, feature, and navigation values.
+ */
+@Remote('get') async get(_request: AppBootstrapRequest): Promise<AppBootstrap>
+```
+
+Source: [`packages/api/app-bootstrap/src/index.ts`](../../packages/api/app-bootstrap/src/index.ts)
+
 <a id="ctxtypert--typertregistry"></a>
 
 ### `ctx.typert` — `TypertRegistry`

@@ -40,6 +40,10 @@ describe('TestClient (jsdom)', () => {
     expect(globals.__DSH_TRANSPORT__).toBeDefined()
     expect(globals.EventSource).toBeDefined()
     expect(globals.ResizeObserver).toBeDefined()
+    const ResizeObserverShim = globals.ResizeObserver as new () => { observe(): void; disconnect(): void }
+    const observer = new ResizeObserverShim()
+    observer.observe()
+    observer.disconnect()
     await client.dispose()
     expect(document.body.contains(container)).toBe(false)
     expect(globals.__DSH_TRANSPORT__).toBeUndefined()

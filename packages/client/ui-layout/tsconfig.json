@@ -9,6 +9,9 @@
   ],
   "references": [
     {
+      "path": "../../api/app-bootstrap/tsconfig.client.json"
+    },
+    {
       "path": "../../util/brand"
     },
     {

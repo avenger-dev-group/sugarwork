@@ -231,9 +231,12 @@ for (const backend of backends) {
         content: [{ type: 'text', text: 'resume after reconciliation' }],
         signal: SIGNAL,
       })
-      expect(receipt.status).toBe('accepted')
       await vi.waitFor(() => { expect(second.ctx.agents.get(childId)).toBeUndefined() }, { timeout: 5_000 })
       await vi.waitFor(() => { expect(durable(activeHandle.agent).pendingMessages).toEqual([]) })
+      const recoveredChild = await storedEvents(second.ctx, childId)
+      expect(recoveredChild.some(event => event.type === 'user/message'
+        && event.data.source.kind === 'team-message'
+        && event.data.source.messageId === receipt.messageId)).toBe(true)
 
       await activeHandle.dispose()
       await failedHandle.dispose()

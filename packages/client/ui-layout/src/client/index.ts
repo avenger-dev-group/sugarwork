@@ -120,7 +120,7 @@ export interface RightbarOwnerProps {
 }
 
 /** Required services (cordis fiber inject — the loader passes all module exports as an object plugin). */
-export const inject = ['slots', 'theme', 'locale']
+export const inject = ['appBootstrap', 'slots', 'theme', 'locale']
 
 /**
  * Client plugin body: provide ctx.layout, then one register() call — AppFrame
@@ -155,6 +155,7 @@ export function apply(ctx: ClientContext): void {
         'shell.overlay': { kind: 'list', scope: 'root' },
       },
       store,
+      inject: () => ({ appBootstrap: ctx.appBootstrap }),
     }, AppFrame)
     const disposePanels = ctx.slots.subscribe('main', retainMainPanels)
     retainMainPanels()

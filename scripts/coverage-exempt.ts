@@ -46,6 +46,7 @@ export const coverageExemptHeavySuites: readonly CoverageExemptSuite[] = [
   },
   // Real child-process fixtures over scripts/ sources, which coverage never measures.
   { filter: 'scripts/install-lefthook.spec.ts', exclude: 'scripts/install-lefthook.spec.ts' },
+  { filter: 'scripts/benchmark-npm-resolution.spec.ts', exclude: 'scripts/benchmark-npm-resolution.spec.ts' },
   { filter: 'scripts/oxlint-contract.spec.ts', exclude: 'scripts/oxlint-contract.spec.ts' },
   { filter: 'scripts/change-scope.spec.ts', exclude: 'scripts/change-scope.spec.ts' },
   { filter: 'scripts/translation-pairing-merge.spec.ts', exclude: 'scripts/translation-pairing-merge.spec.ts' },

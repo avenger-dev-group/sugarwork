@@ -23,6 +23,8 @@ The identity group provides one anonymous id per harness home that the installat
 | Package | Role |
 |---|---|
 | [`anonymous-user-id`](anonymous-user-id/README.md) | Gives every harness home one anonymous id that telemetry, feedback, and DeepSeek requests attach to their records, so records from one installation can be recognized without identifying the user |
+| [`department-workbench`](department-workbench/README.md) | Defines server-resolved account, department, membership, role, feature-set, and policy contracts |
+| [`department-workbench-mock`](department-workbench-mock/README.md) | Provides a validated in-memory organization directory for development |
 
 <a id="related-documentation"></a>
 ## Related documentation

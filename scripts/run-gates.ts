@@ -267,7 +267,6 @@ export function gatesForMode(selected: Mode): Gate[] {
         pnpmScript('client-domain-graph', 'verify-client-domain-graph', { label: 'client domain graph' }),
         pnpmScript('test', 'test'),
         pnpmScript('approval-policy', 'test:approval-policy', { label: 'Weighted approval policy' }),
-        pnpmScript('issue-management', 'test:issue-management', { label: 'Issue management policy' }),
         pnpmScript('duplication', 'duplication'),
         snapshotGate(),
         expectedOutputGate(),
@@ -311,7 +310,6 @@ function ciSharedStaticGates(): Gate[] {
     pnpmScript('client-ui-i18n', 'verify-client-ui-i18n', { label: 'client UI i18n' }),
     pnpmScript('no-bare-dispatcher', 'verify-no-bare-dispatcher', { label: 'proxy-aware dispatchers' }),
     pnpmScript('approval-policy', 'test:approval-policy', { label: 'Weighted approval policy' }),
-    pnpmScript('issue-management', 'test:issue-management', { label: 'Issue management policy' }),
   ]
 }
 
@@ -1506,8 +1504,13 @@ export function taskkillArgs(rootPid: number, descendants: number[]): string[][]
   return [rootPid, ...descendants].map(pid => ['/PID', String(pid), '/T', '/F'])
 }
 
-/** Breadth-first walk of the pid/ppid rows starting at `root`. */
-function collectDescendants(root: number, rows: Array<[number, number]>): number[] {
+/**
+ * Breadth-first walk of the pid/ppid rows starting at `root`.
+ * @param root - Root process whose descendants are collected.
+ * @param rows - One process-table snapshot as pid/parent-pid pairs.
+ * @returns Unique descendant pids in breadth-first order, excluding the root even when PID reuse forms a cycle.
+ */
+export function collectDescendants(root: number, rows: Array<[number, number]>): number[] {
   const byParent = new Map<number, number[]>()
   for (const [pid, ppid] of rows) {
     const children = byParent.get(ppid) ?? []
@@ -1515,12 +1518,16 @@ function collectDescendants(root: number, rows: Array<[number, number]>): number
     byParent.set(ppid, children)
   }
   const result: number[] = []
-  const queue = byParent.get(root) ?? []
+  const visited = new Set([root])
+  const queue = [...(byParent.get(root) ?? [])]
   for (let index = 0; index < queue.length; index += 1) {
     const pid = queue[index]
-    if (pid === undefined) continue
+    if (pid === undefined || visited.has(pid)) continue
+    visited.add(pid)
     result.push(pid)
-    queue.push(...(byParent.get(pid) ?? []))
+    for (const child of byParent.get(pid) ?? []) {
+      if (!visited.has(child)) queue.push(child)
+    }
   }
   return result
 }

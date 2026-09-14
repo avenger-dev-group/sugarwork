@@ -178,13 +178,13 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
   const pluginFile = join(project, 'environment-probe.mjs')
   writeFileSync(pluginFile, [
     "export const name = 'environment-probe'",
-    "export const inject = ['llm']",
+    "export const inject = ['llm', 'agentDefaultModel']",
     'export function apply(ctx) {',
     '  void ctx.loader.await().then(async () => {',
     "    let text = ''",
+    '    const selection = ctx.agentDefaultModel.currentSelection()',
     '    for await (const chunk of ctx.llm.stream({',
-    "      provider: 'deepseek-official',",
-    "      model: 'deepseek-v4-flash',",
+    '      ...selection,',
     '      messages: [],',
     '      maxTokens: 32,',
     '    })) {',
@@ -211,6 +211,13 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
     `      name: ${pathToFileURL(pluginFile).href}`,
     '',
   ].join('\n'))
+}
+
+/** Point the shipped Metis route at one private mock server for a keyless test. */
+function configureMetisMock(home: string, baseURL: string): void {
+  writeFileSync(join(home, 'settings.yaml'), JSON.stringify({
+    'llm-pi-ai': { providers: { metis: { baseURL } } },
+  }))
 }
 
 interface StartupFixture {
@@ -502,6 +509,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'ACP BUILT PROFILE OK',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-acp-'))
+    configureMetisMock(home, server.baseURL)
     const child = execa(process.execPath, [dshBin, '--profile', 'acp'], {
       cwd: home,
       reject: false,
@@ -511,8 +519,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         ...process.env,
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        METIS_API_KEY: apiKey,
         DSH_PERMISSION_MODE: 'danger-full-access',
       },
       extendEnv: false,
@@ -587,12 +594,12 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'published headless profile reached the mock',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-headless-'))
+    configureMetisMock(home, server.baseURL)
     try {
       const result = await runBuiltBin(['--profile', 'headless', 'answer', 'from', 'the', 'published', 'entry'], {
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        METIS_API_KEY: apiKey,
       })
       expect(result.code, result.stderr).toBe(0)
       expect(result.stdout).toBe('published headless profile reached the mock')
@@ -716,7 +723,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     }
   }, SPAWN_TIMEOUT_MS * 2 + 30_000)
 
-  it('uses the launching endpoint and managed credential through the published entry', async () => {
+  it('uses the default model, launching endpoint, and managed credential through the published entry', async () => {
     const apiKey = 'built-home-layer-key'
     const server = await startMockLlmServer({
       sequence: ['success'],
@@ -725,7 +732,8 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-home-environment-'))
     const project = mkdtempSync(join(tmpdir(), 'dsh-home-project-'))
-    writeFileSync(join(home, '.credentials.yaml'), `version: 1\nrefs:\n  DEEPSEEK_API_KEY: ${apiKey}\n`, { mode: 0o600 })
+    writeFileSync(join(home, '.credentials.yaml'), `version: 1\nrefs:\n  METIS_API_KEY: ${apiKey}\n`, { mode: 0o600 })
+    configureMetisMock(home, server.baseURL)
     createEnvironmentProbeProfile(home, project)
     try {
       const result = await runBuiltBin(
@@ -733,8 +741,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         {
           DSH_HOME: home,
           DSH_TELEMETRY_DISABLED: '1',
-          DEEPSEEK_API_KEY: undefined,
-          DEEPSEEK_BASE_URL: server.baseURL,
+          METIS_API_KEY: undefined,
         },
         project,
       )
@@ -748,6 +755,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       expect(server.requests).toHaveLength(1)
       expect(server.requests[0]?.path).toBe('/chat/completions')
       expect(server.requests[0]?.headers.authorization).toBe(`Bearer ${apiKey}`)
+      expect(server.requests[0]?.body).toMatchObject({ model: 'metis-coder-max' })
       expect(JSON.stringify(server.requests[0]?.body)).not.toContain(apiKey)
     } finally {
       await server.close()

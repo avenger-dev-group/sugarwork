@@ -1,0 +1,30 @@
+{
+  "name": "@deepseek-ai/dsh-department-workbench",
+  "description": "Service Definition for account-driven department workbench resolution and policy",
+  "version": "0.1.5-rc.2",
+  "publishConfig": { "access": "public" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avenger-dev-group/sugarwork.git",
+    "directory": "packages/identity/department-workbench"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
+    "./types": { "types": "./lib/types/types.d.ts", "default": "./lib/types/types.js" },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": ["lib/index.js", "lib/types/**/*.js", "lib/types/**/*.d.ts"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-brand": "workspace:^"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@deepseek-ai/dsh-brand": "workspace:^"
+  }
+}

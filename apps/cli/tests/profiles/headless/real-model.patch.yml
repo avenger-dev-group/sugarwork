@@ -7,6 +7,7 @@
   disabled: true
 
 - id: llm-deepseek
+  disabled: false
   config:
     thinking: enabled
     reasoningEffort: max

@@ -39,6 +39,11 @@ flowchart LR
   pkg_invariants["invariants"]
   pkg_message_feedback["message-feedback"]
   svc_sessionController["ctx.sessionController<br/>Host Session Remote controller"]
+  pkg_department_workbench["department-workbench"]
+  svc_departmentWorkbench["ctx.departmentWorkbench<br/>Account-driven department workbench seam"]
+  pkg_department_workbench_mock["department-workbench-mock"]
+  pkg_api_app_bootstrap["api-app-bootstrap"]
+  svc_appBootstrapController["ctx.appBootstrapController<br/>Application bootstrap Remote controller"]
   svc_sessionFileReferences["ctx.sessionFileReferences<br/>Session-addressed file-reference Remote adapter"]
   svc_sessionSkillCatalog["ctx.sessionSkillCatalog<br/>Session-addressed skill Remote adapter"]
   pkg_api_settings_controller["api-settings-controller"]
@@ -228,6 +233,7 @@ flowchart LR
   pkg_agent_default_model --> svc_agentDefaultModel
   pkg_agent_loop --> svc_agentLoop
   pkg_agent_presets --> svc_agentPresets
+  pkg_api_app_bootstrap --> svc_appBootstrapController
   pkg_api_gateway --> svc_typertGateway
   pkg_api_session_controller --> svc_sessionController
   pkg_api_session_controller --> svc_sessionFileReferences
@@ -256,6 +262,8 @@ flowchart LR
   pkg_credentials --> svc_credentials
   pkg_credentials_local --> svc_credentials
   pkg_deepseek_llm_api_extensions --> svc_deepseekLlmApiExtensions
+  pkg_department_workbench --> svc_departmentWorkbench
+  pkg_department_workbench_mock --> svc_departmentWorkbench
   pkg_e2b --> svc_e2b
   pkg_experimental_agent_team --> svc_agentTeams
   pkg_experimental_code_runtime_python --> svc_codeRuntime
@@ -368,6 +376,7 @@ flowchart LR
   svc_credentials --> pkg_llm_deepseek
   svc_credentials --> pkg_llm_pi_ai
   svc_deepseekLlmApiExtensions --> pkg_llm_deepseek
+  svc_departmentWorkbench --> pkg_api_app_bootstrap
   svc_directoryPicker --> pkg_api_workspace_controller
   svc_dynamicCordisRunner --> pkg_tool_cordis
   svc_e2b --> pkg_fs_e2b
@@ -482,6 +491,8 @@ flowchart LR
 | `ctx.toolResultPruner` | `core` | [`compaction-tool-result-pruner`](../packages/compaction/compaction-tool-result-pruner) | - | [`compaction-basic`](../packages/compaction/compaction-basic) | - | Rewrites oversized current tool results through replayable single-node surface replacements before summary compaction. |
 | `ctx.sessions` | `core` | [`session`](../packages/core/session) | - | [`agent-loop`](../packages/core/agent-loop), [`agent`](../packages/core/agent), [`session-persistence`](../packages/session/session-persistence), [`session-query`](../packages/session-query/session-query), [`session-query-sqlite`](../packages/session-query/session-query-sqlite), [`subagent-in-process-driver`](../packages/subagent/subagent-in-process-driver), [`invariants`](../packages/runtime-diagnostics/invariants), [`message-feedback`](../packages/feedback/message-feedback) | - | Owns append-only Session instances and emits the durable session event feed. |
 | `ctx.sessionController` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | Owns Session commands, cold reads, durable-event following, live control state, model catalogs, workspace opening, and Agent activation policy. |
+| `ctx.departmentWorkbench` | `seam` | [`department-workbench`](../packages/identity/department-workbench) | [`department-workbench-mock`](../packages/identity/department-workbench-mock) | [`api-app-bootstrap`](../packages/api/app-bootstrap) | - | Providers resolve the current server-owned account, primary membership, feature set, preset reference, and policy; consumers cannot substitute browser-provided identity values. |
+| `ctx.appBootstrapController` | `core` | [`api-app-bootstrap`](../packages/api/app-bootstrap) | - | - | - | Projects a resolved department workbench to client-safe identity, feature, and navigation fields while retaining preset and authorization policy on the Host. |
 | `ctx.sessionFileReferences` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | Delegates file-reference discovery through the Session Controller's established Agent lookup policy. |
 | `ctx.sessionSkillCatalog` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | Lists the Session composition's user-invocable skills without activating a cold Agent. |
 | `ctx.credentialsController` | `core` | [`api-settings-controller`](../packages/api/settings-controller) | - | - | - | Projects the credential-reference seam onto the generated Remote namespace: batch fan-out, view projection, and refusal mapping live here, not on the seam Definition. |

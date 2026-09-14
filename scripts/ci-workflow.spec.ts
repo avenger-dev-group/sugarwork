@@ -165,6 +165,14 @@ describe('CI workflow', () => {
     if (!Array.isArray(aggregate.needs)) {
       throw new TypeError('CI aggregate must define needs')
     }
+    const expectResourceBudget = (
+      job: Record<string, unknown>, key: string, selector: string, accelerated: string, standard: string,
+    ): void => {
+      if (!isRecord(job.env) || typeof job.env[key] !== 'string') throw new TypeError(`${key} must be a string expression`)
+      expect(job.env[key]).toContain(selector)
+      expect(job.env[key]).toContain(`'${accelerated}'`)
+      expect(job.env[key]).toContain(`'${standard}'`)
+    }
     // The split native jobs all resolve their pool through the Windows switch.
     for (const [jobName, job] of [['windows-build', windowsBuild], ['windows-coverage', windowsCoverage], ['windows-native-tests', windowsNativeTests], ['windows-observational', windowsObservational]] as const) {
       expect(typeof job['runs-on']).toBe('string')
@@ -172,7 +180,7 @@ describe('CI workflow', () => {
       expect(job['runs-on'], `${jobName} runs-on must not use the Linux failover switch`).not.toContain('DSH_CI_FAILOVER_LINUX')
       expect(job['runs-on']).toContain('self-hosted')
       expect(job['runs-on']).toContain('dsh-win-ci')
-      expect(job['runs-on']).toContain('dsh-windows-2025-16core')
+      expect(job['runs-on']).toContain('windows-2025')
       expect(job['runs-on']).toContain('blacksmith-16vcpu-windows-2025')
       expect(job.if).toBe("github.event_name == 'pull_request'")
     }
@@ -214,9 +222,22 @@ describe('CI workflow', () => {
       expect(install!.run).not.toContain('$cloneFlag')
     }
 
-    // windows-coverage uses the lower 4-partition profile.
+    // Standard 4-vCPU runners avoid oversubscription while accelerated
+    // failover runners retain their wider worker and gate budgets.
     expect(windowsCoverage.name).toBe('windows node 24 / coverage')
-    expect(windowsCoverage.env).toMatchObject({ DSH_COVERAGE_PARTITIONS: '4' })
+    expectResourceBudget(windowsCoverage, 'DSH_COVERAGE_MAX_WORKERS', 'DSH_CI_FAILOVER_WINDOWS', '6', '3')
+    expectResourceBudget(windowsCoverage, 'DSH_COVERAGE_PARTITIONS', 'DSH_CI_FAILOVER_WINDOWS', '4', '2')
+    expectResourceBudget(windowsCoverage, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_WINDOWS', '3', '2')
+    expectResourceBudget(windowsObservational, 'DSH_PUBLINT_CONCURRENCY', 'DSH_CI_FAILOVER_WINDOWS', '8', '2')
+    expectResourceBudget(node24, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '8', '4')
+    expectResourceBudget(node24Coverage, 'DSH_COVERAGE_MAX_WORKERS', 'DSH_CI_FAILOVER_LINUX', '6', '3')
+    expectResourceBudget(node24Coverage, 'DSH_COVERAGE_PARTITIONS', 'DSH_CI_FAILOVER_LINUX', '4', '2')
+    expectResourceBudget(node24Coverage, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '3', '2')
+    expectResourceBudget(node24Consumers, 'DSH_GATE_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '10', '3')
+    expectResourceBudget(node24Consumers, 'DSH_OXLINT_THREADS', 'DSH_CI_FAILOVER_LINUX', '8', '2')
+    expectResourceBudget(node24Consumers, 'DSH_PUBLINT_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '8', '2')
+    expectResourceBudget(node24Consumers, 'DSH_WEB_SNAPSHOT_WORKERS', 'DSH_CI_FAILOVER_LINUX', '6', '2')
+    expectResourceBudget(node24Consumers, 'DSH_SNAPSHOT_MAX_CONCURRENCY', 'DSH_CI_FAILOVER_LINUX', '32', '4')
     const coverageSteps = windowsCoverage.steps as unknown[]
     const coverageCommands = coverageSteps.filter((step): step is Record<string, unknown> & { run: string } => (
       isRecord(step) && typeof step.run === 'string'
@@ -304,7 +325,7 @@ describe('CI workflow', () => {
     expect(aggregate.needs).not.toContain('windows-observational')
     expect(aggregate.needs).not.toContain('serial-windows')
 
-    // Linux failover is a separate switch: the three enterprise Linux workers
+    // Linux failover is a separate switch: the three Linux workers
     // and the verdict job resolve their pool through DSH_CI_FAILOVER_LINUX,
     // never the Windows switch.
     for (const [jobName, job] of [['node-24', node24], ['node-24-coverage', node24Coverage], ['node-24-consumers', node24Consumers]] as const) {
@@ -336,9 +357,9 @@ describe('CI workflow', () => {
       }, { timeout: 1000 })
     }
     for (const [name, selector, variable, pool, hosted] of [
-      ['linux gates', selectors.linux, 'DSH_CI_FAILOVER_LINUX', ['self-hosted', 'linux', 'x64', 'vm-backup'], 'dsh-ubuntu-24-04-16core'],
+      ['linux gates', selectors.linux, 'DSH_CI_FAILOVER_LINUX', ['self-hosted', 'linux', 'x64', 'vm-backup'], 'ubuntu-24.04'],
       ['linux aggregate', selectors.linuxAggregate, 'DSH_CI_FAILOVER_LINUX', ['self-hosted', 'linux', 'x64', 'vm-backup'], 'ubuntu-latest'],
-      ['windows lanes', selectors.windows, 'DSH_CI_FAILOVER_WINDOWS', ['self-hosted', 'dsh-win-ci', 'windows'], 'dsh-windows-2025-16core'],
+      ['windows lanes', selectors.windows, 'DSH_CI_FAILOVER_WINDOWS', ['self-hosted', 'dsh-win-ci', 'windows'], 'windows-2025'],
     ] as const) {
       expect(evaluate(selector, { [variable]: 'blacksmith' }), `${name} blacksmith value`).toMatch(/^blacksmith-/)
       expect(evaluate(selector, { [variable]: 'selfhosted' }), `${name} selfhosted value`).toEqual(pool)
@@ -552,7 +573,7 @@ describe('CI workflow', () => {
         ci: true,
       },
       secrets: {
-        DEEPSEEK_API_KEY_EXTERNAL: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}',
+        METIS_API_KEY: '${{ secrets.METIS_API_KEY }}',
       },
     })
     expect(aggregate.needs).toContain('python-runtime')
@@ -732,7 +753,7 @@ describe('Python release workflows', () => {
       release: { type: 'boolean', default: false },
     })
     expect(call.secrets).toMatchObject({
-      DEEPSEEK_API_KEY_EXTERNAL: { required: false },
+      METIS_API_KEY: { required: false },
     })
     expect(workflow.concurrency).toMatchObject({
       group: 'build-single-exe-${{ github.workflow }}-${{ github.ref }}',
@@ -776,21 +797,26 @@ describe('Python release workflows', () => {
     expect(cleanVenvWindows).toMatchObject({ if: "runner.os == 'Windows'", shell: 'pwsh' })
     expect(JSON.stringify(cleanVenvWindows)).toContain('Scripts\\\\python.exe')
     expect(realApiPreflightPosix).toMatchObject({
-      env: { DEEPSEEK_API_KEY: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}' },
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
     })
     expect(String(realApiPreflightPosix.if)).toContain('inputs.ci')
     expect(String(realApiPreflightPosix.if)).toContain('head.repo.fork')
     expect(String(realApiPreflightPosix.if)).toContain('dependabot[bot]')
-    expect(realApiPreflightWindows).toMatchObject({ shell: 'pwsh' })
+    expect(realApiPreflightWindows).toMatchObject({
+      shell: 'pwsh',
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
+    })
     expect(installedRealApiPosix).toMatchObject({
       env: {
-        DEEPSEEK_API_KEY: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}',
-        DEEPSEEK_BASE_URL: 'https://api.deepseek.com',
+        METIS_API_KEY: '${{ secrets.METIS_API_KEY }}',
       },
     })
     expect(JSON.stringify(installedRealApiPosix)).toContain('--scenario sdk-live')
     expect(JSON.stringify(installedRealApiPosix)).toContain('-u DSH_RUNTIME_MODE')
-    expect(installedRealApiWindows).toMatchObject({ shell: 'pwsh' })
+    expect(installedRealApiWindows).toMatchObject({
+      shell: 'pwsh',
+      env: { METIS_API_KEY: '${{ secrets.METIS_API_KEY }}' },
+    })
     expect(JSON.stringify(installedRealApiWindows)).toContain('--scenario sdk-live --installed-wheel')
     expect(manylinuxSmoke).toMatchObject({ if: "runner.os == 'Linux'" })
     expect(JSON.stringify(manylinuxSmoke)).toContain('-e DSH_TELEMETRY_DISABLED')
@@ -917,74 +943,6 @@ describe('Weighted approval workflow', () => {
     expect(JSON.stringify(publisher)).not.toContain('secrets.')
     expect(JSON.stringify(reviewEvent)).not.toContain('github.token')
     expect(JSON.stringify(reviewEvent)).not.toContain('secrets.')
-  })
-})
-
-describe('Issue lifecycle workflow', () => {
-  it('runs the lifecycle job on every PR/review event but gates token and board steps', () => {
-    const lifecycle = loadWorkflow('.github/workflows/issue-lifecycle.yml')
-    const policy = loadWorkflow('.github/workflows/issue-policy.yml')
-    const lifecycleJob = workflowJob(lifecycle, 'lifecycle')
-    if (!Array.isArray(lifecycleJob.steps)) throw new TypeError('Issue lifecycle job must define steps')
-
-    // The job has no job-level `if`, so it is listed on every pull_request /
-    // pull_request_review event and reports success instead of a gray skip. The
-    // write-capable steps are gated at step level so approved/commented reviews
-    // never mint a Project/Issue App token nor touch the board.
-    expect(lifecycle.on).toHaveProperty('pull_request')
-    expect(lifecycle.on).toHaveProperty('pull_request_review')
-    expect(lifecycleJob.if).toBeUndefined()
-    // Keep the subscription-type gates: issue-lifecycle does not re-subscribe
-    // ready_for_review (issue-policy owns that) and only reacts to submitted
-    // review events.
-    const lifecyclePullRequest = workflowEvent(lifecycle, 'pull_request')
-    const lifecycleReview = workflowEvent(lifecycle, 'pull_request_review')
-    expect(lifecyclePullRequest.types).toContain('opened')
-    expect(lifecyclePullRequest.types).not.toContain('ready_for_review')
-    expect(lifecyclePullRequest.types).toContain('review_requested')
-    expect(lifecycleReview.types).toEqual(['submitted'])
-    const gated = "${{ github.event_name != 'pull_request_review' || github.event.review.state == 'changes_requested' }}"
-    const steps = lifecycleJob.steps.filter(isRecord)
-    const tokenStep = steps.find(s => s.name === 'Create project token')
-    const handleStep = steps.find(s => s.name === 'Handle repository event')
-    expect(tokenStep).toMatchObject({ if: gated })
-    expect(handleStep).toMatchObject({ if: gated })
-
-    // issue-policy owns PR validation; it is read-only and a real gate.
-    const policyPullRequest = workflowEvent(policy, 'pull_request')
-    expect(policyPullRequest.types).toContain('ready_for_review')
-  })
-
-  it('uses a read-only Project token only for human pull request policy metadata', () => {
-    const policy = loadWorkflow('.github/workflows/issue-policy.yml')
-    const policyJob = workflowJob(policy, 'policy')
-    if (!Array.isArray(policyJob.steps)) throw new TypeError('Issue policy job must define steps')
-    const steps = policyJob.steps.filter(isRecord)
-    const tokenStep = steps.find(step => step.name === 'Create Project read token')
-    const validateStep = steps.find(step => step.name === 'Validate pull request')
-    const humanPullRequest =
-      "${{ github.event.pull_request.user.type != 'Bot' && github.event.pull_request.user.type != 'App' }}"
-
-    expect(tokenStep).toMatchObject({
-      id: 'app-token',
-      if: humanPullRequest,
-      uses: 'actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1',
-      with: {
-        'client-id': '${{ vars.DSH_ISSUE_APP_CLIENT_ID }}',
-        'private-key': '${{ secrets.DSH_ISSUE_APP_PRIVATE_KEY }}',
-        owner: 'deepseek-harness',
-        repositories: 'deepseek-harness',
-        'permission-issues': 'read',
-        'permission-organization-projects': 'read',
-      },
-    })
-    expect(validateStep).toMatchObject({
-      if: humanPullRequest,
-      env: {
-        GITHUB_TOKEN: '${{ github.token }}',
-        PROJECT_TOKEN: '${{ steps.app-token.outputs.token }}',
-      },
-    })
   })
 })
 

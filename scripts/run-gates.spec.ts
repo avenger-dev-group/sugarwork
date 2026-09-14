@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi, type MockInstance } from 'vitest'
 import {
   cliGateOptions,
+  collectDescendants,
   defaultConcurrency,
   formatGateResultReason,
   gatesForMode,
@@ -335,8 +336,9 @@ describe('gate graph validation', () => {
   })
 
   it('applies one configured test, polling, and hook timeout to both coverage gates', () => {
-    const gates = withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', '15000', () =>
-      withPnpmEntrypoint(() => gatesForMode('ci-windows-complete')))
+    const gates = withEnv('DSH_COVERAGE_PARTITIONS', undefined, () =>
+      withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', '15000', () =>
+        withPnpmEntrypoint(() => gatesForMode('ci-windows-complete'))))
 
     for (const id of ['coverage', 'coverage-exempt-heavy']) {
       expect(gates.find(subject => subject.id === id)?.args).toEqual(expect.arrayContaining([
@@ -348,8 +350,9 @@ describe('gate graph validation', () => {
   })
 
   it('keeps Vitest timeout defaults when the coverage override is absent', () => {
-    const gates = withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', undefined, () =>
-      withPnpmEntrypoint(() => gatesForMode('ci-windows-complete')))
+    const gates = withEnv('DSH_COVERAGE_PARTITIONS', undefined, () =>
+      withEnv('DSH_COVERAGE_TEST_TIMEOUT_MS', undefined, () =>
+        withPnpmEntrypoint(() => gatesForMode('ci-windows-complete'))))
 
     for (const id of ['coverage', 'coverage-exempt-heavy']) {
       expect(gates.find(subject => subject.id === id)?.args).not.toEqual(expect.arrayContaining([
@@ -927,6 +930,16 @@ describe('process-table parsing', () => {
 
   it('drops blank and malformed lines', () => {
     expect(parsePidPpidLines('  123   1\n\ncommand not found\n999 abc\n')).toEqual([[123, 1]])
+  })
+
+  it('deduplicates descendants when PID reuse forms a parent cycle', () => {
+    expect(collectDescendants(100, [
+      [200, 100],
+      [200, 100],
+      [300, 200],
+      [100, 300],
+      [400, 300],
+    ])).toEqual([200, 300, 400])
   })
 })
 

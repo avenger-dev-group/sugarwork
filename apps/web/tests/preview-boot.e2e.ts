@@ -24,7 +24,7 @@ import { tmpdir } from 'node:os'
 import { dirname, extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
-import type { Browser } from 'playwright'
+import type { Browser, Page } from 'playwright'
 import { expect, it } from 'vitest'
 import {
   composeProfile, configTrees, indexWorkspacePackages, packVfsImage, packVfsOverlay,
@@ -248,6 +248,23 @@ async function within<T>(work: Promise<T>, ms: number, stalled: string): Promise
   }
 }
 
+/**
+ * Reject as soon as the preview shell renders its terminal plugin-load error.
+ * @param page - Preview page whose boot is in progress.
+ * @returns A promise that only rejects, carrying the rendered diagnostic.
+ */
+async function failOnPluginLoadError(page: Page): Promise<never> {
+  await page.getByText('Failed to load plugins', { exact: true }).waitFor({ timeout: 0 })
+  throw new Error(`preview boot rendered a plugin-load failure:\n${await page.locator('body').innerText()}`)
+}
+
+/** Enter the development workbench selected by the profile's mock identity provider. */
+async function enterMockWorkspace(page: Page): Promise<void> {
+  const enter = page.getByRole('button', { name: 'Enter workspace' })
+  await enter.waitFor({ timeout: 30_000 })
+  await enter.click()
+}
+
 it('boots the packed worker deployment to an interactive page', async () => {
   requirePreviewPages()
   const assets = requireVfsAssets()
@@ -303,12 +320,17 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     )
     await page.getByRole('button', { name: 'Start Preview' }).click()
     await page.getByText('Loading plugins…', { exact: true }).waitFor({ timeout: 10_000 })
-    const bootLine = await within(treeActive, BOOT_TIMEOUT_MS, `preview boot: the worker never reported "${TREE_ACTIVE}"`)
+    const bootLine = await within(
+      Promise.race([treeActive, failOnPluginLoadError(page)]),
+      BOOT_TIMEOUT_MS,
+      `preview boot: the worker never reported "${TREE_ACTIVE}"`,
+    )
     // The activated tree ran bodies lowered against the contract this
     // checkout's packer emits; a dist built before a contract change would
     // report the older one.
     expect(bootLine).toContain(`image lowering=${WRAPPER_CONTRACT}`)
     expect(bootLine).toContain('data overlays=1')
+    await enterMockWorkspace(page)
     // The versioned notice is the seeded preview's first stable interactive
     // surface after the startup chain completes over the tunnel.
     const continueButton = page.getByRole('button', { name: 'Continue' })
@@ -317,8 +339,7 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     const configureLater = page.getByRole('button', { name: 'Configure later' })
     await configureLater.waitFor({ timeout: 30_000 })
     await configureLater.click()
-    await page.locator('[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]')
-      .waitFor({ timeout: 30_000 })
+    await page.getByRole('heading', { name: 'Good morning, SIMON.F' }).waitFor({ timeout: 30_000 })
 
     const exercised = await page.evaluate(async ({ seededSessionId, seededSessionTitle }) => {
       type Result<T> = { result: { ok: true; value: T } | { ok: false; error: { code: string; message: string } } }
@@ -409,6 +430,10 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     expect(exercised.skillCount).toBeGreaterThan(0)
     expect(exercised.credentialConfigured).toBe(true)
 
+    const workspace = page.getByText('workspace', { exact: true }).first()
+      .locator('xpath=ancestor::*[@role="treeitem"][1]')
+    await workspace.waitFor({ timeout: 15_000 })
+    if (await workspace.getAttribute('aria-expanded') !== 'true') await workspace.click()
     const sessions = page.getByRole('tree', { name: 'Sessions' })
     const showcase = sessions.getByRole('treeitem').filter({ hasText: SHOWCASE_TITLE })
     await expect.poll(() => showcase.count(), { timeout: 15_000 }).toBe(1)
@@ -463,13 +488,14 @@ async function bootEmptyPreview(origin: string, browser: Browser): Promise<void>
     await page.goto(`${origin}/preview.html?preview-fixture=none`, { waitUntil: 'domcontentloaded' })
     expect(await page.getByRole('heading', { name: '选择 Preview 数据源' }).count()).toBe(0)
     const bootLine = await within(
-      treeActive,
+      Promise.race([treeActive, failOnPluginLoadError(page)]),
       BOOT_TIMEOUT_MS,
       `empty preview boot: the worker never reported "${TREE_ACTIVE}"`,
     )
     expect(bootLine).toContain(`image lowering=${WRAPPER_CONTRACT}`)
     expect(bootLine).toContain('data overlays=0')
-    await page.getByRole('textbox', { name: 'Choose workspace' }).waitFor({ timeout: HERO_TIMEOUT_MS })
+    await enterMockWorkspace(page)
+    await page.getByRole('heading', { name: 'Good morning, SIMON.F' }).waitFor({ timeout: HERO_TIMEOUT_MS })
     const sessionCount = await page.evaluate(async () => {
       const transport = (globalThis as typeof globalThis & {
         __DSH_TRANSPORT__?: { fetch(input: string, init: RequestInit): Promise<Response> }

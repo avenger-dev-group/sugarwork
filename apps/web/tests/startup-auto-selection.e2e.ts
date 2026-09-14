@@ -42,7 +42,6 @@ describe('web e2e: startup auto-selection', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-first-workspace-stable-tree'))
     await page.locator(`${ROOT_PHASE}[data-phase="hero"]`).waitFor({ timeout: 15_000 })
     expect(await page.title()).toBe('SugarWork')
-    expect(await page.locator('body').innerText()).not.toContain('SugarWork')
     await expect(page.locator('svg[viewBox="0 0 23.16 17.04"]').count()).resolves.toBe(0)
     const headline = page.getByText('Into the Unknown', { exact: true })
     // The product mark precedes the title group and remains mounted while

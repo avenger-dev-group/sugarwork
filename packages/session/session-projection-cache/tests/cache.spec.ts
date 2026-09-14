@@ -217,6 +217,37 @@ describe('SessionProjectionCache write policy', () => {
     }, { timeout: 5_000 })
   })
 
+  it('preserves checkpoint observation order across session durability waits', async () => {
+    const { ctx, root } = await harness()
+    let releaseFirstFlush: () => void = () => {
+      throw new Error('first flush was not installed')
+    }
+    const firstFlush = new Promise<boolean>((resolve) => {
+      releaseFirstFlush = () => { resolve(true) }
+    })
+    const flush = vi.spyOn(ctx.sessions, 'flush')
+      .mockImplementationOnce(() => firstFlush)
+      .mockResolvedValue(true)
+    const session = ctx.sessions.create(SessionId('ordered-writes'))
+    await vi.waitFor(() => {
+      expect(flush).toHaveBeenCalledOnce()
+    })
+
+    mark(session, ['newer'])
+    endTurn(session)
+    await Promise.resolve()
+    expect(flush).toHaveBeenCalledOnce()
+
+    releaseFirstFlush()
+    await vi.waitFor(() => {
+      expect(flush).toHaveBeenCalledTimes(2)
+    })
+    await vi.waitFor(async () => {
+      expect((await storedRows(root, session.id))?.['cache-test/marks']?.val)
+        .toEqual({ marks: ['newer'] })
+    }, { timeout: 5_000 })
+  })
+
   it('writes at session disposal (detach, the live-to-cold moment)', async () => {
     const { ctx, root } = await harness()
     // Sessions dispose with their owning fiber: create in a child plugin.
@@ -292,6 +323,29 @@ describe('SessionProjectionCache write policy', () => {
     await vi.advanceTimersByTimeAsync(10_000)
     // Only the creation cut exists: the armed mark never wrote.
     expect((await storedRows(root, armed.id))?.['cache-test/marks']?.seq).toBe(-1)
+  })
+
+  it('plugin disposal drains writes waiting on session durability before closing storage', async () => {
+    const { ctx, root, fiber } = await harness()
+    let releaseFlush: () => void = () => {
+      throw new Error('flush was not installed')
+    }
+    const heldFlush = new Promise<boolean>((resolve) => {
+      releaseFlush = () => { resolve(true) }
+    })
+    const flush = vi.spyOn(ctx.sessions, 'flush').mockImplementationOnce(() => heldFlush)
+    const session = ctx.sessions.create(SessionId('dispose-drain'))
+    await vi.waitFor(() => {
+      expect(flush).toHaveBeenCalledOnce()
+    })
+
+    let disposed = false
+    const disposal = fiber.dispose().then(() => { disposed = true })
+    await Promise.resolve()
+    expect(disposed).toBe(false)
+    releaseFlush()
+    await disposal
+    expect((await storedRows(root, session.id))?.['cache-test/marks']?.seq).toBe(-1)
   })
 
   it('contains a durable write failure: logs a warning, event path unharmed, next write self-heals', async () => {

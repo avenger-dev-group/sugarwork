@@ -41,6 +41,11 @@ flowchart LR
   pkg_invariants["invariants"]
   pkg_message_feedback["message-feedback"]
   svc_sessionController["ctx.sessionController<br/>Host Session Remote controller"]
+  pkg_department_workbench["department-workbench"]
+  svc_departmentWorkbench["ctx.departmentWorkbench<br/>Account-driven department workbench seam"]
+  pkg_department_workbench_mock["department-workbench-mock"]
+  pkg_api_app_bootstrap["api-app-bootstrap"]
+  svc_appBootstrapController["ctx.appBootstrapController<br/>Application bootstrap Remote controller"]
   svc_sessionFileReferences["ctx.sessionFileReferences<br/>Session-addressed file-reference Remote adapter"]
   svc_sessionSkillCatalog["ctx.sessionSkillCatalog<br/>Session-addressed skill Remote adapter"]
   pkg_api_settings_controller["api-settings-controller"]
@@ -230,6 +235,7 @@ flowchart LR
   pkg_agent_default_model --> svc_agentDefaultModel
   pkg_agent_loop --> svc_agentLoop
   pkg_agent_presets --> svc_agentPresets
+  pkg_api_app_bootstrap --> svc_appBootstrapController
   pkg_api_gateway --> svc_typertGateway
   pkg_api_session_controller --> svc_sessionController
   pkg_api_session_controller --> svc_sessionFileReferences
@@ -258,6 +264,8 @@ flowchart LR
   pkg_credentials --> svc_credentials
   pkg_credentials_local --> svc_credentials
   pkg_deepseek_llm_api_extensions --> svc_deepseekLlmApiExtensions
+  pkg_department_workbench --> svc_departmentWorkbench
+  pkg_department_workbench_mock --> svc_departmentWorkbench
   pkg_e2b --> svc_e2b
   pkg_experimental_agent_team --> svc_agentTeams
   pkg_experimental_code_runtime_python --> svc_codeRuntime
@@ -370,6 +378,7 @@ flowchart LR
   svc_credentials --> pkg_llm_deepseek
   svc_credentials --> pkg_llm_pi_ai
   svc_deepseekLlmApiExtensions --> pkg_llm_deepseek
+  svc_departmentWorkbench --> pkg_api_app_bootstrap
   svc_directoryPicker --> pkg_api_workspace_controller
   svc_dynamicCordisRunner --> pkg_tool_cordis
   svc_e2b --> pkg_fs_e2b
@@ -484,6 +493,8 @@ flowchart LR
 | `ctx.toolResultPruner` | `core` | [`compaction-tool-result-pruner`](../packages/compaction/compaction-tool-result-pruner) | - | [`compaction-basic`](../packages/compaction/compaction-basic) | - | 在摘要压缩前，通过可回放的单节点表层替换来改写过大的当前工具结果。 |
 | `ctx.sessions` | `core` | [`session`](../packages/core/session) | - | [`agent-loop`](../packages/core/agent-loop), [`agent`](../packages/core/agent), [`session-persistence`](../packages/session/session-persistence), [`session-query`](../packages/session-query/session-query), [`session-query-sqlite`](../packages/session-query/session-query-sqlite), [`subagent-in-process-driver`](../packages/subagent/subagent-in-process-driver), [`invariants`](../packages/runtime-diagnostics/invariants), [`message-feedback`](../packages/feedback/message-feedback) | - | 拥有仅追加的 Session 实例，并发出持久的会话事件流。 |
 | `ctx.sessionController` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | 负责 Session 命令、冷读取、持久事件跟随、实时控制状态、模型目录、workspace 打开与 Agent 激活策略。 |
+| `ctx.departmentWorkbench` | `seam` | [`department-workbench`](../packages/identity/department-workbench) | [`department-workbench-mock`](../packages/identity/department-workbench-mock) | [`api-app-bootstrap`](../packages/api/app-bootstrap) | - | 提供方解析当前由服务端持有的账号、主成员关系、功能集、preset 引用和策略；消费方不能替换为浏览器提供的身份值。 |
+| `ctx.appBootstrapController` | `core` | [`api-app-bootstrap`](../packages/api/app-bootstrap) | - | - | - | 把已解析的部门工作台投影为客户端安全的身份、功能和导航字段，同时把 preset 与鉴权策略保留在 Host。 |
 | `ctx.sessionFileReferences` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | 通过 Session Controller 的既有 Agent lookup 策略委托文件引用发现。 |
 | `ctx.sessionSkillCatalog` | `core` | [`api-session-controller`](../packages/api/session-controller) | - | - | - | 在不激活冷 Agent 的前提下列出 Session 组合中允许用户调用的 skill。 |
 | `ctx.credentialsController` | `core` | [`api-settings-controller`](../packages/api/settings-controller) | - | - | - | 把凭据引用 seam 投影到生成的 Remote namespace：批量扇出、视图投影与拒绝映射都在这里，而不在 seam Definition 上。 |

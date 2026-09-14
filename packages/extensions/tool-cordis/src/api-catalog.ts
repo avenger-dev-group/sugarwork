@@ -436,6 +436,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'appBootstrapController',
+    summary: 'Host service backing the generated `ctx.remote.appBootstrap` namespace.',
+    description: 'Host service backing the generated `ctx.remote.appBootstrap` namespace.',
+    methods: [
+      {
+        signature: '@Remote(\'get\') async get(_request: AppBootstrapRequest): Promise<AppBootstrap>',
+        description: 'Resolve the current account\'s presentation bootstrap without exposing its preset or policy.',
+        parameters: [{ name: '_request', description: 'reserved empty request.' }],
+        returns: 'client-safe user, department, feature, and navigation values.',
+      },
+    ],
+  },
+  {
     key: 'approval',
     summary: 'Approval service that applies session policy before answerers and logs every ask/outcome pair to the requesting session.',
     description: 'Approval service that applies session policy before answerers and logs every ask/outcome pair to the requesting session. It exposes deterministic policy changes to the model through the runtime-context snapshot and switch notices.',
@@ -829,6 +842,26 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Prepare every currently registered field from one immutable base request. Preparation failures reject before HTTP dispatch. Field values are cloned and frozen; providers retain no mutable alias to the outgoing request.',
         parameters: [{ name: 'request', description: 'exact serialized request facts before extension fields.' }],
         returns: 'detached fields and their idempotent joint acceptance transaction.',
+      },
+    ],
+  },
+  {
+    key: 'departmentWorkbench',
+    summary: 'Provider for the current account\'s workbench and business authorization.',
+    description: 'Provider for the current account\'s workbench and business authorization.',
+    methods: [
+      {
+        signature: 'abstract resolveCurrent(): Promise<ResolvedDepartmentWorkbench>',
+        description: 'Resolve the current authenticated account\'s active primary workbench.',
+        parameters: [],
+        returns: 'the complete server-side workbench composition.',
+        throws: ['when account data is absent, disabled, or inconsistent.'],
+      },
+      {
+        signature: 'abstract authorize(request: DepartmentAccessRequest): Promise<DepartmentAccessDecision>',
+        description: 'Authorize one business operation against current membership and policy.',
+        parameters: [{ name: 'request', description: 'server-owned identity, action, and optional resource.' }],
+        returns: 'denial or mandatory provider constraints.',
       },
     ],
   },
@@ -1653,7 +1686,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'async write(session: Session): Promise<void>',
-        description: 'Durably checkpoint one live session NOW (all mandatory points call this; tests and carriers may too). The registry cut is snapshotted at this boundary (states are live references), then the session\'s record is replaced on the domain\'s write chain. NOT fail-soft — callers on the fail-soft paths contain it.',
+        description: 'Durably checkpoint one live session NOW (all mandatory points call this; tests and carriers may too). The registry cut is snapshotted at this boundary (states are live references), then the complete durability-and-record operation joins the session id\'s write chain. That chain preserves checkpoint observation order even when an earlier session-log flush is slower than a later one. NOT fail-soft — callers on the fail-soft paths contain it.',
         parameters: [{ name: 'session', description: 'the live session to checkpoint.' }],
         returns: 'resolution after durability and event emission.',
       },
@@ -3567,6 +3600,10 @@ export const EVENT_API: readonly EventApiEntry[] = [
 /** Shapes of every exported type the Service and Event signatures reference (transitively), sorted by name. */
 export const TYPE_API: readonly TypeApiEntry[] = [
   {
+    name: 'AccountStatus',
+    declaration: 'export type AccountStatus = \'active\' | \'disabled\';',
+  },
+  {
     name: 'AdapterRegistrationHandle',
     declaration: 'export interface AdapterRegistrationHandle {\n    (): void;\n    replace(providers: string[]): void;\n}',
   },
@@ -3651,6 +3688,38 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ApiSessionAgentResult = {\n    readonly agent: Agent;\n} | {\n    readonly error: ApiSessionAgentError;\n};',
   },
   {
+    name: 'AppBootstrap',
+    declaration: 'export interface AppBootstrap {\n    readonly user: {\n        readonly id: AppUserId;\n        readonly name: string;\n        readonly role: {\n            readonly id: AppRoleId;\n            readonly name: string;\n            readonly kind: AppRoleKind;\n        };\n    };\n    readonly department: {\n        readonly id: AppDepartmentId;\n        readonly name: string;\n        readonly homePanelId: AppWorkbenchPanelId;\n    };\n    readonly features: readonly AppFeatureId[];\n    readonly navigation: readonly AppNavigationItem[];\n}',
+  },
+  {
+    name: 'AppBootstrapRequest',
+    declaration: 'export type AppBootstrapRequest = Record<never, never>;',
+  },
+  {
+    name: 'AppDepartmentId',
+    declaration: 'export type AppDepartmentId = Branded<\'AppDepartmentId\'>;',
+  },
+  {
+    name: 'AppFeatureId',
+    declaration: 'export type AppFeatureId = Branded<\'AppFeatureId\'>;',
+  },
+  {
+    name: 'AppNavigationItem',
+    declaration: 'export interface AppNavigationItem {\n    readonly id: AppNavigationItemId;\n    readonly featureId: AppFeatureId;\n    readonly panelId: AppWorkbenchPanelId;\n}',
+  },
+  {
+    name: 'AppNavigationItemId',
+    declaration: 'export type AppNavigationItemId = Branded<\'AppNavigationItemId\'>;',
+  },
+  {
+    name: 'AppRoleId',
+    declaration: 'export type AppRoleId = Branded<\'AppRoleId\'>;',
+  },
+  {
+    name: 'AppRoleKind',
+    declaration: 'export type AppRoleKind = \'member\' | \'administrator\';',
+  },
+  {
     name: 'ApprovalOutcome',
     declaration: 'export type ApprovalOutcome = \'allowed-once\' | \'rejected\' | \'cancelled\' | \'unavailable\';',
   },
@@ -3665,6 +3734,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ApprovalRequestEvent',
     declaration: 'export interface ApprovalRequestEvent {\n    readonly agent: Agent;\n    readonly toolName: string;\n    readonly callId?: ToolCallId;\n    readonly reason?: string;\n    readonly signal?: AbortSignal;\n}',
+  },
+  {
+    name: 'AppUserId',
+    declaration: 'export type AppUserId = Branded<\'AppUserId\'>;',
+  },
+  {
+    name: 'AppWorkbenchPanelId',
+    declaration: 'export type AppWorkbenchPanelId = Branded<\'AppWorkbenchPanelId\'>;',
   },
   {
     name: 'AskUserQuestionAnswer',
@@ -4079,6 +4156,42 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type DeepSeekLlmApiJson = null | boolean | number | string | DeepSeekLlmApiJson[] | {\n    [key: string]: DeepSeekLlmApiJson;\n};',
   },
   {
+    name: 'DepartmentAccessDecision',
+    declaration: 'export type DepartmentAccessDecision = {\n    readonly allowed: true;\n    readonly constraints: readonly DepartmentDataScope[];\n} | {\n    readonly allowed: false;\n    readonly reason: \'identity-mismatch\' | \'action-denied\';\n};',
+  },
+  {
+    name: 'DepartmentAccessRequest',
+    declaration: 'export interface DepartmentAccessRequest {\n    readonly userId: UserId;\n    readonly departmentId: DepartmentId;\n    readonly action: DepartmentActionId;\n    readonly resource?: {\n        readonly kind: string;\n        readonly id?: string;\n    };\n}',
+  },
+  {
+    name: 'DepartmentActionId',
+    declaration: 'export type DepartmentActionId = Branded<\'DepartmentActionId\'>;',
+  },
+  {
+    name: 'DepartmentDataScope',
+    declaration: 'export interface DepartmentDataScope {\n    readonly kind: string;\n    readonly resource: string;\n}',
+  },
+  {
+    name: 'DepartmentDefinition',
+    declaration: 'export interface DepartmentDefinition {\n    readonly id: DepartmentId;\n    readonly name: string;\n    readonly status: DepartmentStatus;\n    readonly featureSetId: FeatureSetId;\n    readonly agentPresetId: string;\n    readonly homePanelId: WorkbenchPanelId;\n}',
+  },
+  {
+    name: 'DepartmentId',
+    declaration: 'export type DepartmentId = Branded<\'DepartmentId\'>;',
+  },
+  {
+    name: 'DepartmentPolicy',
+    declaration: 'export interface DepartmentPolicy {\n    readonly id: DepartmentPolicyId;\n    readonly departmentId: DepartmentId;\n    readonly roleId: RoleId;\n    readonly actions: readonly DepartmentActionId[];\n    readonly dataScopes: readonly DepartmentDataScope[];\n}',
+  },
+  {
+    name: 'DepartmentPolicyId',
+    declaration: 'export type DepartmentPolicyId = Branded<\'DepartmentPolicyId\'>;',
+  },
+  {
+    name: 'DepartmentStatus',
+    declaration: 'export type DepartmentStatus = \'active\' | \'disabled\';',
+  },
+  {
     name: 'DiffCallView',
     declaration: 'export interface DiffCallView {\n    card: \'diff\';\n    title: string;\n    diffs: FileDiff[];\n    locations?: FileLocation[];\n}',
   },
@@ -4201,6 +4314,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'EpochHeader',
     declaration: 'export interface EpochHeader {\n    config: LlmCallConfig;\n    adapterDefaults?: LlmCallConfigAdapterDefaults;\n    tools?: ToolSchema[];\n}',
+  },
+  {
+    name: 'FeatureId',
+    declaration: 'export type FeatureId = Branded<\'FeatureId\'>;',
+  },
+  {
+    name: 'FeatureSet',
+    declaration: 'export interface FeatureSet {\n    readonly id: FeatureSetId;\n    readonly features: readonly FeatureId[];\n    readonly navigation: readonly NavigationItem[];\n}',
+  },
+  {
+    name: 'FeatureSetId',
+    declaration: 'export type FeatureSetId = Branded<\'FeatureSetId\'>;',
   },
   {
     name: 'FeedbackCategory',
@@ -4611,6 +4736,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ManualCompactAgentContext extends CompactionAgentContext {\n    runMaintenance<T>(task: (signal: AbortSignal) => Promise<T>): Promise<T>;\n}',
   },
   {
+    name: 'Membership',
+    declaration: 'export interface Membership {\n    readonly id: MembershipId;\n    readonly userId: UserId;\n    readonly departmentId: DepartmentId;\n    readonly roleId: RoleId;\n    readonly status: MembershipStatus;\n}',
+  },
+  {
+    name: 'MembershipId',
+    declaration: 'export type MembershipId = Branded<\'MembershipId\'>;',
+  },
+  {
+    name: 'MembershipStatus',
+    declaration: 'export type MembershipStatus = \'active\' | \'disabled\';',
+  },
+  {
     name: 'Message',
     declaration: 'export interface Message {\n    readonly id: MessageId;\n    readonly role: \'system\' | \'user\' | \'assistant\';\n    readonly content: ContentBlock[];\n    readonly source: MessageSource;\n}',
   },
@@ -4737,6 +4874,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ModelReasoningEffort',
     declaration: 'export interface ModelReasoningEffort {\n    readonly id: string;\n    readonly name: string;\n    readonly description?: string;\n}',
+  },
+  {
+    name: 'NavigationItem',
+    declaration: 'export interface NavigationItem {\n    readonly id: NavigationItemId;\n    readonly featureId: FeatureId;\n    readonly panelId: WorkbenchPanelId;\n}',
+  },
+  {
+    name: 'NavigationItemId',
+    declaration: 'export type NavigationItemId = Branded<\'NavigationItemId\'>;',
   },
   {
     name: 'ObjectJsonSchema',
@@ -4931,6 +5076,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ResolvedCredential {\n    value: string;\n    source: string;\n}',
   },
   {
+    name: 'ResolvedDepartmentWorkbench',
+    declaration: 'export interface ResolvedDepartmentWorkbench {\n    readonly user: UserProfile;\n    readonly department: DepartmentDefinition;\n    readonly membership: Membership;\n    readonly role: Role;\n    readonly featureSet: FeatureSet;\n    readonly policy: DepartmentPolicy;\n}',
+  },
+  {
     name: 'ResolvedNormalRetryPolicy',
     declaration: 'export interface ResolvedNormalRetryPolicy extends ResolvedRetryBackoff {\n    readonly mode: \'normal\';\n    readonly maxRetries: number;\n    readonly retryableCodes: readonly string[];\n}',
   },
@@ -4953,6 +5102,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ResumeAgentOptions',
     declaration: 'export interface ResumeAgentOptions {\n    readonly resumeSessionId: SessionId;\n    readonly parentAgent?: Agent;\n    readonly agentOptions?: AgentOptions;\n    readonly signal?: AbortSignal;\n    readonly setup?: AgentSetup;\n}',
+  },
+  {
+    name: 'Role',
+    declaration: 'export interface Role {\n    readonly id: RoleId;\n    readonly name: string;\n    readonly kind: RoleKind;\n}',
+  },
+  {
+    name: 'RoleId',
+    declaration: 'export type RoleId = Branded<\'RoleId\'>;',
+  },
+  {
+    name: 'RoleKind',
+    declaration: 'export type RoleKind = \'member\' | \'administrator\';',
   },
   {
     name: 'RunnerFailureRule',
@@ -6247,8 +6408,16 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface UpdateTeamTaskRequest {\n    readonly taskId: TeamTaskId;\n    readonly expectedRevision: number;\n    readonly action: TeamTaskAction;\n    readonly subject?: string;\n    readonly description?: string;\n    readonly blockedBy?: readonly TeamTaskId[];\n    readonly writeScopes?: readonly string[];\n    readonly owner?: string;\n}',
   },
   {
+    name: 'UserId',
+    declaration: 'export type UserId = Branded<\'UserId\'>;',
+  },
+  {
     name: 'UserMessage',
     declaration: 'export interface UserMessage extends Message {\n    readonly role: \'user\';\n}',
+  },
+  {
+    name: 'UserProfile',
+    declaration: 'export interface UserProfile {\n    readonly id: UserId;\n    readonly name: string;\n    readonly status: AccountStatus;\n    readonly primaryDepartmentId?: DepartmentId;\n}',
   },
   {
     name: 'VerifiedWebhookDelivery',
@@ -6361,6 +6530,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WebUpgradeRoute',
     declaration: 'export interface WebUpgradeRoute {\n    path: string;\n    handler: (req: IncomingMessage, socket: Duplex, head: Buffer) => void | Promise<void>;\n}',
+  },
+  {
+    name: 'WorkbenchPanelId',
+    declaration: 'export type WorkbenchPanelId = Branded<\'WorkbenchPanelId\'>;',
   },
   {
     name: 'WorkflowAgentEndInfo',

@@ -41,6 +41,8 @@ kind: "package-group"
 | [`ui-primitives/`](ui-primitives/README.zh.md) | 提供共享 React 控件、图标与内容渲染器 | — |
 | [`ui-attachment/`](ui-attachment/README.zh.md) | 注册输入框与消息图片的附件呈现 | — |
 | [`ui-layout/`](ui-layout/README.zh.md) | 排列应用的主要区域 | — |
+| [`ui-department-workbench/`](ui-department-workbench/README.zh.md) | 激活服务端启用的部门功能并提供共享 Dashboard | `ctx.departmentFeatures` |
+| [`ui-sales-workspace/`](ui-sales-workspace/README.zh.md) | 添加销售导航、Dashboard 关注卡片与模拟业务面板 | — |
 | [`ui-sidebar/`](ui-sidebar/README.zh.md) | 展示工作区与会话导航 | — |
 | [`resources/`](resources/README.zh.md) | 统一资源模型：`useResource` 会话标准钩子背后的协议提供方 | `ctx.resources` |
 | [`ui-sidebar-files/`](ui-sidebar-files/README.zh.md) | 右侧 Sidebar 的工作区文件树 tab 类型 | — |

@@ -17,8 +17,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
-  PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
+  InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
 } from '@deepseek-ai/dsh-client-ui-slots'
+import type { IAppBootstrapClient } from '@deepseek-ai/dsh-api-app-bootstrap/client'
 import { computeColumns, RIGHTBAR_DEFAULT_RATIO, SIDEBAR_AUTO_COLLAPSE, SIDEBAR_DEFAULT } from './columns.ts'
 import { DocumentTitle } from './DocumentTitle.tsx'
 import { LoginGate } from './LoginGate.tsx'
@@ -31,6 +32,7 @@ export type AppFrameProps =
   & PropsRenderSlots<'sidebar' | 'main' | 'rightbar' | 'shell.overlay'>
   & PropsStore<ReturnType<typeof createLayoutStore>>
   & PropsLocale<'common'>
+  & InjectFace<{ appBootstrap: IAppBootstrapClient }>
 
 /** Center column grid item (session-body building block). */
 function CenterColumn(props: { children?: ReactNode }) {
@@ -247,7 +249,7 @@ function AuthenticatedFrame({
  */
 export function AppFrame(props: AppFrameProps) {
   return (
-    <LoginGate t={props.t}>
+    <LoginGate t={props.t} appBootstrap={props.appBootstrap}>
       <AuthenticatedFrame {...props} />
     </LoginGate>
   )

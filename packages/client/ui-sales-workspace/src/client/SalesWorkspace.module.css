@@ -1,0 +1,86 @@
+.agendaList { display: grid; gap: 1px; margin-top: 13px; }
+.agendaRow { display: grid; grid-template-columns: 48px 1fr; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+.agendaRow:last-child { border-bottom: 0; }
+.agendaRow time { padding-top: 2px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); font: var(--dsw-font-xs-13); font-weight: 700; font-variant-numeric: tabular-nums; }
+.agendaRow span { display: grid; min-width: 0; gap: 2px; }
+.agendaRow strong { overflow: hidden; color: var(--dsw-alias-label-primary); font: var(--dsw-font-s-14); text-overflow: ellipsis; white-space: nowrap; }
+.agendaRow small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+
+.metricCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 112px;
+  padding: 15px;
+  overflow: hidden;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 14px;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+.metricCard:hover { border-color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: var(--dsw-alias-interactive-bg-hover); transform: translateY(-2px); }
+.metricCard:focus-visible,
+.taskRow:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary-new-colorprimary-new-color); outline-offset: 2px; }
+.metricMark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 12px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 11%, transparent); font-size: 15px; font-weight: 780; }
+.metricCopy { display: grid; min-width: 0; gap: 2px; }
+.metricCopy strong { font-size: 27px; line-height: 1; letter-spacing: -0.04em; }
+.metricCopy > span { overflow: hidden; color: var(--dsw-alias-label-secondary); font: var(--dsw-font-s-14); font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.metricCopy small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+.metricArrow { position: absolute; top: 10px; right: 12px; color: var(--dsw-alias-label-dimmed); font-size: 12px; }
+
+.tasks { min-height: 100%; }
+.tasksHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding: 22px 24px 18px; border-bottom: 0.5px solid var(--dsw-alias-border-l2); }
+.tasksHeader p { margin: 0 0 5px; color: var(--dsw-alias-brand-primary-new-colorprimary-new-color); font: var(--dsw-font-xs-13); font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.tasksHeader h2 { margin: 0; color: var(--dsw-alias-label-primary); font-size: 22px; letter-spacing: -0.02em; }
+.tasksHeader > span { color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); }
+.taskList { display: grid; }
+.taskRow { display: grid; grid-template-columns: 52px 10px minmax(0, 1fr) auto auto; align-items: center; gap: 13px; min-height: 72px; padding: 8px 24px; border: 0; border-bottom: 0.5px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); background: transparent; text-align: left; cursor: pointer; }
+.taskRow:last-child { border-bottom: 0; }
+.taskRow:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.taskRow time { color: var(--dsw-alias-label-secondary); font: var(--dsw-font-xs-13); font-weight: 650; font-variant-numeric: tabular-nums; }
+.taskState { width: 8px; height: 8px; border-radius: 50%; corner-shape: round; background: var(--dsw-alias-brand-primary-new-colorprimary-new-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 9%, transparent); }
+.taskCopy { display: grid; min-width: 0; gap: 3px; }
+.taskCopy strong { overflow: hidden; font: var(--dsw-font-s-14); font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.taskCopy small { overflow: hidden; color: var(--dsw-alias-label-tertiary); font: var(--dsw-font-xs-13); text-overflow: ellipsis; white-space: nowrap; }
+.taskBadge { padding: 4px 8px; border-radius: 999px; corner-shape: round; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-interactive-bg-hover-solid); font: var(--dsw-font-xs-13); }
+.taskOpen { color: var(--dsw-alias-label-secondary); font: var(--dsw-font-xs-13); }
+
+.panel {
+  --sales-accent: var(--dsw-alias-brand-primary-new-colorprimary-new-color);
+  --sales-accent-soft: color-mix(in srgb, var(--sales-accent) 9%, transparent);
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: clamp(22px, 3vw, 38px);
+  overflow: auto;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-base);
+}
+.panelHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto 22px;
+}
+.panelHeader p { margin: 0 0 6px; color: var(--sales-accent); font: var(--dsw-font-xs-13); font-weight: 650; letter-spacing: 0.04em; }
+.panelHeader h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -0.035em; line-height: 1.12; }
+.panelHeader div > span { display: block; max-width: 680px; margin-top: 8px; color: var(--dsw-alias-label-secondary); font: var(--dsw-font-s-14); line-height: 1.5; }
+.panelHeader > strong { flex: none; padding: 7px 11px; border: 0.5px solid color-mix(in srgb, var(--sales-accent) 22%, transparent); border-radius: 999px; corner-shape: round; color: var(--sales-accent); background: color-mix(in srgb, var(--sales-accent) 7%, transparent); font: var(--dsw-font-xs-13); }
+.panelWorkspace { max-width: 1180px; margin: 0 auto; }
+
+@media (max-width: 760px) {
+  .metricCard { min-height: 96px; }
+  .taskRow { grid-template-columns: 44px 8px minmax(0, 1fr); padding-inline: 16px; }
+  .taskBadge,
+  .taskOpen { display: none; }
+  .panel { padding: 18px 14px; }
+  .panelHeader { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .panelHeader > strong { align-self: flex-start; }
+}

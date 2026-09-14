@@ -264,7 +264,7 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
                 <span
                   class="localBuildTitle"
                 >
-                  SugarWork 本地构建
+                  SugarWork
                 </span>
                 <span
                   class="buildVersion"

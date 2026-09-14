@@ -33,7 +33,7 @@ describe('web e2e: goal bar clear convergence', () => {
     tripwire = watchConsole(page)
     const login = await page.context().request.get(scaffold.authenticatedUrl, { maxRedirects: 0 })
     expect(login.status()).toBe(303)
-    await page.goto(`${scaffold.baseUrl}?fixture#dsh-enter-workspace`, { waitUntil: 'load' })
+    await page.goto(`${scaffold.baseUrl}?fixture#dsh-open-agent`, { waitUntil: 'load' })
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
   }, 120_000)
 
