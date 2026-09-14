@@ -223,7 +223,7 @@ describe('SessionProjectionCache write policy', () => {
       throw new Error('first flush was not installed')
     }
     const firstFlush = new Promise<boolean>((resolve) => {
-      releaseFirstFlush = () => resolve(true)
+      releaseFirstFlush = () => { resolve(true) }
     })
     const flush = vi.spyOn(ctx.sessions, 'flush')
       .mockImplementationOnce(() => firstFlush)
@@ -331,12 +331,12 @@ describe('SessionProjectionCache write policy', () => {
       throw new Error('flush was not installed')
     }
     const heldFlush = new Promise<boolean>((resolve) => {
-      releaseFlush = () => resolve(true)
+      releaseFlush = () => { resolve(true) }
     })
-    vi.spyOn(ctx.sessions, 'flush').mockImplementationOnce(() => heldFlush)
+    const flush = vi.spyOn(ctx.sessions, 'flush').mockImplementationOnce(() => heldFlush)
     const session = ctx.sessions.create(SessionId('dispose-drain'))
     await vi.waitFor(() => {
-      expect(ctx.sessions.flush).toHaveBeenCalledOnce()
+      expect(flush).toHaveBeenCalledOnce()
     })
 
     let disposed = false
