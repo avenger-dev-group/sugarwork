@@ -129,7 +129,8 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     const pageErrors: string[] = []
     page.on('pageerror', error => pageErrors.push(String(error)))
     await page.goto(`${baseUrl}#dsh-enter-workspace`, { waitUntil: 'load' })
-    await page.getByRole('button', { name: 'Open AI Agent' }).click()
+    await page.getByRole('button', { name: 'Open AI Agent' })
+      .evaluate((button: HTMLButtonElement) => { button.click() })
     await page.getByText(oldText, { exact: true }).waitFor({ timeout: 15_000 })
     const pageIdentity = await page.evaluate(() => {
       // In-page code: an import would not survive serialization, and the page
